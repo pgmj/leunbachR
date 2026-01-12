@@ -539,7 +539,11 @@ print.leunbach_bootstrap <- function(x, ...) {
   if (!is.na(x$gk_gamma_z_observed)) {
     cat(sprintf("   Observed |Z| = %.2f\n", abs(x$gk_gamma_z_observed)))
     cat(sprintf("   Asymptotic p-value:  p = %.4f\n", x$fit$gk_gamma_p))
-    cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_gamma))
+    if (!is.na(x$p_gamma)) {
+      cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_gamma))
+    } else {
+      cat("   Bootstrap p-value:   could not be calculated\n\n")
+    }
   } else {
     cat("   Could not be calculated\n\n")
   }
