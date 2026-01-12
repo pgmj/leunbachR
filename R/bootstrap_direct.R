@@ -140,6 +140,7 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
   
   # Extract results
   lr_bootstrap <- boot_results$lr_bootstrap
+  gk_gamma_z_bootstrap <- boot_results$gk_gamma_z_bootstrap
   boot_eq_1to2 <- boot_results$boot_eq_1to2
   boot_eq_2to1 <- boot_results$boot_eq_2to1
   boot_rd_1to2 <- boot_results$boot_rd_1to2
@@ -151,6 +152,20 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
   valid_lr <- !is.na(lr_bootstrap)
   n_significant_lr <- sum(lr_bootstrap[valid_lr] >= lr_observed)
   p_lr <- n_significant_lr / sum(valid_lr)
+  
+  # Get observed Gamma Z statistic and compute bootstrap p-value
+  gk_gamma_z_observed <- fit$gk_gamma_z
+  
+  # Compute bootstrap p-value for Gamma test
+  # (proportion of bootstrap |Z| >= observed |Z|)
+  valid_gamma <- !is.na(gk_gamma_z_bootstrap)
+  if (sum(valid_gamma) > 0 && !is.na(gk_gamma_z_observed)) {
+    n_significant_gamma <- sum(abs(gk_gamma_z_bootstrap[valid_gamma]) >= abs(gk_gamma_z_observed))
+    p_gamma <- n_significant_gamma / sum(valid_gamma)
+  } else {
+    n_significant_gamma <- NA
+    p_gamma <- NA
+  }
   
   # Confidence interval quantiles
   alpha <- 1 - conf_level
@@ -206,6 +221,10 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
     lr_bootstrap = lr_bootstrap,
     p_lr = p_lr,
     n_significant_lr = n_significant_lr,
+    gk_gamma_z_observed = gk_gamma_z_observed,
+    gk_gamma_z_bootstrap = gk_gamma_z_bootstrap,
+    p_gamma = p_gamma,
+    n_significant_gamma = n_significant_gamma,
     eq_1to2 = eq_1to2,
     eq_2to1 = eq_2to1,
     boot_eq_1to2 = boot_eq_1to2,
@@ -256,6 +275,7 @@ run_single_bootstrap <- function(seed, data_list) {
   # Initialize output
   result <- list(
     lr = NA,
+    gk_gamma_z = NA,
     eq_1to2 = rep(NA, n_test1),
     eq_2to1 = rep(NA, n_test2),
     rd_1to2 = rep(NA, n_test1),
@@ -293,6 +313,7 @@ run_single_bootstrap <- function(seed, data_list) {
   }
   
   result$lr <- boot_fit$g_sq
+  result$gk_gamma_z <- boot_fit$gk_gamma_z
   
   # Compute equating for this bootstrap sample
   boot_eq_1to2_result <- tryCatch({
@@ -330,6 +351,7 @@ run_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list, n_cores, ve
   
   # Initialize storage
   lr_bootstrap <- numeric(nsim)
+  gk_gamma_z_bootstrap <- numeric(nsim)
   boot_eq_1to2 <- matrix(NA, nrow = nsim, ncol = n_test1)
   boot_eq_2to1 <- matrix(NA, nrow = nsim, ncol = n_test2)
   boot_rd_1to2 <- matrix(NA, nrow = nsim, ncol = n_test1)
@@ -369,6 +391,7 @@ run_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list, n_cores, ve
       leunbach_equate = leunbach_equate,
       adjust_gamma = adjust_gamma,
       calculate_statistics = calculate_statistics,
+      calculate_gamma_test = calculate_gamma_test,
       estimate_person_parameter = estimate_person_parameter,
       estimate_theta_optimize = estimate_theta_optimize,
       estimate_theta_newton = estimate_theta_newton,
@@ -385,6 +408,7 @@ run_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list, n_cores, ve
     
     if (! inherits(result, "errorValue")) {
       lr_bootstrap[sim] <- result$lr
+      gk_gamma_z_bootstrap[sim] <- result$gk_gamma_z
       boot_eq_1to2[sim, ] <- result$eq_1to2
       boot_eq_2to1[sim, ] <- result$eq_2to1
       boot_rd_1to2[sim, ] <- result$rd_1to2
@@ -393,6 +417,7 @@ run_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list, n_cores, ve
       failed_2to1[sim, ] <- result$failed_2to1
     } else {
       lr_bootstrap[sim] <- NA
+      gk_gamma_z_bootstrap[sim] <- NA
       failed_1to2[sim, ] <- 1
       failed_2to1[sim, ] <- 1
     }
@@ -410,6 +435,7 @@ run_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list, n_cores, ve
   
   list(
     lr_bootstrap = lr_bootstrap,
+    gk_gamma_z_bootstrap = gk_gamma_z_bootstrap,
     boot_eq_1to2 = boot_eq_1to2,
     boot_eq_2to1 = boot_eq_2to1,
     boot_rd_1to2 = boot_rd_1to2,
@@ -431,6 +457,7 @@ run_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list, verbose =
   
   # Initialize storage
   lr_bootstrap <- numeric(nsim)
+  gk_gamma_z_bootstrap <- numeric(nsim)
   boot_eq_1to2 <- matrix(NA, nrow = nsim, ncol = n_test1)
   boot_eq_2to1 <- matrix(NA, nrow = nsim, ncol = n_test2)
   boot_rd_1to2 <- matrix(NA, nrow = nsim, ncol = n_test1)
@@ -453,6 +480,7 @@ run_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list, verbose =
     result <- run_single_bootstrap(boot_seeds[sim], boot_data_list)
     
     lr_bootstrap[sim] <- result$lr
+    gk_gamma_z_bootstrap[sim] <- result$gk_gamma_z
     boot_eq_1to2[sim, ] <- result$eq_1to2
     boot_eq_2to1[sim, ] <- result$eq_2to1
     boot_rd_1to2[sim, ] <- result$rd_1to2
@@ -472,6 +500,7 @@ run_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list, verbose =
   
   list(
     lr_bootstrap = lr_bootstrap,
+    gk_gamma_z_bootstrap = gk_gamma_z_bootstrap,
     boot_eq_1to2 = boot_eq_1to2,
     boot_eq_2to1 = boot_eq_2to1,
     boot_rd_1to2 = boot_rd_1to2,
@@ -497,10 +526,27 @@ print.leunbach_bootstrap <- function(x, ...) {
   cat(sprintf("Optimization method: %s\n", x$method))
   cat(sprintf("SEE type: %s scores\n\n", x$see_type))
   
-  cat("Assessment of significance by parametric bootstrapping:\n")
-  cat(sprintf("  Observed LR = %.2f (df = %d)\n", x$lr_observed, x$df))
-  cat(sprintf("  Asymptotic p-value:    p = %.4f\n", x$fit$p_value))
-  cat(sprintf("  Bootstrap p-value:    p = %.4f\n\n", x$p_lr))
+  cat("Assessment of significance by parametric bootstrapping:\n\n")
+  
+  # 1. Likelihood Ratio Test
+  cat("1. Likelihood Ratio Test:\n")
+  cat(sprintf("   Observed LR = %.2f (df = %d)\n", x$lr_observed, x$df))
+  cat(sprintf("   Asymptotic p-value:  p = %.4f\n", x$fit$p_value))
+  cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_lr))
+  
+  # 2. Goodman-Kruskal Gamma Test
+  cat("2. Goodman-Kruskal Gamma Test:\n")
+  if (!is.na(x$gk_gamma_z_observed)) {
+    cat(sprintf("   Observed |Z| = %.2f\n", abs(x$gk_gamma_z_observed)))
+    cat(sprintf("   Asymptotic p-value:  p = %.4f\n", x$fit$gk_gamma_p))
+    if (!is.na(x$p_gamma)) {
+      cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_gamma))
+    } else {
+      cat("   Bootstrap p-value:   could not be calculated\n\n")
+    }
+  } else {
+    cat("   Could not be calculated\n\n")
+  }
   
   print_see_table(x, direction = "1to2")
   cat("\n")
