@@ -6,3 +6,5 @@ vignettes/*.html
 **/*_cache/
 **/*_files/**
 **/*_cache/**
+.Rproj.user/**
+.Rproj.user
