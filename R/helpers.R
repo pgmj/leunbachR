@@ -371,3 +371,179 @@ get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
   
   return(result)
 }
+
+#' Calculate Goodman-Kruskal Gamma and test statistic
+#'
+#' @description
+#' Computes Goodman & Kruskal's Gamma coefficient for both observed and
+#' expected tables, and tests whether they differ significantly.
+#' Gamma measures the strength of association between two ordinal variables.
+#'
+#' @param observed Observed contingency table
+#' @param expected Expected (fitted) contingency table
+#'
+#' @return A list containing:
+#'   - gamma_observed: Gamma coefficient for observed data
+#'   - gamma_expected: Gamma coefficient for expected data
+#'   - se_gamma: Standard error of observed gamma
+#'   - z_statistic: Z statistic for testing gamma_obs = gamma_exp
+#'   - p_value: Two-tailed p-value
+#'
+#' @keywords internal
+calculate_gamma_test <- function(observed, expected) {
+  
+  # Calculate Gamma for a contingency table
+  # Gamma = (P - Q) / (P + Q)
+  # where P = concordant pairs, Q = discordant pairs
+  
+  calc_gamma <- function(tab) {
+    n_row <- nrow(tab)
+    n_col <- ncol(tab)
+    
+    P <- 0  # Concordant pairs
+    Q <- 0  # Discordant pairs
+    
+    for (i in 1:(n_row - 1)) {
+      for (j in 1:(n_col - 1)) {
+        n_ij <- tab[i, j]
+        if (n_ij > 0) {
+          # Concordant:  cells below and to the right
+          for (k in (i + 1):n_row) {
+            for (l in (j + 1):n_col) {
+              P <- P + n_ij * tab[k, l]
+            }
+          }
+          # Discordant: cells below and to the left
+          for (k in (i + 1):n_row) {
+            for (l in 1:(j - 1)) {
+              if (l >= 1) {
+                Q <- Q + n_ij * tab[k, l]
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    if ((P + Q) == 0) {
+      return(list(gamma = NA, P = P, Q = Q))
+    }
+    
+    gamma <- (P - Q) / (P + Q)
+    return(list(gamma = gamma, P = P, Q = Q))
+  }
+  
+  # Calculate gamma for observed and expected
+  obs_result <- calc_gamma(observed)
+  exp_result <- calc_gamma(expected)
+  
+  gamma_observed <- obs_result$gamma
+  gamma_expected <- exp_result$gamma
+  
+  if (is.na(gamma_observed) || is.na(gamma_expected)) {
+    return(list(
+      gamma_observed = gamma_observed,
+      gamma_expected = gamma_expected,
+      se_gamma = NA,
+      z_statistic = NA,
+      p_value = NA
+    ))
+  }
+  
+  # Calculate standard error of observed gamma using ASE1
+  # ASE1 = (2 / (P + Q)) * sqrt(sum_ij n_ij * (Q * C_ij - P * D_ij)^2)
+  # where C_ij = sum of cells concordant with (i,j)
+  #       D_ij = sum of cells discordant with (i,j)
+  
+  n_row <- nrow(observed)
+  n_col <- ncol(observed)
+  P <- obs_result$P
+  Q <- obs_result$Q
+  
+  # Pre-compute C_ij and D_ij for each cell
+  C_matrix <- matrix(0, nrow = n_row, ncol = n_col)
+  D_matrix <- matrix(0, nrow = n_row, ncol = n_col)
+  
+  for (i in 1:n_row) {
+    for (j in 1:n_col) {
+      # C_ij:  cells that would be concordant with (i,j)
+      # Cells above-left and below-right
+      c_sum <- 0
+      d_sum <- 0
+      
+      # Above and to the left
+      if (i > 1 && j > 1) {
+        for (k in 1:(i - 1)) {
+          for (l in 1:(j - 1)) {
+            c_sum <- c_sum + observed[k, l]
+          }
+        }
+      }
+      
+      # Below and to the right
+      if (i < n_row && j < n_col) {
+        for (k in (i + 1):n_row) {
+          for (l in (j + 1):n_col) {
+            c_sum <- c_sum + observed[k, l]
+          }
+        }
+      }
+      
+      # Above and to the right (discordant)
+      if (i > 1 && j < n_col) {
+        for (k in 1:(i - 1)) {
+          for (l in (j + 1):n_col) {
+            d_sum <- d_sum + observed[k, l]
+          }
+        }
+      }
+      
+      # Below and to the left (discordant)
+      if (i < n_row && j > 1) {
+        for (k in (i + 1):n_row) {
+          for (l in 1:(j - 1)) {
+            d_sum <- d_sum + observed[k, l]
+          }
+        }
+      }
+      
+      C_matrix[i, j] <- c_sum
+      D_matrix[i, j] <- d_sum
+    }
+  }
+  
+  # ASE1 calculation
+  sum_sq <- 0
+  for (i in 1:n_row) {
+    for (j in 1:n_col) {
+      n_ij <- observed[i, j]
+      if (n_ij > 0) {
+        term <- Q * C_matrix[i, j] - P * D_matrix[i, j]
+        sum_sq <- sum_sq + n_ij * term^2
+      }
+    }
+  }
+  
+  if ((P + Q) > 0) {
+    se_gamma <- (2 / (P + Q)) * sqrt(sum_sq)
+  } else {
+    se_gamma <- NA
+  }
+  
+  # Z test for difference between observed and expected gamma
+  if (! is.na(se_gamma) && se_gamma > 0) {
+    z_statistic <- (gamma_observed - gamma_expected) / se_gamma
+    p_value <- 2 * pnorm(-abs(z_statistic))
+  } else {
+    z_statistic <- NA
+    p_value <- NA
+  }
+  
+  list(
+    gamma_observed = gamma_observed,
+    gamma_expected = gamma_expected,
+    se_gamma = se_gamma,
+    z_statistic = z_statistic,
+    p_value = p_value
+  )
+}

@@ -67,7 +67,7 @@
 #' n <- 500
 #' theta <- rnorm(n)
 #' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
-#' test2 <- pmin(pmax(round(2. 5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
 #' score_data <- data.frame(test1 = test1, test2 = test2)
 #'
 #' # Estimate parameters (specifying max possible scores)
@@ -381,6 +381,11 @@ leunbach_ipf <- function(data, max_score1 = NULL, max_score2 = NULL,
   result$loglike <- fit_stats$loglike
   result$loglike1 <- fit_stats$loglike1
   result$orbit_df <- fit_stats$orbit_df
+  result$gk_gamma_observed <- fit_stats$gk_gamma_observed
+  result$gk_gamma_expected <- fit_stats$gk_gamma_expected
+  result$gk_gamma_se <- fit_stats$gk_gamma_se
+  result$gk_gamma_z <- fit_stats$gk_gamma_z
+  result$gk_gamma_p <- fit_stats$gk_gamma_p
   
   return(result)
 }
@@ -467,8 +472,8 @@ adjust_gamma <- function(gamma, delta, test1_scores, test2_scores,
 #' Calculate fit statistics (CALCULATE_STATISTICS from Pascal)
 #'
 #' @description
-#' Computes the likelihood ratio test statistic and degrees of freedom
-#' following the DIGRAM implementation.
+#' Computes the likelihood ratio test statistic, Goodman-Kruskal Gamma test,
+#' and degrees of freedom following the DIGRAM implementation.
 #'
 #' @param object A leunbach_ipf object
 #' @return A list with fit statistics
@@ -553,35 +558,16 @@ calculate_statistics <- function(object) {
   # Likelihood ratio statistic
   g_sq <- 2.0 * (loglike1 - loglike)
   
-  # Degrees of freedom calculation following Pascal code: 
-  #
-  # For each total score S, calculate conditional X ranges: 
-  #   XFRA(S) = max(XMIN, S - YMAX)
-  #   XTIL(S) = min(XMAX, S - YMIN)
-  #   ORBIT_DF(S) = XTIL(S) - XFRA(S)
-  #
-  # Using OBSERVED score ranges (XMIN, XMAX, YMIN, YMAX)
-  #
-  # Then:  DF = sum of ORBIT_DF(s) for s with SMARGIN > 0
-  #          - (XMAX - XMIN) - (YMAX - YMIN) + 1
-  #          + 1 for each x where gamma[x] = 0
-  #          + 1 for each y where delta[y] = 0
-  
-  # Calculate ORBIT_DF for each total score using OBSERVED ranges
+  # Degrees of freedom calculation following Pascal code
   orbit_df <- numeric(length(object$total_scores))
   names(orbit_df) <- object$total_scores
   
   for (s in object$total_scores) {
     s_char <- as.character(s)
     
-    # Conditional X range for this total score
-    # XFRA(S) = max(XMIN, S - YMAX) -- using observed XMIN, YMAX
     xfra_orbit <- max(xmin, s - ymax)
-    
-    # XTIL(S) = min(XMAX, S - YMIN) -- using observed XMAX, YMIN
     xtil_orbit <- min(xmax, s - ymin)
     
-    # ORBIT_DF = XTIL(S) - XFRA(S)
     if (xtil_orbit >= xfra_orbit) {
       orbit_df[s_char] <- xtil_orbit - xfra_orbit
     } else {
@@ -593,13 +579,12 @@ calculate_statistics <- function(object) {
   df <- 0
   for (s in object$total_scores) {
     s_char <- as.character(s)
-    if (!is.na(smargin[s_char]) && smargin[s_char] > 0) {
+    if (! is.na(smargin[s_char]) && smargin[s_char] > 0) {
       df <- df + orbit_df[s_char]
     }
   }
   
   # Subtract parameter count using OBSERVED score ranges
-  # DF = DF - (XMAX - XMIN) - (YMAX - YMIN) + 1
   df <- df - (xmax - xmin) - (ymax - ymin) + 1
   
   # Add back 1 for each score where gamma = 0
@@ -628,6 +613,9 @@ calculate_statistics <- function(object) {
     p_chi_sq <- NA
   }
   
+  # Calculate Goodman-Kruskal Gamma test
+  gk_gamma <- calculate_gamma_test(obs, expected)
+  
   list(
     g_sq = g_sq,
     chi_sq = chi_sq,
@@ -637,11 +625,19 @@ calculate_statistics <- function(object) {
     loglike = loglike,
     loglike1 = loglike1,
     std_residuals = std_residuals,
-    orbit_df = orbit_df
+    orbit_df = orbit_df,
+    # Goodman-Kruskal Gamma results
+    gk_gamma_observed = gk_gamma$gamma_observed,
+    gk_gamma_expected = gk_gamma$gamma_expected,
+    gk_gamma_se = gk_gamma$se_gamma,
+    gk_gamma_z = gk_gamma$z_statistic,
+    gk_gamma_p = gk_gamma$p_value
   )
 }
 
 
+#' Print method for leunbach_ipf objects
+#' @export
 #' Print method for leunbach_ipf objects
 #' @export
 print.leunbach_ipf <- function(x, ...) {
@@ -679,12 +675,33 @@ print.leunbach_ipf <- function(x, ...) {
   print(sigma_df, row.names = FALSE)
   
   cat(sprintf("\nConverged: %s (after %d iterations)\n", x$converged, x$iterations))
-  cat(sprintf("\nLR = %.2f  DF = %d  p = %.4f\n", x$g_sq, x$df, x$p_value))
+  
+  cat("\n--- Goodness of Fit ---\n\n")
+  
+  # 1. Likelihood Ratio Test
+  cat("1. Likelihood Ratio Test:\n")
+  cat(sprintf("   LR = %.2f  DF = %d  p = %.4f\n\n", x$g_sq, x$df, x$p_value))
+  
+  # 2. Goodman-Kruskal Gamma Test
+  cat("2. Goodman-Kruskal Gamma Test:\n")
+  if (! is.na(x$gk_gamma_observed)) {
+    cat(sprintf("   Gamma (observed) = %.4f\n", x$gk_gamma_observed))
+    cat(sprintf("   Gamma (expected) = %.4f\n", x$gk_gamma_expected))
+    cat(sprintf("   SE = %.4f\n", x$gk_gamma_se))
+    cat(sprintf("   Z = %.2f  p = %.4f\n\n", x$gk_gamma_z, x$gk_gamma_p))
+  } else {
+    cat("   Could not be calculated\n\n")
+  }
+  
+  # 3. Note about orbit analysis (done separately)
+  cat("3. Orbit Analysis:\n")
+  cat("   Use analyze_orbits() to assess person fit within total score strata\n")
   
   invisible(x)
 }
 
-
+#' Summary method for leunbach_ipf objects
+#' @export
 #' Summary method for leunbach_ipf objects
 #' @export
 summary.leunbach_ipf <- function(object, ...) {
@@ -700,26 +717,49 @@ summary.leunbach_ipf <- function(object, ...) {
   cat(sprintf("Test 2: scores %d to %d (observed: %d to %d)\n",
               min(object$test2_scores), max(object$test2_scores),
               object$ymin, object$ymax))
-  cat(sprintf("Total:   scores %d to %d (observed: %d to %d)\n\n",
+  cat(sprintf("Total:  scores %d to %d (observed:  %d to %d)\n\n",
               min(object$total_scores), max(object$total_scores),
               object$sfra, object$stil))
   
-  cat("Goodness of fit:\n")
-  cat(sprintf("  Likelihood ratio G² = %8.2f (df = %d, p = %.4f)\n",
-              object$g_sq, object$df, object$p_value))
-  cat(sprintf("  Pearson chi-square  = %8.2f\n", object$chi_sq))
+  cat("=== Goodness of Fit ===\n\n")
   
-  cat(sprintf("\nConverged: %s (after %d iterations)\n",
+  # 1. Likelihood Ratio Test
+  cat("1. Likelihood Ratio Test (observed vs expected counts):\n")
+  cat(sprintf("   Likelihood ratio G² = %8.2f (df = %d, p = %.4f)\n",
+              object$g_sq, object$df, object$p_value))
+  cat(sprintf("   Pearson chi-square  = %8.2f\n\n", object$chi_sq))
+  
+  # 2. Goodman-Kruskal Gamma Test
+  cat("2. Goodman-Kruskal Gamma Test (correlation):\n")
+  if (!is.na(object$gk_gamma_observed)) {
+    cat(sprintf("   Gamma (observed)    = %8.4f\n", object$gk_gamma_observed))
+    cat(sprintf("   Gamma (expected)    = %8.4f\n", object$gk_gamma_expected))
+    cat(sprintf("   Standard error      = %8.4f\n", object$gk_gamma_se))
+    cat(sprintf("   Z statistic         = %8.2f (p = %.4f)\n\n", 
+                object$gk_gamma_z, object$gk_gamma_p))
+  } else {
+    cat("   Could not be calculated\n\n")
+  }
+  
+  # 3. Orbit analysis note
+  cat("3. Orbit Analysis (person fit):\n")
+  cat("   Run analyze_orbits() separately to assess the number of cases\n")
+  cat("   outside 95% confidence regions of orbit distributions.\n\n")
+  
+  cat(sprintf("Converged: %s (after %d iterations)\n",
               object$converged, object$iterations))
   
   invisible(list(
     g_sq = object$g_sq,
     chi_sq = object$chi_sq,
     df = object$df,
-    p_value = object$p_value
+    p_value = object$p_value,
+    gk_gamma_observed = object$gk_gamma_observed,
+    gk_gamma_expected = object$gk_gamma_expected,
+    gk_gamma_z = object$gk_gamma_z,
+    gk_gamma_p = object$gk_gamma_p
   ))
 }
-
 
 #' Plot method for leunbach_ipf objects
 #' @export
