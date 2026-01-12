@@ -156,11 +156,14 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
   # Get observed Gamma Z statistic and compute bootstrap p-value
   gk_gamma_z_observed <- fit$gk_gamma_z
   
-  # Compute bootstrap p-value for Gamma test
-  # (proportion of bootstrap |Z| >= observed |Z|)
+  # Compute bootstrap p-value for Gamma test (one-sided)
+  # Under H0, Z should be around 0. We test if observed Z is more extreme
+  # in the direction indicating misfit (observed gamma > expected, so Z < 0)
   valid_gamma <- !is.na(gk_gamma_z_bootstrap)
-  if (sum(valid_gamma) > 0 && !is.na(gk_gamma_z_observed)) {
-    n_significant_gamma <- sum(abs(gk_gamma_z_bootstrap[valid_gamma]) >= abs(gk_gamma_z_observed))
+  if (sum(valid_gamma) > 0 && ! is.na(gk_gamma_z_observed)) {
+    # One-sided:  count bootstrap samples with Z <= observed Z
+    # (more extreme in the direction of observed > expected)
+    n_significant_gamma <- sum(gk_gamma_z_bootstrap[valid_gamma] <= gk_gamma_z_observed)
     p_gamma <- n_significant_gamma / sum(valid_gamma)
   } else {
     n_significant_gamma <- NA
@@ -531,19 +534,15 @@ print.leunbach_bootstrap <- function(x, ...) {
   # 1. Likelihood Ratio Test
   cat("1. Likelihood Ratio Test:\n")
   cat(sprintf("   Observed LR = %.2f (df = %d)\n", x$lr_observed, x$df))
-  cat(sprintf("   Asymptotic p-value:  p = %.4f\n", x$fit$p_value))
+  cat(sprintf("   Asymptotic p-value:   p = %.4f\n", x$fit$p_value))
   cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_lr))
   
-  # 2. Goodman-Kruskal Gamma Test
-  cat("2. Goodman-Kruskal Gamma Test:\n")
+  # 2. Goodman-Kruskal Gamma Test (one-sided)
+  cat("2. Goodman-Kruskal Gamma Test (one-sided):\n")
   if (!is.na(x$gk_gamma_z_observed)) {
-    cat(sprintf("   Observed |Z| = %.2f\n", abs(x$gk_gamma_z_observed)))
-    cat(sprintf("   Asymptotic p-value:  p = %.4f\n", x$fit$gk_gamma_p))
-    if (!is.na(x$p_gamma)) {
-      cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_gamma))
-    } else {
-      cat("   Bootstrap p-value:   could not be calculated\n\n")
-    }
+    cat(sprintf("   Observed Z = %.2f\n", x$gk_gamma_z_observed))
+    cat(sprintf("   Asymptotic p-value:   p = %.4f\n", x$fit$gk_gamma_p))
+    cat(sprintf("   Bootstrap p-value:   p = %.4f\n\n", x$p_gamma))
   } else {
     cat("   Could not be calculated\n\n")
   }

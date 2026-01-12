@@ -377,7 +377,8 @@ get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
 #' @description
 #' Computes Goodman & Kruskal's Gamma coefficient for both observed and
 #' expected tables, and tests whether they differ significantly.
-#' Gamma measures the strength of association between two ordinal variables.
+#' Gamma measures the strength of association between two ordinal variables. 
+#' Uses a one-sided test following the DIGRAM implementation.
 #'
 #' @param observed Observed contingency table
 #' @param expected Expected (fitted) contingency table
@@ -385,9 +386,9 @@ get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
 #' @return A list containing:
 #'   - gamma_observed: Gamma coefficient for observed data
 #'   - gamma_expected: Gamma coefficient for expected data
-#'   - se_gamma: Standard error of observed gamma
-#'   - z_statistic: Z statistic for testing gamma_obs = gamma_exp
-#'   - p_value: Two-tailed p-value
+#'   - se_gamma:  Standard error of gamma
+#'   - z_statistic: Z statistic (expected - observed) / SE
+#'   - p_value: One-sided p-value from standard normal
 #'
 #' @keywords internal
 calculate_gamma_test <- function(observed, expected) {
@@ -429,8 +430,8 @@ calculate_gamma_test <- function(observed, expected) {
       return(list(gamma = NA, P = P, Q = Q))
     }
     
-    gamma <- (P - Q) / (P + Q)
-    return(list(gamma = gamma, P = P, Q = Q))
+    gamma_val <- (P - Q) / (P + Q)
+    return(list(gamma = gamma_val, P = P, Q = Q))
   }
   
   # Calculate gamma for observed and expected
@@ -450,7 +451,7 @@ calculate_gamma_test <- function(observed, expected) {
     ))
   }
   
-  # Calculate standard error of observed gamma using ASE1
+  # Calculate standard error of gamma using ASE1
   # ASE1 = (2 / (P + Q)) * sqrt(sum_ij n_ij * (Q * C_ij - P * D_ij)^2)
   # where C_ij = sum of cells concordant with (i,j)
   #       D_ij = sum of cells discordant with (i,j)
@@ -512,7 +513,7 @@ calculate_gamma_test <- function(observed, expected) {
     }
   }
   
-  # ASE1 calculation
+  # ASE1 calculation (variance, not SD yet)
   sum_sq <- 0
   for (i in 1:n_row) {
     for (j in 1:n_col) {
@@ -524,16 +525,18 @@ calculate_gamma_test <- function(observed, expected) {
     }
   }
   
-  if ((P + Q) > 0) {
+  # SE calculation
+  if ((P + Q) > 0 && sum_sq > 0) {
     se_gamma <- (2 / (P + Q)) * sqrt(sum_sq)
   } else {
     se_gamma <- NA
   }
   
-  # Z test for difference between observed and expected gamma
+  # Z test:  (expected - observed) / SE
+  # One-sided p-value following DIGRAM
   if (! is.na(se_gamma) && se_gamma > 0) {
-    z_statistic <- (gamma_observed - gamma_expected) / se_gamma
-    p_value <- 2 * pnorm(-abs(z_statistic))
+    z_statistic <- (gamma_expected - gamma_observed) / se_gamma
+    p_value <- pnorm(z_statistic)  # One-sided p-value
   } else {
     z_statistic <- NA
     p_value <- NA

@@ -638,8 +638,6 @@ calculate_statistics <- function(object) {
 
 #' Print method for leunbach_ipf objects
 #' @export
-#' Print method for leunbach_ipf objects
-#' @export
 print.leunbach_ipf <- function(x, ...) {
   cat("Leunbach Score Parameter Estimation\n")
   cat("====================================\n")
@@ -674,7 +672,7 @@ print.leunbach_ipf <- function(x, ...) {
   )
   print(sigma_df, row.names = FALSE)
   
-  cat(sprintf("\nConverged: %s (after %d iterations)\n", x$converged, x$iterations))
+  cat(sprintf("\nConverged:  %s (after %d iterations)\n", x$converged, x$iterations))
   
   cat("\n--- Goodness of Fit ---\n\n")
   
@@ -682,8 +680,8 @@ print.leunbach_ipf <- function(x, ...) {
   cat("1. Likelihood Ratio Test:\n")
   cat(sprintf("   LR = %.2f  DF = %d  p = %.4f\n\n", x$g_sq, x$df, x$p_value))
   
-  # 2. Goodman-Kruskal Gamma Test
-  cat("2. Goodman-Kruskal Gamma Test:\n")
+  # 2. Goodman-Kruskal Gamma Test (one-sided)
+  cat("2. Goodman-Kruskal Gamma Test (one-sided):\n")
   if (! is.na(x$gk_gamma_observed)) {
     cat(sprintf("   Gamma (observed) = %.4f\n", x$gk_gamma_observed))
     cat(sprintf("   Gamma (expected) = %.4f\n", x$gk_gamma_expected))
@@ -700,8 +698,7 @@ print.leunbach_ipf <- function(x, ...) {
   invisible(x)
 }
 
-#' Summary method for leunbach_ipf objects
-#' @export
+
 #' Summary method for leunbach_ipf objects
 #' @export
 summary.leunbach_ipf <- function(object, ...) {
@@ -729,13 +726,14 @@ summary.leunbach_ipf <- function(object, ...) {
               object$g_sq, object$df, object$p_value))
   cat(sprintf("   Pearson chi-square  = %8.2f\n\n", object$chi_sq))
   
-  # 2. Goodman-Kruskal Gamma Test
-  cat("2. Goodman-Kruskal Gamma Test (correlation):\n")
+  # 2. Goodman-Kruskal Gamma Test (one-sided)
+  cat("2. Goodman-Kruskal Gamma Test (one-sided):\n")
+  cat("   Tests if observed correlation exceeds expected under the model.\n")
   if (!is.na(object$gk_gamma_observed)) {
     cat(sprintf("   Gamma (observed)    = %8.4f\n", object$gk_gamma_observed))
     cat(sprintf("   Gamma (expected)    = %8.4f\n", object$gk_gamma_expected))
     cat(sprintf("   Standard error      = %8.4f\n", object$gk_gamma_se))
-    cat(sprintf("   Z statistic         = %8.2f (p = %.4f)\n\n", 
+    cat(sprintf("   Z statistic         = %8.2f (p = %.4f, one-sided)\n\n", 
                 object$gk_gamma_z, object$gk_gamma_p))
   } else {
     cat("   Could not be calculated\n\n")
