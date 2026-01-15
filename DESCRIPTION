@@ -12,8 +12,6 @@ Description: Implements the Leunbach test equating method, following the
   details.
 Suggests:
     mirai
-VignetteBuilder:
-    quarto
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

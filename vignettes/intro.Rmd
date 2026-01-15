@@ -1,0 +1,6 @@
+---
+title: "Introduction to Leunbach test equating"
+output: html_document
+---
+
+This will eventually contain demonstration of use.
