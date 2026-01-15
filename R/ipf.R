@@ -84,6 +84,8 @@ leunbach_ipf <- function(data, max_score1 = NULL, max_score2 = NULL,
     stop("Input must be a data.frame or matrix")
   }
   
+  data <- as.matrix(data)
+  
   if (ncol(data) != 2) {
     stop("Input must have exactly two columns (Test1 scores, Test2 scores)")
   }

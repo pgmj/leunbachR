@@ -3,8 +3,9 @@ files <- list.files(path = "R")
 for (i in files) {
   source(paste0("R/",i))
 }
+set.seed(87365)
 
-d3a <- as.matrix(data.frame(
+d3a <- data.frame(
   a_sum = c(1L,4L,
             4L,6L,8L,6L,3L,3L,6L,7L,8L,5L,5L,
             6L,6L,6L,8L,4L,8L,5L,4L,2L,0L,3L,
@@ -97,7 +98,7 @@ d3a <- as.matrix(data.frame(
             6L,7L,6L,5L,5L,6L,6L,4L,6L,9L,6L,5L,
             7L,7L,4L,6L,6L,5L,5L,2L,5L,7L,6L,
             3L)
-))
+)
 
 fit <- leunbach_ipf(d3a, verbose = TRUE)
 print(fit)

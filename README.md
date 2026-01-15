@@ -2,8 +2,14 @@
 
 This package aims to implement the Leunbach test equating procedures in the software DIGRAM, written by Svend Kreiner. Both direct and indirect equating is implemented.
 
-The equating procedure is described in the [Additional file 1](https://link.springer.com/article/10.1186/s12874-019-0768-y#additional-information), related to this article:
+The equating procedure is described in the [Additional file 1](https://link.springer.com/article/10.1186/s12874-019-0768-y#additional-information) related to this article:
 Adroher, N. D., Kreiner, S., Young, C., Mills, R., & Tennant, A. (2019). Test equating sleep scales: Applying the Leunbach’s model. BMC Medical Research Methodology, 19(1), 141. <https://doi.org/10.1186/s12874-019-0768-y>
+
+## Credits 
+
+- This work was funded by the Swedish Defence University.
+- Svend Kreiner kindly share the source code for the DIGRAM test equating procedure and provided helpful information and guidance.
+- Claude Opus 4.5 produced most of the code, based on the DIGRAM pascal code.
 
 ## Author
 
