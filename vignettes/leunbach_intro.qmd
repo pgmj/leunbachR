@@ -1,0 +1,16 @@
+---
+title: "Introduction to Leunbach test equating"
+format: 
+  html:
+    theme: none
+    minimal: true
+    embed-resources: true
+    #css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Custom HTML Vignette}
+  %\VignetteEngine{quarto::format}
+  %\VignetteEncoding{UTF-8}
+date: last-modified
+---
+
+This will contain some examples.
