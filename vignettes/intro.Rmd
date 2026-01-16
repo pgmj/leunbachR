@@ -74,7 +74,7 @@ leunbach_equate(fit, verbose = TRUE, direction = "1to2")
 If you have installed the package `mirai` and have a computer with multiple CPU cores, you can significantly reduce the time needed for bootstrap. Note that not all cores are equal. For instance, on a modern Mac, you should only use the "performance cores", not the "efficiency cores".
 
 ```{r}
-boot <- leunbach_bootstrap(fit, n_cores = 12, verbose = TRUE)
+boot <- leunbach_bootstrap(fit, n_cores = 4, verbose = TRUE)
 
 ```
 
@@ -117,7 +117,7 @@ boot_indirect1 <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
                                              direction_ab = "1to2",
                                              direction_bc = "1to2",
                                              nsim = 1000,
-                                             verbose = TRUE, n_cores = 12)
+                                             verbose = TRUE, n_cores = 4)
 ```
 
 ```{r}
