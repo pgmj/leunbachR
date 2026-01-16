@@ -34,7 +34,7 @@ There is an [intro article](https://pgmj.github.io/leunbachR/articles/intro.html
 
 ## Credits 
 
-- This work was funded by the Swedish Defence University.
+- This work was funded by the [Swedish Defence University](https://www.fhs.se/en/swedish-defence-university.html).
 - Svend Kreiner kindly shared the source code for the DIGRAM test equating procedure and provided helpful information and guidance.
 - Claude Opus 4.5 produced most of the code, based on the DIGRAM pascal code.
 
