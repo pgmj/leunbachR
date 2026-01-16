@@ -57,6 +57,8 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Introduction to Leunbach test equating</h1>
+                        <h4 data-toc-skip class="author">Magnus
+Johansson, PhD</h4>
             
       
       <small class="dont-index">Source: <a href="https://github.com/pgmj/leunbachR/blob/main/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
@@ -65,8 +67,513 @@
 
     
     
-<p>This will eventually contain demonstration of use.</p>
-  </main>
+<p>This document provides an overview of how to do direct and indirect
+equating using the <code>leunbachR</code> package for R.</p>
+<div class="section level2">
+<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+</h2>
+<p>First, we load the package and a dataset.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pgmj/leunbachR" class="external-link">leunbachR</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span> <span class="co"># for reproducibility of bootstrap results</span></span>
+<span><span class="va">d3a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"./data/data3a.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span><span class="op">)</span></span></code></pre></div>
+<p>Looking at our data, we can see that it has two variables containing
+sum scores from the two tests that we want to equate.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d3a</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   a_sum c_sum</span></span>
+<span><span class="co">## 1     1     8</span></span>
+<span><span class="co">## 2     4     4</span></span>
+<span><span class="co">## 3     4     7</span></span>
+<span><span class="co">## 4     6     3</span></span>
+<span><span class="co">## 5     8     5</span></span>
+<span><span class="co">## 6     6     6</span></span></code></pre>
+</div>
+<div class="section level2">
+<h2 id="direct-equating">Direct equating<a class="anchor" aria-label="anchor" href="#direct-equating"></a>
+</h2>
+<p>First, we estimate the model.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_ipf.html">leunbach_ipf</a></span><span class="op">(</span><span class="va">d3a</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in leunbach_ipf(d3a, verbose = FALSE): Removed 2 rows with missing</span></span>
+<span><span class="co">## values</span></span></code></pre>
+<p>For most functions in this package, you can use <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>,
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> to investigate the
+results. All functions have documentation that you can access using for
+instance <code><a href="../reference/leunbach_ipf.html">?leunbach_ipf</a></code> in the R console.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Score Parameter Estimation - Summary</span></span>
+<span><span class="co">## ==============================================</span></span>
+<span><span class="co">## Power Series Distribution with Generalized Symmetric Functions</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## N = 498 observations</span></span>
+<span><span class="co">## Test 1: scores 0 to 10 (observed:  0 to 10)</span></span>
+<span><span class="co">## Test 2: scores 0 to 9 (observed: 1 to 9)</span></span>
+<span><span class="co">## Total:  scores 0 to 19 (observed:  1 to 19)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## === Goodness of Fit ===</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 1. Likelihood Ratio Test (observed vs expected counts):</span></span>
+<span><span class="co">##    Likelihood ratio G² =    53.75 (df = 63, p = 0.7904)</span></span>
+<span><span class="co">##    Pearson chi-square  =    49.08</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 2. Goodman-Kruskal Gamma Test (one-sided):</span></span>
+<span><span class="co">##    Tests if observed correlation exceeds expected under the model.</span></span>
+<span><span class="co">##    Gamma (observed)    =   0.0005</span></span>
+<span><span class="co">##    Gamma (expected)    =  -0.0032</span></span>
+<span><span class="co">##    Standard error      = 3671.3724</span></span>
+<span><span class="co">##    Z statistic         =    -0.00 (p = 0.5000, one-sided)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 3. Orbit Analysis (person fit):</span></span>
+<span><span class="co">##    Run analyze_orbits() separately to assess the number of cases</span></span>
+<span><span class="co">##    outside 95% confidence regions of orbit distributions.</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Converged: TRUE (after 23 iterations)</span></span></code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Score Parameter Estimation</span></span>
+<span><span class="co">## ====================================</span></span>
+<span><span class="co">## Power Series Distribution with Generalized Symmetric Functions</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## N = 498 observations</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Test 1 score parameters (gamma):</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Score Frequency     Gamma Log_Gamma</span></span>
+<span><span class="co">##      0         4  1.000000  0.000000</span></span>
+<span><span class="co">##      1        15  3.307358  1.196150</span></span>
+<span><span class="co">##      2        33  6.817996  1.919566</span></span>
+<span><span class="co">##      3        72 14.259080  2.657394</span></span>
+<span><span class="co">##      4        84 16.280189  2.789949</span></span>
+<span><span class="co">##      5        94 18.105331  2.896206</span></span>
+<span><span class="co">##      6        88 17.476723  2.860870</span></span>
+<span><span class="co">##      7        44  9.027916  2.200322</span></span>
+<span><span class="co">##      8        41  8.427631  2.131516</span></span>
+<span><span class="co">##      9        20  4.179715  1.430243</span></span>
+<span><span class="co">##     10         3  0.651356 -0.428699</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Test 2 score parameters (delta):</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Score Frequency    Delta Log_Delta</span></span>
+<span><span class="co">##      0         0 0.000000        NA</span></span>
+<span><span class="co">##      1        12 1.000000  0.000000</span></span>
+<span><span class="co">##      2        32 2.453814  0.897644</span></span>
+<span><span class="co">##      3        57 4.122441  1.416445</span></span>
+<span><span class="co">##      4        88 6.247856  1.832238</span></span>
+<span><span class="co">##      5        84 6.072293  1.803736</span></span>
+<span><span class="co">##      6        89 6.343274  1.847395</span></span>
+<span><span class="co">##      7        73 5.337807  1.674815</span></span>
+<span><span class="co">##      8        43 3.203051  1.164104</span></span>
+<span><span class="co">##      9        20 1.535259  0.428699</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Total score parameters (sigma = Test1 + Test2):</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Score Frequency      Sigma Log_Sigma</span></span>
+<span><span class="co">##      0         0   0.000000        NA</span></span>
+<span><span class="co">##      1         0   1.000000  0.000000</span></span>
+<span><span class="co">##      2         0   5.761172  1.751141</span></span>
+<span><span class="co">##      3         2  19.056078  2.947386</span></span>
+<span><span class="co">##      4         4  50.871418  3.929301</span></span>
+<span><span class="co">##      5        14 106.112295  4.664498</span></span>
+<span><span class="co">##      6        25 185.860485  5.224996</span></span>
+<span><span class="co">##      7        39 285.824799  5.655379</span></span>
+<span><span class="co">##      8        54 378.957812  5.937425</span></span>
+<span><span class="co">##      9        70 453.576111  6.117163</span></span>
+<span><span class="co">##     10        61 487.507508  6.189306</span></span>
+<span><span class="co">##     11        61 466.066469  6.144328</span></span>
+<span><span class="co">##     12        82 407.843796  6.010884</span></span>
+<span><span class="co">##     13        35 313.515021  5.747847</span></span>
+<span><span class="co">##     14        21 214.873301  5.370049</span></span>
+<span><span class="co">##     15        13 131.201551  4.876735</span></span>
+<span><span class="co">##     16        11  67.296568  4.209109</span></span>
+<span><span class="co">##     17         5  29.803253  3.394618</span></span>
+<span><span class="co">##     18         1   8.503273  2.140451</span></span>
+<span><span class="co">##     19         0   1.000000  0.000000</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Converged:  TRUE (after 23 iterations)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## --- Goodness of Fit ---</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 1. Likelihood Ratio Test:</span></span>
+<span><span class="co">##    LR = 53.75  DF = 63  p = 0.7904</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 2. Goodman-Kruskal Gamma Test (one-sided):</span></span>
+<span><span class="co">##    Gamma (observed) = 0.0005</span></span>
+<span><span class="co">##    Gamma (expected) = -0.0032</span></span>
+<span><span class="co">##    SE = 3671.3724</span></span>
+<span><span class="co">##    Z = -0.00  p = 0.5000</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 3. Orbit Analysis:</span></span>
+<span><span class="co">##    Use analyze_orbits() to assess person fit within total score strata</span></span></code></pre>
+<div class="section level3">
+<h3 id="analyze-orbits">Analyze orbits<a class="anchor" aria-label="anchor" href="#analyze-orbits"></a>
+</h3>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">orb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/analyze_orbits.html">analyze_orbits</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">orb</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Orbit Analysis - Summary</span></span>
+<span><span class="co">## ==================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Significant differences between Test1 and Test2:</span></span>
+<span><span class="co">##   Test1  Test2     N    P(T1&lt;T2)   P(T1&gt;T2)</span></span>
+<span><span class="co">##   --------------------------------------------</span></span>
+<span><span class="co">##       0      6      1    0.0341          </span></span>
+<span><span class="co">##       0      7      1    0.0187          </span></span>
+<span><span class="co">##       0      8      1    0.0085          </span></span>
+<span><span class="co">##       1      8      3    0.0267          </span></span>
+<span><span class="co">##       1      9      2    0.0104          </span></span>
+<span><span class="co">##       2      9      1    0.0225          </span></span>
+<span><span class="co">##       8      1      2              0.0186</span></span>
+<span><span class="co">##       9      2      4              0.0234</span></span>
+<span><span class="co">##       9      3      3              0.0462</span></span>
+<span><span class="co">##      10      5      1              0.0301</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 19 (3.8%) persons with significant differences</span></span>
+<span><span class="co">## 15.3 (3.1%) expected</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 95% CI: [1.6%, 4.6%]</span></span>
+<span><span class="co">## Chi-square = 0.91, df = 1, p = 0.3388</span></span></code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">orb</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Orbit Analysis</span></span>
+<span><span class="co">## =======================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## N = 498 observations</span></span>
+<span><span class="co">## Significance level:  5.0%</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Critical levels for person fit assessment:</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Score  N Crit_Left Crit_Right Crit_Combined DF</span></span>
+<span><span class="co">##      3  2     0.000      0.000         0.000  3</span></span>
+<span><span class="co">##      4  4     0.000      0.000         0.000  4</span></span>
+<span><span class="co">##      5 14     0.000      0.000         0.000  5</span></span>
+<span><span class="co">##      6 25     3.413      0.000         3.413  6</span></span>
+<span><span class="co">##      7 39     1.868      0.000         1.868  7</span></span>
+<span><span class="co">##      8 54     0.845      2.382         3.228  8</span></span>
+<span><span class="co">##      9 70     2.674      1.858         4.532  9</span></span>
+<span><span class="co">##     10 61     1.042      0.857         1.899  9</span></span>
+<span><span class="co">##     11 61     2.246      2.340         4.586  8</span></span>
+<span><span class="co">##     12 82     0.000      4.617         4.617  7</span></span>
+<span><span class="co">##     13 35     0.000      0.856         0.856  6</span></span>
+<span><span class="co">##     14 21     0.000      1.894         1.894  5</span></span>
+<span><span class="co">##     15 13     0.000      3.015         3.015  4</span></span>
+<span><span class="co">##     16 11     0.000      0.000         0.000  3</span></span>
+<span><span class="co">##     17  5     0.000      0.000         0.000  2</span></span>
+<span><span class="co">##     18  1     0.000      0.000         0.000  1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 19 (3.8%) persons with significant differences between measurements</span></span>
+<span><span class="co">## 15.3 (3.1%) expected</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 95% Confidence interval: [1.6%, 4.6%]</span></span>
+<span><span class="co">## Chi-square = 0.91, df = 1, p = 0.3388</span></span></code></pre>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">orb</span><span class="op">)</span></span></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">orb</span>, type <span class="op">=</span> <span class="st">"significant"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-7-2.png" class="r-plt" alt="" width="700"></p>
+<p>Specific total scores can also be analyzed.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_orbit.html">get_orbit</a></span><span class="op">(</span><span class="va">orb</span>, total_score <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   test1 test2 expected_pct cum_left cum_right observed</span></span>
+<span><span class="co">## 1     0     5         5.72     5.72    100.00        0</span></span>
+<span><span class="co">## 2     1     4        19.47    25.20     94.28        1</span></span>
+<span><span class="co">## 3     2     3        26.49    51.68     74.80        6</span></span>
+<span><span class="co">## 4     3     2        32.97    84.66     48.32        4</span></span>
+<span><span class="co">## 5     4     1        15.34   100.00     15.34        3</span></span>
+<span><span class="co">## 6     5     0         0.00   100.00      0.00        0</span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="equating">Equating<a class="anchor" aria-label="anchor" href="#equating"></a>
+</h3>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/leunbach_equate.html">leunbach_equate</a></span><span class="op">(</span><span class="va">fit</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, direction <span class="op">=</span> <span class="st">"1to2"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Equating Test1 to Test2 (method: optimize)</span></span>
+<span><span class="co">## ==========================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Test1 Expected_Test2 Rounded_Test2</span></span>
+<span><span class="co">##      0       1.000000             1</span></span>
+<span><span class="co">##      1       1.732598             2</span></span>
+<span><span class="co">##      2       2.505289             3</span></span>
+<span><span class="co">##      3       3.367583             3</span></span>
+<span><span class="co">##      4       4.291332             4</span></span>
+<span><span class="co">##      5       5.214895             5</span></span>
+<span><span class="co">##      6       6.091660             6</span></span>
+<span><span class="co">##      7       6.910866             7</span></span>
+<span><span class="co">##      8       7.693731             8</span></span>
+<span><span class="co">##      9       8.460804             8</span></span>
+<span><span class="co">##     10       9.000000             9</span></span></code></pre>
+<pre><code><span><span class="co">## Leunbach Equating:  Test1 to Test2</span></span>
+<span><span class="co">## Method: optimize</span></span>
+<span><span class="co">## ================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Test1 Expected_Test2 Rounded_Test2</span></span>
+<span><span class="co">##      0           1.00             1</span></span>
+<span><span class="co">##      1           1.73             2</span></span>
+<span><span class="co">##      2           2.51             3</span></span>
+<span><span class="co">##      3           3.37             3</span></span>
+<span><span class="co">##      4           4.29             4</span></span>
+<span><span class="co">##      5           5.21             5</span></span>
+<span><span class="co">##      6           6.09             6</span></span>
+<span><span class="co">##      7           6.91             7</span></span>
+<span><span class="co">##      8           7.69             8</span></span>
+<span><span class="co">##      9           8.46             8</span></span>
+<span><span class="co">##     10           9.00             9</span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="bootstrap">Bootstrap<a class="anchor" aria-label="anchor" href="#bootstrap"></a>
+</h3>
+<p>If you have installed the package <code>mirai</code> and have a
+computer with multiple CPU cores, you can significantly reduce the time
+needed for bootstrap. Note that not all cores are equal. For instance,
+on a modern Mac, you should only use the “performance cores”, not the
+“efficiency cores”.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_bootstrap.html">leunbach_bootstrap</a></span><span class="op">(</span><span class="va">fit</span>, n_cores <span class="op">=</span> <span class="fl">4</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Parametric Bootstrap for Leunbach Model</span></span>
+<span><span class="co">## ========================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Optimization method: optimize</span></span>
+<span><span class="co">## Running 1000 bootstrap samples using 4 cores...</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Starting 4 daemons...</span></span>
+<span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |                                                                      |   1%  |                                                                              |=                                                                     |   1%  |                                                                              |=                                                                     |   2%  |                                                                              |==                                                                    |   2%  |                                                                              |==                                                                    |   3%  |                                                                              |==                                                                    |   4%  |                                                                              |===                                                                   |   4%  |                                                                              |===                                                                   |   5%  |                                                                              |====                                                                  |   5%  |                                                                              |====                                                                  |   6%  |                                                                              |=====                                                                 |   6%  |                                                                              |=====                                                                 |   7%  |                                                                              |=====                                                                 |   8%  |                                                                              |======                                                                |   8%  |                                                                              |======                                                                |   9%  |                                                                              |=======                                                               |   9%  |                                                                              |=======                                                               |  10%  |                                                                              |=======                                                               |  11%  |                                                                              |========                                                              |  11%  |                                                                              |========                                                              |  12%  |                                                                              |=========                                                             |  12%  |                                                                              |=========                                                             |  13%  |                                                                              |=========                                                             |  14%  |                                                                              |==========                                                            |  14%  |                                                                              |==========                                                            |  15%  |                                                                              |===========                                                           |  15%  |                                                                              |===========                                                           |  16%  |                                                                              |============                                                          |  16%  |                                                                              |============                                                          |  17%  |                                                                              |============                                                          |  18%  |                                                                              |=============                                                         |  18%  |                                                                              |=============                                                         |  19%  |                                                                              |==============                                                        |  19%  |                                                                              |==============                                                        |  20%  |                                                                              |==============                                                        |  21%  |                                                                              |===============                                                       |  21%  |                                                                              |===============                                                       |  22%  |                                                                              |================                                                      |  22%  |                                                                              |================                                                      |  23%  |                                                                              |================                                                      |  24%  |                                                                              |=================                                                     |  24%  |                                                                              |=================                                                     |  25%  |                                                                              |==================                                                    |  25%  |                                                                              |==================                                                    |  26%  |                                                                              |===================                                                   |  26%  |                                                                              |===================                                                   |  27%  |                                                                              |===================                                                   |  28%  |                                                                              |====================                                                  |  28%  |                                                                              |====================                                                  |  29%  |                                                                              |=====================                                                 |  29%  |                                                                              |=====================                                                 |  30%  |                                                                              |=====================                                                 |  31%  |                                                                              |======================                                                |  31%  |                                                                              |======================                                                |  32%  |                                                                              |=======================                                               |  32%  |                                                                              |=======================                                               |  33%  |                                                                              |=======================                                               |  34%  |                                                                              |========================                                              |  34%  |                                                                              |========================                                              |  35%  |                                                                              |=========================                                             |  35%  |                                                                              |=========================                                             |  36%  |                                                                              |==========================                                            |  36%  |                                                                              |==========================                                            |  37%  |                                                                              |==========================                                            |  38%  |                                                                              |===========================                                           |  38%  |                                                                              |===========================                                           |  39%  |                                                                              |============================                                          |  39%  |                                                                              |============================                                          |  40%  |                                                                              |============================                                          |  41%  |                                                                              |=============================                                         |  41%  |                                                                              |=============================                                         |  42%  |                                                                              |==============================                                        |  42%  |                                                                              |==============================                                        |  43%  |                                                                              |==============================                                        |  44%  |                                                                              |===============================                                       |  44%  |                                                                              |===============================                                       |  45%  |                                                                              |================================                                      |  45%  |                                                                              |================================                                      |  46%  |                                                                              |=================================                                     |  46%  |                                                                              |=================================                                     |  47%  |                                                                              |=================================                                     |  48%  |                                                                              |==================================                                    |  48%  |                                                                              |==================================                                    |  49%  |                                                                              |===================================                                   |  49%  |                                                                              |===================================                                   |  50%  |                                                                              |===================================                                   |  51%  |                                                                              |====================================                                  |  51%  |                                                                              |====================================                                  |  52%  |                                                                              |=====================================                                 |  52%  |                                                                              |=====================================                                 |  53%  |                                                                              |=====================================                                 |  54%  |                                                                              |======================================                                |  54%  |                                                                              |======================================                                |  55%  |                                                                              |=======================================                               |  55%  |                                                                              |=======================================                               |  56%  |                                                                              |========================================                              |  56%  |                                                                              |========================================                              |  57%  |                                                                              |========================================                              |  58%  |                                                                              |=========================================                             |  58%  |                                                                              |=========================================                             |  59%  |                                                                              |==========================================                            |  59%  |                                                                              |==========================================                            |  60%  |                                                                              |==========================================                            |  61%  |                                                                              |===========================================                           |  61%  |                                                                              |===========================================                           |  62%  |                                                                              |============================================                          |  62%  |                                                                              |============================================                          |  63%  |                                                                              |============================================                          |  64%  |                                                                              |=============================================                         |  64%  |                                                                              |=============================================                         |  65%  |                                                                              |==============================================                        |  65%  |                                                                              |==============================================                        |  66%  |                                                                              |===============================================                       |  66%  |                                                                              |===============================================                       |  67%  |                                                                              |===============================================                       |  68%  |                                                                              |================================================                      |  68%  |                                                                              |================================================                      |  69%  |                                                                              |=================================================                     |  69%  |                                                                              |=================================================                     |  70%  |                                                                              |=================================================                     |  71%  |                                                                              |==================================================                    |  71%  |                                                                              |==================================================                    |  72%  |                                                                              |===================================================                   |  72%  |                                                                              |===================================================                   |  73%  |                                                                              |===================================================                   |  74%  |                                                                              |====================================================                  |  74%  |                                                                              |====================================================                  |  75%  |                                                                              |=====================================================                 |  75%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================                |  76%  |                                                                              |======================================================                |  77%  |                                                                              |======================================================                |  78%  |                                                                              |=======================================================               |  78%  |                                                                              |=======================================================               |  79%  |                                                                              |========================================================              |  79%  |                                                                              |========================================================              |  80%  |                                                                              |========================================================              |  81%  |                                                                              |=========================================================             |  81%  |                                                                              |=========================================================             |  82%  |                                                                              |==========================================================            |  82%  |                                                                              |==========================================================            |  83%  |                                                                              |==========================================================            |  84%  |                                                                              |===========================================================           |  84%  |                                                                              |===========================================================           |  85%  |                                                                              |============================================================          |  85%  |                                                                              |============================================================          |  86%  |                                                                              |=============================================================         |  86%  |                                                                              |=============================================================         |  87%  |                                                                              |=============================================================         |  88%  |                                                                              |==============================================================        |  88%  |                                                                              |==============================================================        |  89%  |                                                                              |===============================================================       |  89%  |                                                                              |===============================================================       |  90%  |                                                                              |===============================================================       |  91%  |                                                                              |================================================================      |  91%  |                                                                              |================================================================      |  92%  |                                                                              |=================================================================     |  92%  |                                                                              |=================================================================     |  93%  |                                                                              |=================================================================     |  94%  |                                                                              |==================================================================    |  94%  |                                                                              |==================================================================    |  95%  |                                                                              |===================================================================   |  95%  |                                                                              |===================================================================   |  96%  |                                                                              |====================================================================  |  96%  |                                                                              |====================================================================  |  97%  |                                                                              |====================================================================  |  98%  |                                                                              |===================================================================== |  98%  |                                                                              |===================================================================== |  99%  |                                                                              |======================================================================|  99%  |                                                                              |======================================================================| 100%</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Bootstrap complete.</span></span>
+<span><span class="co">##   Valid samples: 1000 of 1000</span></span>
+<span><span class="co">##   Bootstrap p-value for LR test: 0.866</span></span>
+<span><span class="co">##   Average SEE (Test1 to Test2): 0.22</span></span>
+<span><span class="co">##   Average SEE (Test2 to Test1): 0.26</span></span></code></pre>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Model - Parametric Bootstrap Results</span></span>
+<span><span class="co">## ==============================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Bootstrap samples: 1000 (1000 valid)</span></span>
+<span><span class="co">## Processing:  parallel (4 cores)</span></span>
+<span><span class="co">## Optimization method: optimize</span></span>
+<span><span class="co">## SEE type: rounded scores</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Assessment of significance by parametric bootstrapping:</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 1. Likelihood Ratio Test:</span></span>
+<span><span class="co">##    Observed LR = 53.75 (df = 63)</span></span>
+<span><span class="co">##    Asymptotic p-value:   p = 0.7904</span></span>
+<span><span class="co">##    Bootstrap p-value:   p = 0.8660</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## 2. Goodman-Kruskal Gamma Test (one-sided):</span></span>
+<span><span class="co">##    Observed Z = -0.00</span></span>
+<span><span class="co">##    Asymptotic p-value:   p = 0.5000</span></span>
+<span><span class="co">##    Bootstrap p-value:   p = 0.3780</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Equating Test1 to Test2 (with 95% CI)</span></span>
+<span><span class="co">## =====================================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##                                                          Frequency of bootstrap errors</span></span>
+<span><span class="co">## Score  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2</span></span>
+<span><span class="co">## ------------------------------------------------------------------------------------</span></span>
+<span><span class="co">##     0        1     1.00    [ 1.00,  1.00]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">##     1        2     1.73    [ 1.30,  2.11]   0.34     0.0  13.7  86.3   0.0   0.0</span></span>
+<span><span class="co">##     2        3     2.51    [ 2.06,  2.89]   0.50     0.0  50.0  50.0   0.0   0.0</span></span>
+<span><span class="co">##     3        3     3.37    [ 3.00,  3.69]   0.40     0.0   0.0  79.9  20.1   0.0</span></span>
+<span><span class="co">##     4        4     4.29    [ 4.01,  4.55]   0.21     0.0   0.0  95.4   4.6   0.0</span></span>
+<span><span class="co">##     5        5     5.21    [ 4.99,  5.44]   0.08     0.0   0.0  99.3   0.7   0.0</span></span>
+<span><span class="co">##     6        6     6.09    [ 5.85,  6.33]   0.03     0.0   0.0  99.9   0.1   0.0</span></span>
+<span><span class="co">##     7        7     6.91    [ 6.63,  7.19]   0.05     0.0   0.2  99.7   0.1   0.0</span></span>
+<span><span class="co">##     8        8     7.69    [ 7.36,  8.01]   0.33     0.0  12.4  87.6   0.0   0.0</span></span>
+<span><span class="co">##     9        8     8.46    [ 8.14,  9.00]   0.50     0.0   0.0  55.5  44.5   0.0</span></span>
+<span><span class="co">##    10        9     9.00    [ 9.00,  9.00]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">## ------------------------------------------------------------------------------------</span></span>
+<span><span class="co">## Average SEE:  0.22</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Equating Test2 to Test1 (with 95% CI)</span></span>
+<span><span class="co">## =====================================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##                                                          Frequency of bootstrap errors</span></span>
+<span><span class="co">## Score  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2</span></span>
+<span><span class="co">## ------------------------------------------------------------------------------------</span></span>
+<span><span class="co">##     1        0     0.00    [ 0.00,  0.00]   0.13     0.0   0.0  98.3   1.7   0.0</span></span>
+<span><span class="co">##     2        1     1.36    [ 0.86,  1.93]   0.46     0.0   0.0  69.4  30.6   0.0</span></span>
+<span><span class="co">##     3        3     2.59    [ 2.14,  3.00]   0.47     0.0  34.3  65.7   0.0   0.0</span></span>
+<span><span class="co">##     4        4     3.69    [ 3.37,  3.99]   0.31     0.0  10.5  89.5   0.0   0.0</span></span>
+<span><span class="co">##     5        5     4.76    [ 4.51,  5.02]   0.14     0.0   2.0  98.0   0.0   0.0</span></span>
+<span><span class="co">##     6        6     5.89    [ 5.62,  6.19]   0.03     0.0   0.1  99.9   0.0   0.0</span></span>
+<span><span class="co">##     7        7     7.11    [ 6.77,  7.50]   0.17     0.0   0.1  97.1   2.8   0.0</span></span>
+<span><span class="co">##     8        8     8.39    [ 7.99,  8.82]   0.46     0.0   0.0  70.1  29.9   0.0</span></span>
+<span><span class="co">##     9       10    10.00    [ 9.00, 10.00]   0.19     0.0   3.9  96.1   0.0   0.0</span></span>
+<span><span class="co">## ------------------------------------------------------------------------------------</span></span>
+<span><span class="co">## Average SEE:  0.26</span></span></code></pre>
+</div>
+</div>
+<div class="section level2">
+<h2 id="indirect-equating">Indirect equating<a class="anchor" aria-label="anchor" href="#indirect-equating"></a>
+</h2>
+<p>For this, we read a dataset with three tests.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"./data/data1.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   a_sum b_sum c_sum</span></span>
+<span><span class="co">## 1     2     4    NA</span></span>
+<span><span class="co">## 2     2     5    NA</span></span>
+<span><span class="co">## 3     5     7    NA</span></span>
+<span><span class="co">## 4     4     5    NA</span></span>
+<span><span class="co">## 5     5     5    NA</span></span>
+<span><span class="co">## 6     7     7    NA</span></span></code></pre>
+<p>We will estimate two models before the indirecy equating procedure.
+Test A with Test B; and Test B with Test C. The code below uses base R
+methods to select the columns in the dataframe, first 1 and 2, second 2
+and 3.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_ab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_ipf.html">leunbach_ipf</a></span><span class="op">(</span><span class="va">d1</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in leunbach_ipf(d1[, c(1, 2)]): Removed 500 rows with missing values</span></span></code></pre>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_bc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_ipf.html">leunbach_ipf</a></span><span class="op">(</span><span class="va">d1</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in leunbach_ipf(d1[, c(2, 3)]): Removed 500 rows with missing values</span></span></code></pre>
+<p>You can of course use the objects <code>fit_ab</code> and
+<code>fit_bc</code> to analyze orbits too, but we’ll skip that step
+here.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">indirect1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_indirect_equate.html">leunbach_indirect_equate</a></span><span class="op">(</span><span class="va">fit_ab</span>, <span class="va">fit_bc</span>,</span>
+<span>                                     direction_ab <span class="op">=</span> <span class="st">"1to2"</span>,</span>
+<span>                                     direction_bc <span class="op">=</span> <span class="st">"1to2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">indirect1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Indirect Equating</span></span>
+<span><span class="co">## ==========================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Path: Test1 → Test2 → Test2</span></span>
+<span><span class="co">## Method: optimize</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Source (Test1) range: 0 to 10</span></span>
+<span><span class="co">## Anchor (Test2) range: 0 to 10</span></span>
+<span><span class="co">## Target (Test2) range: 0 to 10</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  Test1 Expected_Test2 Rounded_Test2</span></span>
+<span><span class="co">##      0           0.00             0</span></span>
+<span><span class="co">##      1           1.23             1</span></span>
+<span><span class="co">##      2           2.20             2</span></span>
+<span><span class="co">##      3           3.22             3</span></span>
+<span><span class="co">##      4           4.19             4</span></span>
+<span><span class="co">##      5           5.08             5</span></span>
+<span><span class="co">##      6           5.98             6</span></span>
+<span><span class="co">##      7           7.09             7</span></span>
+<span><span class="co">##      8           8.44             8</span></span>
+<span><span class="co">##      9           9.42             9</span></span>
+<span><span class="co">##     10          10.00            10</span></span></code></pre>
+<div class="section level3">
+<h3 id="bootstrap-1">Bootstrap<a class="anchor" aria-label="anchor" href="#bootstrap-1"></a>
+</h3>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">boot_indirect1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_indirect_bootstrap.html">leunbach_indirect_bootstrap</a></span><span class="op">(</span><span class="va">fit_ab</span>, <span class="va">fit_bc</span>,</span>
+<span>                                             direction_ab <span class="op">=</span> <span class="st">"1to2"</span>,</span>
+<span>                                             direction_bc <span class="op">=</span> <span class="st">"1to2"</span>,</span>
+<span>                                             nsim <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>                                             verbose <span class="op">=</span> <span class="cn">TRUE</span>, n_cores <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Parametric Bootstrap for Indirect Equating</span></span>
+<span><span class="co">## ===========================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Optimization method: optimize</span></span>
+<span><span class="co">## Running 1000 bootstrap samples using 4 cores...</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Starting 4 daemons...</span></span>
+<span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |                                                                      |   1%  |                                                                              |=                                                                     |   1%  |                                                                              |=                                                                     |   2%  |                                                                              |==                                                                    |   2%  |                                                                              |==                                                                    |   3%  |                                                                              |==                                                                    |   4%  |                                                                              |===                                                                   |   4%  |                                                                              |===                                                                   |   5%  |                                                                              |====                                                                  |   5%  |                                                                              |====                                                                  |   6%  |                                                                              |=====                                                                 |   6%  |                                                                              |=====                                                                 |   7%  |                                                                              |=====                                                                 |   8%  |                                                                              |======                                                                |   8%  |                                                                              |======                                                                |   9%  |                                                                              |=======                                                               |   9%  |                                                                              |=======                                                               |  10%  |                                                                              |=======                                                               |  11%  |                                                                              |========                                                              |  11%  |                                                                              |========                                                              |  12%  |                                                                              |=========                                                             |  12%  |                                                                              |=========                                                             |  13%  |                                                                              |=========                                                             |  14%  |                                                                              |==========                                                            |  14%  |                                                                              |==========                                                            |  15%  |                                                                              |===========                                                           |  15%  |                                                                              |===========                                                           |  16%  |                                                                              |============                                                          |  16%  |                                                                              |============                                                          |  17%  |                                                                              |============                                                          |  18%  |                                                                              |=============                                                         |  18%  |                                                                              |=============                                                         |  19%  |                                                                              |==============                                                        |  19%  |                                                                              |==============                                                        |  20%  |                                                                              |==============                                                        |  21%  |                                                                              |===============                                                       |  21%  |                                                                              |===============                                                       |  22%  |                                                                              |================                                                      |  22%  |                                                                              |================                                                      |  23%  |                                                                              |================                                                      |  24%  |                                                                              |=================                                                     |  24%  |                                                                              |=================                                                     |  25%  |                                                                              |==================                                                    |  25%  |                                                                              |==================                                                    |  26%  |                                                                              |===================                                                   |  26%  |                                                                              |===================                                                   |  27%  |                                                                              |===================                                                   |  28%  |                                                                              |====================                                                  |  28%  |                                                                              |====================                                                  |  29%  |                                                                              |=====================                                                 |  29%  |                                                                              |=====================                                                 |  30%  |                                                                              |=====================                                                 |  31%  |                                                                              |======================                                                |  31%  |                                                                              |======================                                                |  32%  |                                                                              |=======================                                               |  32%  |                                                                              |=======================                                               |  33%  |                                                                              |=======================                                               |  34%  |                                                                              |========================                                              |  34%  |                                                                              |========================                                              |  35%  |                                                                              |=========================                                             |  35%  |                                                                              |=========================                                             |  36%  |                                                                              |==========================                                            |  36%  |                                                                              |==========================                                            |  37%  |                                                                              |==========================                                            |  38%  |                                                                              |===========================                                           |  38%  |                                                                              |===========================                                           |  39%  |                                                                              |============================                                          |  39%  |                                                                              |============================                                          |  40%  |                                                                              |============================                                          |  41%  |                                                                              |=============================                                         |  41%  |                                                                              |=============================                                         |  42%  |                                                                              |==============================                                        |  42%  |                                                                              |==============================                                        |  43%  |                                                                              |==============================                                        |  44%  |                                                                              |===============================                                       |  44%  |                                                                              |===============================                                       |  45%  |                                                                              |================================                                      |  45%  |                                                                              |================================                                      |  46%  |                                                                              |=================================                                     |  46%  |                                                                              |=================================                                     |  47%  |                                                                              |=================================                                     |  48%  |                                                                              |==================================                                    |  48%  |                                                                              |==================================                                    |  49%  |                                                                              |===================================                                   |  49%  |                                                                              |===================================                                   |  50%  |                                                                              |===================================                                   |  51%  |                                                                              |====================================                                  |  51%  |                                                                              |====================================                                  |  52%  |                                                                              |=====================================                                 |  52%  |                                                                              |=====================================                                 |  53%  |                                                                              |=====================================                                 |  54%  |                                                                              |======================================                                |  54%  |                                                                              |======================================                                |  55%  |                                                                              |=======================================                               |  55%  |                                                                              |=======================================                               |  56%  |                                                                              |========================================                              |  56%  |                                                                              |========================================                              |  57%  |                                                                              |========================================                              |  58%  |                                                                              |=========================================                             |  58%  |                                                                              |=========================================                             |  59%  |                                                                              |==========================================                            |  59%  |                                                                              |==========================================                            |  60%  |                                                                              |==========================================                            |  61%  |                                                                              |===========================================                           |  61%  |                                                                              |===========================================                           |  62%  |                                                                              |============================================                          |  62%  |                                                                              |============================================                          |  63%  |                                                                              |============================================                          |  64%  |                                                                              |=============================================                         |  64%  |                                                                              |=============================================                         |  65%  |                                                                              |==============================================                        |  65%  |                                                                              |==============================================                        |  66%  |                                                                              |===============================================                       |  66%  |                                                                              |===============================================                       |  67%  |                                                                              |===============================================                       |  68%  |                                                                              |================================================                      |  68%  |                                                                              |================================================                      |  69%  |                                                                              |=================================================                     |  69%  |                                                                              |=================================================                     |  70%  |                                                                              |=================================================                     |  71%  |                                                                              |==================================================                    |  71%  |                                                                              |==================================================                    |  72%  |                                                                              |===================================================                   |  72%  |                                                                              |===================================================                   |  73%  |                                                                              |===================================================                   |  74%  |                                                                              |====================================================                  |  74%  |                                                                              |====================================================                  |  75%  |                                                                              |=====================================================                 |  75%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================                |  76%  |                                                                              |======================================================                |  77%  |                                                                              |======================================================                |  78%  |                                                                              |=======================================================               |  78%  |                                                                              |=======================================================               |  79%  |                                                                              |========================================================              |  79%  |                                                                              |========================================================              |  80%  |                                                                              |========================================================              |  81%  |                                                                              |=========================================================             |  81%  |                                                                              |=========================================================             |  82%  |                                                                              |==========================================================            |  82%  |                                                                              |==========================================================            |  83%  |                                                                              |==========================================================            |  84%  |                                                                              |===========================================================           |  84%  |                                                                              |===========================================================           |  85%  |                                                                              |============================================================          |  85%  |                                                                              |============================================================          |  86%  |                                                                              |=============================================================         |  86%  |                                                                              |=============================================================         |  87%  |                                                                              |=============================================================         |  88%  |                                                                              |==============================================================        |  88%  |                                                                              |==============================================================        |  89%  |                                                                              |===============================================================       |  89%  |                                                                              |===============================================================       |  90%  |                                                                              |===============================================================       |  91%  |                                                                              |================================================================      |  91%  |                                                                              |================================================================      |  92%  |                                                                              |=================================================================     |  92%  |                                                                              |=================================================================     |  93%  |                                                                              |=================================================================     |  94%  |                                                                              |==================================================================    |  94%  |                                                                              |==================================================================    |  95%  |                                                                              |===================================================================   |  95%  |                                                                              |===================================================================   |  96%  |                                                                              |====================================================================  |  96%  |                                                                              |====================================================================  |  97%  |                                                                              |====================================================================  |  98%  |                                                                              |===================================================================== |  98%  |                                                                              |===================================================================== |  99%  |                                                                              |======================================================================|  99%  |                                                                              |======================================================================| 100%</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Bootstrap complete.</span></span>
+<span><span class="co">##   Valid samples: 1000 of 1000</span></span>
+<span><span class="co">##   Bootstrap p-value for LR test (A-B): 0.118</span></span>
+<span><span class="co">##   Bootstrap p-value for LR test (B-C): 0.082</span></span>
+<span><span class="co">##   Bootstrap p-value for Gamma test (A-B): 0.208</span></span>
+<span><span class="co">##   Bootstrap p-value for Gamma test (B-C): 0.043</span></span>
+<span><span class="co">##   Average SEE: 0.29</span></span></code></pre>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Indirect Equating - Parametric Bootstrap Results</span></span>
+<span><span class="co">## ==========================================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Bootstrap samples: 1000 (1000 valid)</span></span>
+<span><span class="co">## Processing:  parallel (4 cores)</span></span>
+<span><span class="co">## Optimization method: optimize</span></span>
+<span><span class="co">## SEE type: rounded scores</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Assessment of significance by parametric bootstrapping:</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Equating A-B (Test1 -&gt; Test2):</span></span>
+<span><span class="co">##   1. Likelihood Ratio Test:</span></span>
+<span><span class="co">##      Observed LR = 77.72 (df = 78)</span></span>
+<span><span class="co">##      Asymptotic p-value:    p = 0.4877</span></span>
+<span><span class="co">##      Bootstrap p-value:    p = 0.1180</span></span>
+<span><span class="co">##   2. Goodman-Kruskal Gamma Test (one-sided):</span></span>
+<span><span class="co">##      Observed Z = -0.00</span></span>
+<span><span class="co">##      Asymptotic p-value:   p = 0.5000</span></span>
+<span><span class="co">##      Bootstrap p-value:    p = 0.2080</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Equating B-C (Test2 -&gt; Test2):</span></span>
+<span><span class="co">##   1. Likelihood Ratio Test:</span></span>
+<span><span class="co">##      Observed LR = 82.73 (df = 79)</span></span>
+<span><span class="co">##      Asymptotic p-value:    p = 0.3649</span></span>
+<span><span class="co">##      Bootstrap p-value:    p = 0.0820</span></span>
+<span><span class="co">##   2. Goodman-Kruskal Gamma Test (one-sided):</span></span>
+<span><span class="co">##      Observed Z = -0.00</span></span>
+<span><span class="co">##      Asymptotic p-value:   p = 0.5000</span></span>
+<span><span class="co">##      Bootstrap p-value:    p = 0.0430</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Indirect Equating:  Test1 → Test2 (with 95% CI)</span></span>
+<span><span class="co">## ==========================================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##                                                          Frequency of bootstrap errors</span></span>
+<span><span class="co">## Score  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2   Failed%</span></span>
+<span><span class="co">## ---------------------------------------------------------------------------------------------</span></span>
+<span><span class="co">##     0        0     0.00    [ 0.00,  1.00]   0.47     0.0   0.0  66.4  33.6   0.0     1.4%</span></span>
+<span><span class="co">##     1        1     1.23    [ 0.00,  1.97]   0.57     0.0   9.0  64.5  26.5   0.0     0.0%</span></span>
+<span><span class="co">##     2        2     2.20    [ 1.48,  2.71]   0.40     0.0   2.6  82.1  15.3   0.0     0.0%</span></span>
+<span><span class="co">##     3        3     3.22    [ 2.82,  3.59]   0.26     0.0   0.0  93.0   7.0   0.0     0.0%</span></span>
+<span><span class="co">##     4        4     4.19    [ 3.90,  4.49]   0.14     0.0   0.0  98.1   1.9   0.0     0.0%</span></span>
+<span><span class="co">##     5        5     5.08    [ 4.78,  5.38]   0.06     0.0   0.0  99.6   0.4   0.0     0.0%</span></span>
+<span><span class="co">##     6        6     5.98    [ 5.65,  6.34]   0.08     0.0   0.3  99.3   0.4   0.0     0.0%</span></span>
+<span><span class="co">##     7        7     7.09    [ 6.63,  7.57]   0.21     0.0   0.3  95.6   4.1   0.0     0.0%</span></span>
+<span><span class="co">##     8        8     8.44    [ 7.76,  9.18]   0.51     0.0   0.4  57.3  42.1   0.2     0.0%</span></span>
+<span><span class="co">##     9        9     9.42    [ 8.67, 10.00]   0.51     0.0   0.8  57.4  41.8   0.0     0.0%</span></span>
+<span><span class="co">##    10       10    10.00    [10.00, 10.00]   0.00     0.0   0.0 100.0   0.0   0.0     9.5%</span></span>
+<span><span class="co">## ---------------------------------------------------------------------------------------------</span></span>
+<span><span class="co">## Average SEE:   0.29</span></span></code></pre>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Leunbach Indirect Equating - Bootstrap Summary</span></span>
+<span><span class="co">## ===============================================</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Bootstrap samples:  1000 (1000 valid)</span></span>
+<span><span class="co">## Confidence level: 95%</span></span>
+<span><span class="co">## SEE type: rounded scores</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Model Fit Summary:</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Equating A-B (Test1 -&gt; Test2):</span></span>
+<span><span class="co">##   LR test:     asymptotic p = 0.4877, bootstrap p = 0.1180</span></span>
+<span><span class="co">##   Gamma test:  asymptotic p = 0.5000, bootstrap p = 0.2080</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Equating B-C (Test2 -&gt; Test2):</span></span>
+<span><span class="co">##   LR test:     asymptotic p = 0.3649, bootstrap p = 0.0820</span></span>
+<span><span class="co">##   Gamma test: asymptotic p = 0.5000, bootstrap p = 0.0430</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Average SEE: 0.29</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Scores with &gt;5% bootstrap failures:</span></span>
+<span><span class="co">##   Score 10: 9.5% failed</span></span></code></pre>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"equating"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"see"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

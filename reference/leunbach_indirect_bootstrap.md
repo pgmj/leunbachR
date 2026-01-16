@@ -79,3 +79,5 @@ A list of class "leunbach_indirect_bootstrap" containing:
 - indirect_eq: The observed indirect equating object
 
 - Bootstrap results and standard errors
+
+- Bootstrap p-values for LR and Gamma tests for both equatings
