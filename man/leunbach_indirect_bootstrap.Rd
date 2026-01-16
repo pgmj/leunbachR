@@ -24,7 +24,7 @@ leunbach_indirect_bootstrap(
 
 \item{fit_bc}{A leunbach_ipf object for the B-C equating}
 
-\item{direction_ab}{Direction for A-B equating: "1to2" or "2to1"}
+\item{direction_ab}{Direction for A-B equating:  "1to2" or "2to1"}
 
 \item{direction_bc}{Direction for B-C equating: "1to2" or "2to1"}
 
@@ -32,7 +32,7 @@ leunbach_indirect_bootstrap(
 
 \item{conf_level}{Confidence level for intervals (default: 0.95)}
 
-\item{see_type}{Type of SEE calculation: "rounded" or "expected"}
+\item{see_type}{Type of SEE calculation:  "rounded" or "expected"}
 
 \item{method}{Optimization method: "optimize" (default) or "newton"}
 
@@ -49,6 +49,7 @@ A list of class "leunbach_indirect_bootstrap" containing:
 \itemize{
 \item indirect_eq:  The observed indirect equating object
 \item Bootstrap results and standard errors
+\item Bootstrap p-values for LR and Gamma tests for both equatings
 }
 }
 \description{

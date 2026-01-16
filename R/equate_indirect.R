@@ -268,11 +268,11 @@ print.leunbach_indirect <- function(x, ...) {
 #'
 #' @param fit_ab A leunbach_ipf object for the A-B equating
 #' @param fit_bc A leunbach_ipf object for the B-C equating
-#' @param direction_ab Direction for A-B equating: "1to2" or "2to1"
+#' @param direction_ab Direction for A-B equating:  "1to2" or "2to1"
 #' @param direction_bc Direction for B-C equating: "1to2" or "2to1"
 #' @param nsim Number of bootstrap samples (default: 1000)
 #' @param conf_level Confidence level for intervals (default: 0.95)
-#' @param see_type Type of SEE calculation: "rounded" or "expected"
+#' @param see_type Type of SEE calculation:  "rounded" or "expected"
 #' @param method Optimization method: "optimize" (default) or "newton"
 #' @param parallel Use parallel processing if mirai is available (default: TRUE)
 #' @param n_cores Number of cores for parallel processing
@@ -282,6 +282,7 @@ print.leunbach_indirect <- function(x, ...) {
 #' @return A list of class "leunbach_indirect_bootstrap" containing:
 #'   - indirect_eq:  The observed indirect equating object
 #'   - Bootstrap results and standard errors
+#'   - Bootstrap p-values for LR and Gamma tests for both equatings
 #'
 #' @export
 leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
@@ -296,7 +297,7 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
                                         verbose = FALSE,
                                         seed = NULL) {
   
-  if (!inherits(fit_ab, "leunbach_ipf")) {
+  if (! inherits(fit_ab, "leunbach_ipf")) {
     stop("fit_ab must be a leunbach_ipf object")
   }
   if (!inherits(fit_bc, "leunbach_ipf")) {
@@ -329,6 +330,12 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   
   boot_seeds <- sample.int(.Machine$integer.max, nsim)
   
+  # Get observed values
+  lr_ab_observed <- fit_ab$g_sq
+  lr_bc_observed <- fit_bc$g_sq
+  gk_gamma_z_ab_observed <- fit_ab$gk_gamma_z
+  gk_gamma_z_bc_observed <- fit_bc$gk_gamma_z
+  
   # Get observed indirect equating
   indirect_eq <- leunbach_indirect_equate(fit_ab, fit_bc,
                                           direction_ab = direction_ab,
@@ -344,7 +351,7 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   if (verbose) {
     cat("Parametric Bootstrap for Indirect Equating\n")
     cat("===========================================\n\n")
-    cat(sprintf("Path: %s → %s → %s\n", indirect_eq$source_name, 
+    cat(sprintf("Path: %s -> %s -> %s\n", indirect_eq$source_name, 
                 indirect_eq$anchor_name, indirect_eq$target_name))
     cat(sprintf("Optimization method: %s\n", method))
     if (use_parallel) {
@@ -408,6 +415,11 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
     )
   }
   
+  # Extract results
+  lr_ab_bootstrap <- boot_results$lr_ab_bootstrap
+  lr_bc_bootstrap <- boot_results$lr_bc_bootstrap
+  gk_gamma_z_ab_bootstrap <- boot_results$gk_gamma_z_ab_bootstrap
+  gk_gamma_z_bc_bootstrap <- boot_results$gk_gamma_z_bc_bootstrap
   boot_expected <- boot_results$boot_expected
   boot_rounded <- boot_results$boot_rounded
   boot_failed <- boot_results$boot_failed
@@ -415,6 +427,46 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   colnames(boot_expected) <- source_scores
   colnames(boot_rounded) <- source_scores
   colnames(boot_failed) <- source_scores
+  
+  # Compute bootstrap p-values for LR tests
+  valid_lr_ab <- ! is.na(lr_ab_bootstrap)
+  valid_lr_bc <- !is.na(lr_bc_bootstrap)
+  
+  if (sum(valid_lr_ab) > 0) {
+    n_significant_lr_ab <- sum(lr_ab_bootstrap[valid_lr_ab] >= lr_ab_observed)
+    p_lr_ab <- n_significant_lr_ab / sum(valid_lr_ab)
+  } else {
+    n_significant_lr_ab <- NA
+    p_lr_ab <- NA
+  }
+  
+  if (sum(valid_lr_bc) > 0) {
+    n_significant_lr_bc <- sum(lr_bc_bootstrap[valid_lr_bc] >= lr_bc_observed)
+    p_lr_bc <- n_significant_lr_bc / sum(valid_lr_bc)
+  } else {
+    n_significant_lr_bc <- NA
+    p_lr_bc <- NA
+  }
+  
+  # Compute bootstrap p-values for Gamma tests (one-sided)
+  valid_gamma_ab <- !is.na(gk_gamma_z_ab_bootstrap)
+  valid_gamma_bc <- !is.na(gk_gamma_z_bc_bootstrap)
+  
+  if (sum(valid_gamma_ab) > 0 && ! is.na(gk_gamma_z_ab_observed)) {
+    n_significant_gamma_ab <- sum(gk_gamma_z_ab_bootstrap[valid_gamma_ab] <= gk_gamma_z_ab_observed)
+    p_gamma_ab <- n_significant_gamma_ab / sum(valid_gamma_ab)
+  } else {
+    n_significant_gamma_ab <- NA
+    p_gamma_ab <- NA
+  }
+  
+  if (sum(valid_gamma_bc) > 0 && !is.na(gk_gamma_z_bc_observed)) {
+    n_significant_gamma_bc <- sum(gk_gamma_z_bc_bootstrap[valid_gamma_bc] <= gk_gamma_z_bc_observed)
+    p_gamma_bc <- n_significant_gamma_bc / sum(valid_gamma_bc)
+  } else {
+    n_significant_gamma_bc <- NA
+    p_gamma_bc <- NA
+  }
   
   # Confidence intervals
   alpha <- 1 - conf_level
@@ -449,6 +501,10 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   if (verbose) {
     cat(sprintf("\nBootstrap complete.\n"))
     cat(sprintf("  Valid samples: %d of %d\n", n_valid, nsim))
+    cat(sprintf("  Bootstrap p-value for LR test (A-B): %.3f\n", p_lr_ab))
+    cat(sprintf("  Bootstrap p-value for LR test (B-C): %.3f\n", p_lr_bc))
+    cat(sprintf("  Bootstrap p-value for Gamma test (A-B): %.3f\n", p_gamma_ab))
+    cat(sprintf("  Bootstrap p-value for Gamma test (B-C): %.3f\n", p_gamma_bc))
     cat(sprintf("  Average SEE: %.2f\n", avg_see))
   }
   
@@ -460,6 +516,23 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
     method = method,
     parallel = use_parallel,
     n_cores = if (use_parallel) n_cores else 1L,
+    # Fit A-B results
+    lr_ab_observed = lr_ab_observed,
+    df_ab = fit_ab$df,
+    lr_ab_bootstrap = lr_ab_bootstrap,
+    p_lr_ab = p_lr_ab,
+    gk_gamma_z_ab_observed = gk_gamma_z_ab_observed,
+    gk_gamma_z_ab_bootstrap = gk_gamma_z_ab_bootstrap,
+    p_gamma_ab = p_gamma_ab,
+    # Fit B-C results
+    lr_bc_observed = lr_bc_observed,
+    df_bc = fit_bc$df,
+    lr_bc_bootstrap = lr_bc_bootstrap,
+    p_lr_bc = p_lr_bc,
+    gk_gamma_z_bc_observed = gk_gamma_z_bc_observed,
+    gk_gamma_z_bc_bootstrap = gk_gamma_z_bc_bootstrap,
+    p_gamma_bc = p_gamma_bc,
+    # Indirect equating results
     indirect_eq = indirect_eq,
     source_scores = source_scores,
     observed_expected = observed_expected,
@@ -473,7 +546,9 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
     error_freq = error_freq,
     prop_failed = prop_failed,
     source_min = source_min,
-    source_max = source_max
+    source_max = source_max,
+    fit_ab = fit_ab,
+    fit_bc = fit_bc
   )
   
   class(result) <- "leunbach_indirect_bootstrap"
@@ -494,8 +569,12 @@ run_single_indirect_bootstrap <- function(seed, data_list) {
   method <- data_list$method
   n_scores <- data_list$n_scores
   
-  # Initialize output
+  # Initialize output - ADD gk_gamma_z for both fits
   result <- list(
+    lr_ab = NA,
+    lr_bc = NA,
+    gk_gamma_z_ab = NA,
+    gk_gamma_z_bc = NA,
     expected = rep(NA, n_scores),
     rounded = rep(NA, n_scores),
     failed = rep(1, n_scores)
@@ -523,6 +602,9 @@ run_single_indirect_bootstrap <- function(seed, data_list) {
   
   if (is.null(boot_fit_ab)) return(result)
   
+  result$lr_ab <- boot_fit_ab$g_sq
+  result$gk_gamma_z_ab <- boot_fit_ab$gk_gamma_z
+  
   # Bootstrap fit_bc
   boot_table_bc <- parametric_eq_bootstrap(
     fit_bc_data$test1_scores, fit_bc_data$test2_scores, fit_bc_data$total_scores,
@@ -544,6 +626,9 @@ run_single_indirect_bootstrap <- function(seed, data_list) {
   }, error = function(e) NULL)
   
   if (is.null(boot_fit_bc)) return(result)
+  
+  result$lr_bc <- boot_fit_bc$g_sq
+  result$gk_gamma_z_bc <- boot_fit_bc$gk_gamma_z
   
   # Compute indirect equating
   boot_indirect <- tryCatch({
@@ -571,6 +656,11 @@ run_indirect_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list,
   
   n_scores <- boot_data_list$n_scores
   
+  # Initialize storage - ADD lr and gamma_z for both fits
+  lr_ab_bootstrap <- numeric(nsim)
+  lr_bc_bootstrap <- numeric(nsim)
+  gk_gamma_z_ab_bootstrap <- numeric(nsim)
+  gk_gamma_z_bc_bootstrap <- numeric(nsim)
   boot_expected <- matrix(NA, nrow = nsim, ncol = n_scores)
   boot_rounded <- matrix(NA, nrow = nsim, ncol = n_scores)
   boot_failed <- matrix(1, nrow = nsim, ncol = n_scores)
@@ -582,6 +672,10 @@ run_indirect_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list,
   for (sim in 1:nsim) {
     result <- run_single_indirect_bootstrap(boot_seeds[sim], boot_data_list)
     
+    lr_ab_bootstrap[sim] <- result$lr_ab
+    lr_bc_bootstrap[sim] <- result$lr_bc
+    gk_gamma_z_ab_bootstrap[sim] <- result$gk_gamma_z_ab
+    gk_gamma_z_bc_bootstrap[sim] <- result$gk_gamma_z_bc
     boot_expected[sim, ] <- result$expected
     boot_rounded[sim, ] <- result$rounded
     boot_failed[sim, ] <- result$failed
@@ -597,6 +691,10 @@ run_indirect_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list,
   }
   
   list(
+    lr_ab_bootstrap = lr_ab_bootstrap,
+    lr_bc_bootstrap = lr_bc_bootstrap,
+    gk_gamma_z_ab_bootstrap = gk_gamma_z_ab_bootstrap,
+    gk_gamma_z_bc_bootstrap = gk_gamma_z_bc_bootstrap,
     boot_expected = boot_expected,
     boot_rounded = boot_rounded,
     boot_failed = boot_failed
@@ -611,12 +709,17 @@ run_indirect_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list,
   
   n_scores <- boot_data_list$n_scores
   
+  # Initialize storage - ADD lr and gamma_z for both fits
+  lr_ab_bootstrap <- numeric(nsim)
+  lr_bc_bootstrap <- numeric(nsim)
+  gk_gamma_z_ab_bootstrap <- numeric(nsim)
+  gk_gamma_z_bc_bootstrap <- numeric(nsim)
   boot_expected <- matrix(NA, nrow = nsim, ncol = n_scores)
   boot_rounded <- matrix(NA, nrow = nsim, ncol = n_scores)
   boot_failed <- matrix(1, nrow = nsim, ncol = n_scores)
   
   mirai:: daemons(n_cores)
-  on.exit(mirai:: daemons(0), add = TRUE)
+  on.exit(mirai::daemons(0), add = TRUE)
   
   if (verbose) {
     cat(sprintf("Starting %d daemons...\n", n_cores))
@@ -641,6 +744,7 @@ run_indirect_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list,
       find_nearest_equated = find_nearest_equated,
       adjust_gamma = adjust_gamma,
       calculate_statistics = calculate_statistics,
+      calculate_gamma_test = calculate_gamma_test,
       estimate_person_parameter = estimate_person_parameter,
       estimate_theta_optimize = estimate_theta_optimize,
       estimate_theta_newton = estimate_theta_newton,
@@ -655,9 +759,18 @@ run_indirect_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list,
     result <- mirai::call_mirai(tasks[[sim]])$data
     
     if (! inherits(result, "errorValue")) {
+      lr_ab_bootstrap[sim] <- result$lr_ab
+      lr_bc_bootstrap[sim] <- result$lr_bc
+      gk_gamma_z_ab_bootstrap[sim] <- result$gk_gamma_z_ab
+      gk_gamma_z_bc_bootstrap[sim] <- result$gk_gamma_z_bc
       boot_expected[sim, ] <- result$expected
       boot_rounded[sim, ] <- result$rounded
       boot_failed[sim, ] <- result$failed
+    } else {
+      lr_ab_bootstrap[sim] <- NA
+      lr_bc_bootstrap[sim] <- NA
+      gk_gamma_z_ab_bootstrap[sim] <- NA
+      gk_gamma_z_bc_bootstrap[sim] <- NA
     }
     
     if (verbose) {
@@ -672,11 +785,16 @@ run_indirect_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list,
   }
   
   list(
+    lr_ab_bootstrap = lr_ab_bootstrap,
+    lr_bc_bootstrap = lr_bc_bootstrap,
+    gk_gamma_z_ab_bootstrap = gk_gamma_z_ab_bootstrap,
+    gk_gamma_z_bc_bootstrap = gk_gamma_z_bc_bootstrap,
     boot_expected = boot_expected,
     boot_rounded = boot_rounded,
     boot_failed = boot_failed
   )
 }
+
 
 
 #' Print method for leunbach_indirect_bootstrap objects
@@ -685,7 +803,7 @@ print.leunbach_indirect_bootstrap <- function(x, ...) {
   cat("Leunbach Indirect Equating - Parametric Bootstrap Results\n")
   cat("==========================================================\n\n")
   
-  cat(sprintf("Path: %s → %s → %s\n", x$indirect_eq$source_name,
+  cat(sprintf("Path: %s -> %s -> %s\n", x$indirect_eq$source_name,
               x$indirect_eq$anchor_name, x$indirect_eq$target_name))
   cat(sprintf("Bootstrap samples: %d (%d valid)\n", x$nsim, x$n_valid))
   if (x$parallel) {
@@ -696,9 +814,102 @@ print.leunbach_indirect_bootstrap <- function(x, ...) {
   cat(sprintf("Optimization method: %s\n", x$method))
   cat(sprintf("SEE type: %s scores\n\n", x$see_type))
   
+  cat("Assessment of significance by parametric bootstrapping:\n\n")
+  
+  # Equating A-B
+  cat(sprintf("Equating A-B (%s -> %s):\n", 
+              x$indirect_eq$source_name, x$indirect_eq$anchor_name))
+  cat("  1. Likelihood Ratio Test:\n")
+  cat(sprintf("     Observed LR = %.2f (df = %d)\n", x$lr_ab_observed, x$df_ab))
+  cat(sprintf("     Asymptotic p-value:    p = %.4f\n", x$fit_ab$p_value))
+  cat(sprintf("     Bootstrap p-value:    p = %.4f\n", x$p_lr_ab))
+  cat("  2. Goodman-Kruskal Gamma Test (one-sided):\n")
+  if (! is.na(x$gk_gamma_z_ab_observed)) {
+    cat(sprintf("     Observed Z = %.2f\n", x$gk_gamma_z_ab_observed))
+    cat(sprintf("     Asymptotic p-value:   p = %.4f\n", x$fit_ab$gk_gamma_p))
+    cat(sprintf("     Bootstrap p-value:    p = %.4f\n\n", x$p_gamma_ab))
+  } else {
+    cat("     Could not be calculated\n\n")
+  }
+  
+  # Equating B-C
+  cat(sprintf("Equating B-C (%s -> %s):\n", 
+              x$indirect_eq$anchor_name, x$indirect_eq$target_name))
+  cat("  1. Likelihood Ratio Test:\n")
+  cat(sprintf("     Observed LR = %.2f (df = %d)\n", x$lr_bc_observed, x$df_bc))
+  cat(sprintf("     Asymptotic p-value:    p = %.4f\n", x$fit_bc$p_value))
+  cat(sprintf("     Bootstrap p-value:    p = %.4f\n", x$p_lr_bc))
+  cat("  2. Goodman-Kruskal Gamma Test (one-sided):\n")
+  if (!is.na(x$gk_gamma_z_bc_observed)) {
+    cat(sprintf("     Observed Z = %.2f\n", x$gk_gamma_z_bc_observed))
+    cat(sprintf("     Asymptotic p-value:   p = %.4f\n", x$fit_bc$gk_gamma_p))
+    cat(sprintf("     Bootstrap p-value:    p = %.4f\n\n", x$p_gamma_bc))
+  } else {
+    cat("     Could not be calculated\n\n")
+  }
+  
   print_indirect_see_table(x)
   
   invisible(x)
+}
+
+
+#' Summary method for leunbach_indirect_bootstrap objects
+#' @export
+summary.leunbach_indirect_bootstrap <- function(object, ...) {
+  cat("Leunbach Indirect Equating - Bootstrap Summary\n")
+  cat("===============================================\n\n")
+  
+  cat(sprintf("Path: %s -> %s -> %s\n", object$indirect_eq$source_name,
+              object$indirect_eq$anchor_name, object$indirect_eq$target_name))
+  cat(sprintf("Bootstrap samples:  %d (%d valid)\n", object$nsim, object$n_valid))
+  cat(sprintf("Confidence level: %d%%\n", round(object$conf_level * 100)))
+  cat(sprintf("SEE type: %s scores\n\n", object$see_type))
+  
+  cat("Model Fit Summary:\n\n")
+  
+  # A-B fit
+  cat(sprintf("Equating A-B (%s -> %s):\n", 
+              object$indirect_eq$source_name, object$indirect_eq$anchor_name))
+  cat(sprintf("  LR test:     asymptotic p = %.4f, bootstrap p = %.4f\n", 
+              object$fit_ab$p_value, object$p_lr_ab))
+  if (!is.na(object$gk_gamma_z_ab_observed)) {
+    cat(sprintf("  Gamma test:  asymptotic p = %.4f, bootstrap p = %.4f\n\n", 
+                object$fit_ab$gk_gamma_p, object$p_gamma_ab))
+  } else {
+    cat("  Gamma test: could not be calculated\n\n")
+  }
+  
+  # B-C fit
+  cat(sprintf("Equating B-C (%s -> %s):\n", 
+              object$indirect_eq$anchor_name, object$indirect_eq$target_name))
+  cat(sprintf("  LR test:     asymptotic p = %.4f, bootstrap p = %.4f\n", 
+              object$fit_bc$p_value, object$p_lr_bc))
+  if (!is.na(object$gk_gamma_z_bc_observed)) {
+    cat(sprintf("  Gamma test: asymptotic p = %.4f, bootstrap p = %.4f\n\n", 
+                object$fit_bc$gk_gamma_p, object$p_gamma_bc))
+  } else {
+    cat("  Gamma test: could not be calculated\n\n")
+  }
+  
+  cat(sprintf("Average SEE: %.2f\n", object$avg_see))
+  
+  # Report failure rates for extreme scores
+  valid <- object$source_scores >= object$source_min & 
+    object$source_scores <= object$source_max
+  failed_rates <- object$prop_failed[valid]
+  high_fail <- which(failed_rates > 5)
+  
+  if (length(high_fail) > 0) {
+    cat("\nScores with >5% bootstrap failures:\n")
+    scores_with_failures <- object$source_scores[valid][high_fail]
+    for (j in seq_along(high_fail)) {
+      cat(sprintf("  Score %d: %.1f%% failed\n", 
+                  scores_with_failures[j], failed_rates[high_fail[j]]))
+    }
+  }
+  
+  invisible(object)
 }
 
 
@@ -732,39 +943,6 @@ print_indirect_see_table <- function(x) {
   
   cat("---------------------------------------------------------------------------------------------\n")
   cat(sprintf("Average SEE:   %.2f\n", x$avg_see))
-}
-
-
-#' Summary method for leunbach_indirect_bootstrap objects
-#' @export
-summary.leunbach_indirect_bootstrap <- function(object, ...) {
-  cat("Leunbach Indirect Equating - Bootstrap Summary\n")
-  cat("===============================================\n\n")
-  
-  cat(sprintf("Path: %s → %s → %s\n", object$indirect_eq$source_name,
-              object$indirect_eq$anchor_name, object$indirect_eq$target_name))
-  cat(sprintf("Bootstrap samples: %d (%d valid)\n", object$nsim, object$n_valid))
-  cat(sprintf("Confidence level: %d%%\n", round(object$conf_level * 100)))
-  cat(sprintf("SEE type: %s scores\n\n", object$see_type))
-  
-  cat(sprintf("Average SEE:  %.2f\n", object$avg_see))
-  
-  # Report failure rates for extreme scores
-  valid <- object$source_scores >= object$source_min & 
-    object$source_scores <= object$source_max
-  failed_rates <- object$prop_failed[valid]
-  high_fail <- which(failed_rates > 5)
-  
-  if (length(high_fail) > 0) {
-    cat("\nScores with >5% bootstrap failures:\n")
-    scores_with_failures <- object$source_scores[valid][high_fail]
-    for (j in seq_along(high_fail)) {
-      cat(sprintf("  Score %d: %.1f%% failed\n", 
-                  scores_with_failures[j], failed_rates[high_fail[j]]))
-    }
-  }
-  
-  invisible(object)
 }
 
 
