@@ -43,10 +43,6 @@ summary(fit)
 print(fit)
 ```
 
-```{r}
-calculate_statistics(fit)$std_residuals
-```
-
 
 ### Analyze orbits
 
