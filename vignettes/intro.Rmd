@@ -2,6 +2,9 @@
 title: "Introduction to Leunbach test equating"
 author: "Magnus Johansson, PhD"
 output: html_document
+resource_files:
+  - data/data3a.csv
+  - data/data1.csv
 ---
 
 This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R.
