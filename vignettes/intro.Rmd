@@ -3,8 +3,8 @@ title: "Introduction to Leunbach test equating"
 author: "Magnus Johansson, PhD"
 output: html_document
 resource_files:
-  - data/data3a.csv
-  - data/data1.csv
+  - ./data/data3a.csv
+  - ./data/data1.csv
 ---
 
 This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R.
@@ -16,7 +16,7 @@ First, we load the package and a dataset.
 ```{r}
 library(leunbachR)
 set.seed(1234) # for reproducibility of bootstrap results
-d3a <- read.delim("data/data3a.csv", sep = ";")
+d3a <- read.delim("./data/data3a.csv", sep = ";")
 ```
 
 Looking at our data, we can see that it has two variables containing sum scores from the two tests that we want to equate.
@@ -94,7 +94,7 @@ print(boot)
 For this, we read a dataset with three tests.
 
 ```{r}
-d1 <- read.delim("data/data1.csv", sep = ";")
+d1 <- read.delim("./data/data1.csv", sep = ";")
 head(d1)
 ```
 
