@@ -1,7 +1,7 @@
 Package: leunbachR
 Title: Leunbach Test Equating
-Version: 0.0.1
-Date: 2026-01-15
+Version: 0.0.2
+Date: 2026-01-20
 URL: https://github.com/pgmj/leunbachR, https://pgmj.github.io/leunbachR/
 Authors@R:
     person("Magnus", "Johansson", , "pgmj@pm.me", role = c("aut", "cre"),

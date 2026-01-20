@@ -23,7 +23,7 @@ estimate_person_parameter(
 
 \item{score_max}{Maximum observed score}
 
-\item{method}{Optimization method:  "optimize" (default) uses stats::optimize()
+\item{method}{Optimization method: "optimize" (default) uses stats::optimize()
 with Brent's method, "newton" uses custom Newton-Raphson with bisection fallback}
 
 \item{tol}{Convergence tolerance}

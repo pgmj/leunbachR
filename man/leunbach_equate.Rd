@@ -14,7 +14,7 @@ leunbach_equate(
 \arguments{
 \item{fit}{A leunbach_ipf object from leunbach_ipf()}
 
-\item{direction}{Direction of equating: "1to2" (Test1 to Test2) or "2to1" (Test2 to Test1)}
+\item{direction}{Direction of equating:  "1to2" (Test1 to Test2) or "2to1" (Test2 to Test1)}
 
 \item{method}{Optimization method for person parameter estimation:
 "optimize" (default) uses stats::optimize() with Brent's method,
@@ -25,7 +25,7 @@ leunbach_equate(
 \value{
 A list of class "leunbach_equating" containing:
 \itemize{
-\item equating_table: Data frame with original scores, expected equated scores, and rounded scores
+\item equating_table: Data frame with original scores, theta, expected equated scores, and rounded scores
 \item direction: Direction of equating
 \item method: Optimization method used
 \item fit: Original leunbach_ipf object

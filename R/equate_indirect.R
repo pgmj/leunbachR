@@ -114,13 +114,15 @@ compute_indirect_equating <- function(eq_ab, eq_bc) {
   
   # Get source scores (Test A)
   source_scores <- eq_ab$equating_table[, 1]
-  expected_anchor <- eq_ab$equating_table[, 2]  # Expected B scores (continuous)
+  theta_ab <- eq_ab$equating_table[, 2]        # Theta values from A->B
+  expected_anchor <- eq_ab$equating_table[, 3] # Expected B scores (continuous)
   
-  # Get anchor → target equating table
+  # Get anchor -> target equating table
   anchor_scores <- eq_bc$equating_table[, 1]
-  expected_target <- eq_bc$equating_table[, 2]  # Expected C scores for integer B
+  theta_bc <- eq_bc$equating_table[, 2]        # Theta values from B->C
+  expected_target <- eq_bc$equating_table[, 3] # Expected C scores for integer B
   
-  # Create lookup for B → C (integer B scores only)
+  # Create lookup for B -> C (integer B scores only)
   bc_lookup <- setNames(expected_target, anchor_scores)
   
   # Source score range
@@ -137,8 +139,9 @@ compute_indirect_equating <- function(eq_ab, eq_bc) {
   
   # Initialize result vectors
   n_scores <- length(source_scores)
-  expected_indirect <- rep(NA, n_scores)
-  rounded_indirect <- rep(NA, n_scores)
+  theta_indirect <- rep(NA_real_, n_scores)
+  expected_indirect <- rep(NA_real_, n_scores)
+  rounded_indirect <- rep(NA_integer_, n_scores)
   
   for (i in seq_along(source_scores)) {
     x <- source_scores[i]
@@ -148,12 +151,16 @@ compute_indirect_equating <- function(eq_ab, eq_bc) {
       next
     }
     
-    # Get expected anchor score (B) for this source score (A)
+    # Get theta and expected anchor score (B) for this source score (A)
+    theta_a <- theta_ab[i]
     exp_b <- expected_anchor[i]
     
     if (is.na(exp_b)) {
       next
     }
+    
+    # Store the theta from source test
+    theta_indirect[i] <- theta_a
     
     # Handle boundary cases
     if (exp_b <= anchor_min) {
@@ -200,11 +207,12 @@ compute_indirect_equating <- function(eq_ab, eq_bc) {
     rounded_indirect[i] <- round(expected_indirect[i])
   }
   
-  # Create output table
+  # Create output table with named columns
   data.frame(
     source = source_scores,
+    theta = theta_indirect,
     expected = expected_indirect,
-    rounded = rounded_indirect
+    rounded = as.integer(rounded_indirect)
   )
 }
 
@@ -240,21 +248,33 @@ find_nearest_equated <- function(score, lookup, direction = c("down", "up")) {
 print.leunbach_indirect <- function(x, ...) {
   cat("Leunbach Indirect Equating\n")
   cat("==========================\n\n")
-  cat(sprintf("Path: %s → %s → %s\n", x$source_name, x$anchor_name, x$target_name))
+  cat(sprintf("Path: %s -> %s -> %s\n", x$source_name, x$anchor_name, x$target_name))
   cat(sprintf("Method: %s\n\n", x$method))
   
-  cat(sprintf("Source (%s) range: %d to %d\n", x$source_name, x$source_min, x$source_max))
+  cat(sprintf("Source (%s) range:  %d to %d\n", x$source_name, x$source_min, x$source_max))
   cat(sprintf("Anchor (%s) range: %d to %d\n", x$anchor_name, x$anchor_min, x$anchor_max))
   cat(sprintf("Target (%s) range: %d to %d\n\n", x$target_name, x$target_min, x$target_max))
   
   tab <- x$equating_table
-  tab <- tab[!is.na(tab$expected), ]
-  tab$expected <- round(tab$expected, 2)
+  # Filter to valid range
+  valid_idx <- tab$source >= x$source_min & tab$source <= x$source_max
+  tab <- tab[valid_idx, ]
   
-  colnames(tab) <- c(x$source_name, paste0("Expected_", x$target_name), 
-                     paste0("Rounded_", x$target_name))
+  # Format for display
+  display_tab <- data.frame(
+    Score = tab$source,
+    Log_Theta = ifelse(is.na(tab$theta) | tab$theta <= 0, 
+                       "      NA", 
+                       sprintf("%8.4f", log(tab$theta))),
+    Expected = sprintf("%6.2f", tab$expected),
+    Rounded = tab$rounded
+  )
   
-  print(tab, row.names = FALSE)
+  colnames(display_tab) <- c(x$source_name, "Theta",
+                             paste0("Expected_", x$target_name), 
+                             paste0("Rounded_", x$target_name))
+  
+  print(display_tab, row.names = FALSE)
   
   invisible(x)
 }
@@ -569,7 +589,7 @@ run_single_indirect_bootstrap <- function(seed, data_list) {
   method <- data_list$method
   n_scores <- data_list$n_scores
   
-  # Initialize output - ADD gk_gamma_z for both fits
+  # Initialize output
   result <- list(
     lr_ab = NA,
     lr_bc = NA,
@@ -641,8 +661,9 @@ run_single_indirect_bootstrap <- function(seed, data_list) {
   
   if (is.null(boot_indirect)) return(result)
   
-  result$expected <- boot_indirect$equating_table$expected
-  result$rounded <- boot_indirect$equating_table$rounded
+  # Indirect equating table has 4 columns: source, theta, expected, rounded
+  result$expected <- boot_indirect$equating_table$expected  # Column 3
+  result$rounded <- boot_indirect$equating_table$rounded    # Column 4
   result$failed <- as.numeric(is.na(result$expected))
   
   return(result)
@@ -990,15 +1011,20 @@ plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...
 #' @export
 get_indirect_equating_table <- function(boot) {
   
-  if (! inherits(boot, "leunbach_indirect_bootstrap")) {
+  if (!inherits(boot, "leunbach_indirect_bootstrap")) {
     stop("Input must be a leunbach_indirect_bootstrap object")
   }
   
   valid <- boot$source_scores >= boot$source_min & 
     boot$source_scores <= boot$source_max
   
+  # Get theta values from indirect equating table and convert to log
+  theta_values <- boot$indirect_eq$equating_table$theta[valid]
+  log_theta <- ifelse(is.na(theta_values) | theta_values <= 0, NA, round(log(theta_values), 4))
+  
   result <- data.frame(
     source = boot$source_scores[valid],
+    log_theta = log_theta,
     rounded = boot$observed_rounded[valid],
     expected = round(boot$observed_expected[valid], 2),
     ci_lower = round(boot$ci_lower[valid], 2),

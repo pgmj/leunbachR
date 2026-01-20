@@ -102,5 +102,9 @@ d3a <- data.frame(
 
 fit <- leunbach_ipf(d3a, verbose = TRUE)
 print(fit)
-boot <- leunbach_bootstrap(fit, verbose = T, n_cores = 12)
+leunbach_equate(fit)
+boot <- leunbach_bootstrap(fit, verbose = T, n_cores = 12, nsim = 100)
 print(boot)
+
+
+get_equating_table(boot)

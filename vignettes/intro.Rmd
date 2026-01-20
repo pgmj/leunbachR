@@ -73,8 +73,10 @@ leunbach_equate(fit, verbose = TRUE, direction = "1to2")
 
 If you have installed the package `mirai` and have a computer with multiple CPU cores, you can significantly reduce the time needed for bootstrap. Note that not all cores are equal. For instance, on a modern Mac, you should only use the "performance cores", not the "efficiency cores".
 
+For the purposes of this vignette, we only use 100 bootstrap iterations. It is recommended to use at least 1000.
+
 ```{r}
-boot <- leunbach_bootstrap(fit, n_cores = 4, verbose = TRUE)
+boot <- leunbach_bootstrap(fit, n_cores = 4, verbose = TRUE, nsim = 100)
 
 ```
 
@@ -82,7 +84,17 @@ boot <- leunbach_bootstrap(fit, n_cores = 4, verbose = TRUE)
 print(boot)
 ```
 
+You can also get the equating table as a separate object.
 
+```{r}
+get_equating_table(boot)
+```
+
+Write the table to a CSV file.
+
+```{r}
+write.csv(get_equating_table(boot), file = "eqtable.csv")
+```
 
 
 ## Indirect equating
@@ -94,7 +106,9 @@ d1 <- read.delim("./data/data1.csv", sep = ";")
 head(d1)
 ```
 
-We will estimate two models before the indirecy equating procedure. Test A with Test B; and Test B with Test C. The code below uses base R methods to select the columns in the dataframe, first 1 and 2, second 2 and 3.
+We will estimate two models before the indirect equating procedure. Test A with Test B; and Test B with Test C. Then the results will be used to indirectly equate Test A with Test C
+
+The code below uses base R methods to select the columns in the dataframe, first 1 and 2, second 2 and 3.
 
 ```{r}
 fit_ab <- leunbach_ipf(d1[,c(1,2)])
@@ -112,11 +126,13 @@ print(indirect1)
 
 ### Bootstrap
 
+Again, only using 100 simulations for demonstration purposes.
+
 ```{r}
 boot_indirect1 <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
                                              direction_ab = "1to2",
                                              direction_bc = "1to2",
-                                             nsim = 1000,
+                                             nsim = 100,
                                              verbose = TRUE, n_cores = 4)
 ```
 

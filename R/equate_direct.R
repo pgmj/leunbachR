@@ -8,7 +8,7 @@
 #' @param gamma Score parameters (named vector)
 #' @param score_min Minimum observed score
 #' @param score_max Maximum observed score
-#' @param method Optimization method:  "optimize" (default) uses stats::optimize() 
+#' @param method Optimization method: "optimize" (default) uses stats::optimize() 
 #'        with Brent's method, "newton" uses custom Newton-Raphson with bisection fallback
 #' @param tol Convergence tolerance
 #' @param max_iter Maximum iterations (only for method = "newton")
@@ -27,9 +27,11 @@ estimate_person_parameter <- function(score, gamma, score_min, score_max,
   
   if (length(scores) < 2) return(NA)
   
-  # Handle boundary cases
-  if (score <= score_min) return(1e-10)
-  if (score >= score_max) return(1e10)
+  # Boundary scores should be handled by the calling function
+  # This function estimates theta for intermediate scores only
+  if (score <= score_min || score >= score_max) {
+    return(NA)
+  }
   
   if (method == "optimize") {
     estimate_theta_optimize(score, gamma, score_min, score_max, tol)
@@ -327,14 +329,14 @@ calculate_true_score <- function(theta, gamma, score_min, score_max) {
 #' the estimated score parameters from the Leunbach model.
 #'
 #' @param fit A leunbach_ipf object from leunbach_ipf()
-#' @param direction Direction of equating: "1to2" (Test1 to Test2) or "2to1" (Test2 to Test1)
-#' @param method Optimization method for person parameter estimation: 
+#' @param direction Direction of equating:  "1to2" (Test1 to Test2) or "2to1" (Test2 to Test1)
+#' @param method Optimization method for person parameter estimation:  
 #'        "optimize" (default) uses stats::optimize() with Brent's method,
 #'        "newton" uses custom Newton-Raphson with bisection fallback
 #' @param verbose Print detailed output
 #'
 #' @return A list of class "leunbach_equating" containing:
-#'   - equating_table: Data frame with original scores, expected equated scores, and rounded scores
+#'   - equating_table: Data frame with original scores, theta, expected equated scores, and rounded scores
 #'   - direction: Direction of equating
 #'   - method: Optimization method used
 #'   - fit: Original leunbach_ipf object
@@ -344,7 +346,7 @@ leunbach_equate <- function(fit, direction = c("1to2", "2to1"),
                             method = c("optimize", "newton"),
                             verbose = FALSE) {
   
-  if (!inherits(fit, "leunbach_ipf")) {
+  if (! inherits(fit, "leunbach_ipf")) {
     stop("Input must be a leunbach_ipf object")
   }
   
@@ -374,34 +376,54 @@ leunbach_equate <- function(fit, direction = c("1to2", "2to1"),
   }
   
   n_scores <- length(source_scores)
-  expected_score <- rep(NA, n_scores)
-  rounded_score <- rep(NA, n_scores)
+  theta_values <- rep(NA_real_, n_scores)
+  expected_score <- rep(NA_real_, n_scores)
+  rounded_score <- rep(NA_integer_, n_scores)
+  names(theta_values) <- source_scores
   names(expected_score) <- source_scores
   names(rounded_score) <- source_scores
   
-  # For scores at or below source_min, equated score is target_min
-  for (x in source_scores[source_scores <= source_min]) {
-    expected_score[as.character(x)] <- target_min
-    rounded_score[as.character(x)] <- target_min
+  # For scores below source_min, equated score is target_min (no theta)
+  for (x in source_scores[source_scores < source_min]) {
+    x_char <- as.character(x)
+    expected_score[x_char] <- target_min
+    rounded_score[x_char] <- target_min
   }
   
-  # For scores at or above source_max, equated score is target_max
-  for (x in source_scores[source_scores >= source_max]) {
-    expected_score[as.character(x)] <- target_max
-    rounded_score[as.character(x)] <- target_max
+  # For scores above source_max, equated score is target_max (no theta)
+  for (x in source_scores[source_scores > source_max]) {
+    x_char <- as.character(x)
+    expected_score[x_char] <- target_max
+    rounded_score[x_char] <- target_max
   }
   
-  # For intermediate scores, estimate theta and calculate true score
+  # Handle minimum boundary score:  theta = exp(-5), equated = target_min
+  source_min_char <- as.character(source_min)
+  theta_values[source_min_char] <- exp(-5)
+  expected_score[source_min_char] <- target_min
+  rounded_score[source_min_char] <- target_min
+  
+  # Handle maximum boundary score:  theta = exp(5), equated = target_max
+  source_max_char <- as.character(source_max)
+  theta_values[source_max_char] <- exp(5)
+  expected_score[source_max_char] <- target_max
+  rounded_score[source_max_char] <- target_max
+  
+  # Estimate theta for intermediate scores (source_min < x < source_max)
   for (x in source_scores[source_scores > source_min & source_scores < source_max]) {
     x_char <- as.character(x)
     
+    # Estimate theta for this score
     theta <- estimate_person_parameter(x, source_gamma, source_min, source_max,
                                        method = method)
     
     if (! is.na(theta) && theta > 0) {
-      theta <- max(1e-10, min(1e10, theta))
-      true_score <- calculate_true_score(theta, target_gamma, target_min, target_max)
+      # Bound theta:  exp(-5) to exp(5)
+      theta <- max(exp(-5), min(exp(5), theta))
+      theta_values[x_char] <- theta
       
+      # Calculate true score on target test
+      true_score <- calculate_true_score(theta, target_gamma, target_min, target_max)
       expected_score[x_char] <- true_score
       rounded_score[x_char] <- round(true_score)
     }
@@ -409,17 +431,19 @@ leunbach_equate <- function(fit, direction = c("1to2", "2to1"),
   
   equating_table <- data.frame(
     source_score = source_scores,
+    theta = theta_values,
     expected_target = expected_score,
-    rounded_target = rounded_score
+    rounded_target = as.integer(rounded_score)
   )
   
-  colnames(equating_table) <- c(source_name, paste0("Expected_", target_name),
+  colnames(equating_table) <- c(source_name, "Theta", 
+                                paste0("Expected_", target_name),
                                 paste0("Rounded_", target_name))
   
   if (verbose) {
     cat(sprintf("Equating %s to %s (method: %s)\n", source_name, target_name, method))
     cat("==========================================\n\n")
-    print(equating_table[! is.na(equating_table[, 2]), ], row.names = FALSE)
+    print(equating_table[! is.na(equating_table[, 3]), ], row.names = FALSE)
   }
   
   result <- list(
@@ -445,13 +469,28 @@ leunbach_equate <- function(fit, direction = c("1to2", "2to1"),
 print.leunbach_equating <- function(x, ...) {
   cat(sprintf("Leunbach Equating:  %s to %s\n", x$source_name, x$target_name))
   cat(sprintf("Method: %s\n", x$method))
-  cat("================================\n\n")
+  cat("==========================================\n\n")
   
   tab <- x$equating_table
-  tab <- tab[!is.na(tab[, 2]), ]
-  tab[, 2] <- round(tab[, 2], 2)
+  # Filter to valid range (source_min to source_max)
+  valid_idx <- tab[, 1] >= x$source_min & tab[, 1] <= x$source_max
+  tab <- tab[valid_idx, ]
   
-  print(tab, row.names = FALSE)
+  # Format for display
+  display_tab <- data.frame(
+    Score = tab[, 1],
+    Log_Theta = ifelse(is.na(tab[, 2]) | tab[, 2] <= 0, 
+                       "      NA", 
+                       sprintf("%8.4f", log(tab[, 2]))),
+    Expected = sprintf("%6.2f", tab[, 3]),
+    Rounded = tab[, 4]
+  )
+  
+  colnames(display_tab) <- c(x$source_name, "Theta", 
+                             paste0("Expected_", x$target_name),
+                             paste0("Rounded_", x$target_name))
+  
+  print(display_tab, row.names = FALSE)
   
   invisible(x)
 }

@@ -16,5 +16,5 @@ A data frame with equating results and CIs
 }
 \description{
 Extracts equating results from a bootstrap object as a clean data frame
-with confidence intervals and standard errors.
+with log theta values, confidence intervals and standard errors.
 }

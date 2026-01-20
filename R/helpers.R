@@ -179,6 +179,7 @@ compute_error_frequencies <- function(boot_rounded, observed_rounded, scores) {
     
     errors <- boot_vals - obs
     
+    # Count errors at each level
     for (j in 1:n_levels) {
       e <- error_levels[j]
       if (e == -2) {
@@ -191,7 +192,9 @@ compute_error_frequencies <- function(boot_rounded, observed_rounded, scores) {
     }
     
     total <- length(boot_vals)
-    freq_matrix[i, ] <- round(100 * freq_matrix[i, ] / total, 1)
+    if (total > 0) {
+      freq_matrix[i, ] <- round(100 * freq_matrix[i, ] / total, 1)
+    }
   }
   
   return(freq_matrix)
@@ -214,7 +217,7 @@ print_see_table <- function(x, direction = "1to2") {
   
   if (direction == "1to2") {
     cat(sprintf("Equating Test1 to Test2 (with %d%% CI)\n", conf_pct))
-    cat("=====================================================\n\n")
+    cat("============================================================================\n\n")
     
     eq_table <- x$eq_1to2$equating_table
     see <- x$see_1to2
@@ -226,7 +229,7 @@ print_see_table <- function(x, direction = "1to2") {
     scores <- x$fit$test1_scores
   } else {
     cat(sprintf("Equating Test2 to Test1 (with %d%% CI)\n", conf_pct))
-    cat("=====================================================\n\n")
+    cat("============================================================================\n\n")
     
     eq_table <- x$eq_2to1$equating_table
     see <- x$see_2to1
@@ -240,23 +243,71 @@ print_see_table <- function(x, direction = "1to2") {
   
   valid <- scores >= source_min & scores <= source_max
   
-  cat("                                                         Frequency of bootstrap errors\n")
-  cat(sprintf("Score  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2\n", conf_pct))
-  cat("------------------------------------------------------------------------------------\n")
+  cat("                                                                      Frequency of bootstrap errors\n")
+  cat(sprintf("Score      Theta  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2\n", conf_pct))
+  cat("--------------------------------------------------------------------------------------------------\n")
   
   for (i in which(valid)) {
+    theta_val <- eq_table[i, 2]
+    if (is.na(theta_val) || theta_val <= 0) {
+      log_theta_str <- "       NA"
+    } else {
+      log_theta_str <- sprintf("%9.4f", log(theta_val))
+    }
     ci_str <- sprintf("[%5.2f, %5.2f]", ci_lower[i], ci_upper[i])
-    cat(sprintf("%5d  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f\n",
-                eq_table[i, 1], eq_table[i, 3], eq_table[i, 2],
+    cat(sprintf("%5d  %s  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f\n",
+                eq_table[i, 1], log_theta_str, eq_table[i, 4], eq_table[i, 3],
                 ci_str, see[i],
                 error_freq[i, 1], error_freq[i, 2], error_freq[i, 3],
                 error_freq[i, 4], error_freq[i, 5]))
   }
   
-  cat("------------------------------------------------------------------------------------\n")
+  cat("--------------------------------------------------------------------------------------------------\n")
   
   avg_see <- mean(see[valid], na.rm = TRUE)
-  cat(sprintf("Average SEE:  %.2f\n", avg_see))
+  cat(sprintf("Average SEE: %.2f\n", avg_see))
+}
+
+
+#' Print SEE table for indirect equating
+#' @keywords internal
+print_indirect_see_table <- function(x) {
+  
+  conf_pct <- round(x$conf_level * 100)
+  
+  cat(sprintf("Indirect Equating: %s -> %s (with %d%% CI)\n",
+              x$indirect_eq$source_name, x$indirect_eq$target_name, conf_pct))
+  cat("=======================================================================================\n\n")
+  
+  valid <- x$source_scores >= x$source_min & x$source_scores <= x$source_max
+  
+  # Get theta values from indirect equating table
+  theta_values <- x$indirect_eq$equating_table$theta
+  
+  cat("                                                                         Frequency of bootstrap errors\n")
+  cat(sprintf("Score      Theta  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2   Failed%%\n", conf_pct))
+  cat("--------------------------------------------------------------------------------------------------------\n")
+  
+  for (i in which(valid)) {
+    if (is.na(x$observed_expected[i])) next
+    
+    theta_val <- theta_values[i]
+    if (is.na(theta_val) || theta_val <= 0) {
+      log_theta_str <- "       NA"
+    } else {
+      log_theta_str <- sprintf("%9.4f", log(theta_val))
+    }
+    ci_str <- sprintf("[%5.2f, %5.2f]", x$ci_lower[i], x$ci_upper[i])
+    cat(sprintf("%5d  %s  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f   %5.1f%%\n",
+                x$source_scores[i], log_theta_str, x$observed_rounded[i], x$observed_expected[i],
+                ci_str, x$see[i],
+                x$error_freq[i, 1], x$error_freq[i, 2], x$error_freq[i, 3],
+                x$error_freq[i, 4], x$error_freq[i, 5],
+                x$prop_failed[i]))
+  }
+  
+  cat("--------------------------------------------------------------------------------------------------------\n")
+  cat(sprintf("Average SEE: %.2f\n", x$avg_see))
 }
 
 
@@ -323,7 +374,7 @@ diagnose_equating <- function(fit, direction = c("1to2", "2to1"),
 #'
 #' @description
 #' Extracts equating results from a bootstrap object as a clean data frame
-#' with confidence intervals and standard errors.
+#' with log theta values, confidence intervals and standard errors.
 #'
 #' @param boot A leunbach_bootstrap object
 #' @param direction "1to2" or "2to1"
@@ -332,7 +383,7 @@ diagnose_equating <- function(fit, direction = c("1to2", "2to1"),
 #' @export
 get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
   
-  if (! inherits(boot, "leunbach_bootstrap")) {
+  if (!inherits(boot, "leunbach_bootstrap")) {
     stop("Input must be a leunbach_bootstrap object")
   }
   
@@ -358,10 +409,15 @@ get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
   
   valid <- scores >= source_min & scores <= source_max
   
+  # Get theta values and convert to log_theta
+  theta_vals <- eq_table[valid, 2]
+  log_theta <- ifelse(is.na(theta_vals) | theta_vals <= 0, NA, round(log(theta_vals), 4))
+  
   result <- data.frame(
     source_score = eq_table[valid, 1],
-    rounded = eq_table[valid, 3],
-    expected = round(eq_table[valid, 2], 2),
+    log_theta = log_theta,
+    rounded = eq_table[valid, 4],
+    expected = round(eq_table[valid, 3], 2),
     ci_lower = round(ci_lower[valid], 2),
     ci_upper = round(ci_upper[valid], 2),
     see = round(see[valid], 2)
@@ -371,6 +427,7 @@ get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
   
   return(result)
 }
+
 
 #' Calculate Goodman-Kruskal Gamma and test statistic
 #'

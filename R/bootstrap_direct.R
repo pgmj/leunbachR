@@ -86,10 +86,12 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
   eq_1to2 <- leunbach_equate(fit, direction = "1to2", method = method)
   eq_2to1 <- leunbach_equate(fit, direction = "2to1", method = method)
   
-  observed_eq_1to2 <- eq_1to2$equating_table[, 2]
-  observed_eq_2to1 <- eq_2to1$equating_table[, 2]
-  observed_rd_1to2 <- eq_1to2$equating_table[, 3]
-  observed_rd_2to1 <- eq_2to1$equating_table[, 3]
+  # Equating table now has 4 columns: Score, Theta, Expected, Rounded
+  # Column indices:  1=Score, 2=Theta, 3=Expected, 4=Rounded
+  observed_eq_1to2 <- eq_1to2$equating_table[, 3]  # Expected (was column 2)
+  observed_eq_2to1 <- eq_2to1$equating_table[, 3]  # Expected (was column 2)
+  observed_rd_1to2 <- eq_1to2$equating_table[, 4]  # Rounded (was column 3)
+  observed_rd_2to1 <- eq_2to1$equating_table[, 4]  # Rounded (was column 3)
   
   if (verbose) {
     cat("Parametric Bootstrap for Leunbach Model\n")
@@ -327,15 +329,17 @@ run_single_bootstrap <- function(seed, data_list) {
     leunbach_equate(boot_fit, direction = "2to1", method = method)
   }, error = function(e) NULL)
   
-  if (!is.null(boot_eq_1to2_result)) {
-    result$eq_1to2 <- boot_eq_1to2_result$equating_table[, 2]
-    result$rd_1to2 <- boot_eq_1to2_result$equating_table[, 3]
+  # Equating table now has 4 columns: Score, Theta, Expected, Rounded
+  # Column indices:  1=Score, 2=Theta, 3=Expected, 4=Rounded
+  if (! is.null(boot_eq_1to2_result)) {
+    result$eq_1to2 <- boot_eq_1to2_result$equating_table[, 3]  # Expected
+    result$rd_1to2 <- boot_eq_1to2_result$equating_table[, 4]  # Rounded
     result$failed_1to2 <- as.numeric(is.na(result$eq_1to2))
   }
   
   if (!is.null(boot_eq_2to1_result)) {
-    result$eq_2to1 <- boot_eq_2to1_result$equating_table[, 2]
-    result$rd_2to1 <- boot_eq_2to1_result$equating_table[, 3]
+    result$eq_2to1 <- boot_eq_2to1_result$equating_table[, 3]  # Expected
+    result$rd_2to1 <- boot_eq_2to1_result$equating_table[, 4]  # Rounded
     result$failed_2to1 <- as.numeric(is.na(result$eq_2to1))
   }
   
