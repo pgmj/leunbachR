@@ -1,7 +1,7 @@
 # Extract equating table with bootstrap confidence intervals
 
 Extracts equating results from a bootstrap object as a clean data frame
-with confidence intervals and standard errors.
+with log theta values, confidence intervals and standard errors.
 
 ## Usage
 

@@ -39,8 +39,8 @@ leunbach_equate(
 
 A list of class "leunbach_equating" containing:
 
-- equating_table: Data frame with original scores, expected equated
-  scores, and rounded scores
+- equating_table: Data frame with original scores, theta, expected
+  equated scores, and rounded scores
 
 - direction: Direction of equating
 
