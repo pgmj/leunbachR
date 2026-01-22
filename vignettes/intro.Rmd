@@ -34,7 +34,7 @@ set.seed(1234) # for reproducibility of bootstrap results
 Looking at our data, we can see that it has two variables containing sum scores from the two tests that we want to equate.
 
 ```{r}
-d3a <- read.delim("../data/data3a.csv", sep = ";")
+d3a <- read.delim("data/data3a.csv", sep = ";")
 head(d3a)
 ```
 
@@ -113,7 +113,7 @@ write.csv(get_equating_table(boot), file = "eqtable.csv")
 For this, we read a dataset with three tests.
 
 ```{r}
-d1 <- read.delim("./data/data1.csv", sep = ";")
+d1 <- read.delim("data/data1.csv", sep = ";")
 head(d1)
 ```
 

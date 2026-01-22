@@ -4,7 +4,7 @@ author: "Magnus Johansson, PhD"
 date: 2026-01-20
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{test}
+  %\VignetteIndexEntry{A brief comparison of test equating methods}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 resource_files:
@@ -25,8 +25,8 @@ library(mirt)
 #library(equateMultiple)
 #library(SNSequate)
 set.seed(1234) # for reproducibility of bootstrap results
-d3a_sum <- read.delim("../data/data3a.csv", sep = ";")
-d3a <- read.delim("../data/data3a_item.csv", sep = ",") %>% 
+d3a_sum <- read.delim("data/data3a.csv", sep = ";")
+d3a <- read.delim("data/data3a_item.csv", sep = ",") %>% 
   select(a01:a10,b01:b10)
 
 head(d3a)
@@ -39,8 +39,8 @@ We will focus on comparing IRT true (and observed?) score equating methods.
 ## Direct equating
 
 ```{r}
-mod1 <- mirt(d3a[,1:10], 1, 'Rasch') 
-mod2 <- mirt(d3a[,11:20], 1, 'Rasch') 
+mod1 <- mirt(d3a[,1:10], 1, 'Rasch', verbose = FALSE) 
+mod2 <- mirt(d3a[,11:20], 1, 'Rasch', verbose = FALSE) 
 
 coef_ls1 <- list(a = rep(1,10), 
                  b = coef(mod1, simplify=TRUE, IRTpars = TRUE)$item[,'b'],
@@ -50,6 +50,8 @@ coef_ls2 <- list(a = rep(1,10),
                  c = rep(0,10))
 
 req1 <- irt.eq(n_items = 10, coef_ls1, coef_ls2, method="TS", A=1, B=0) # true score
+rx <- freqtab(rowSums(d3a[,1:10]), scales = 0:10) 
+ry <- freqtab(rowSums(d3a[,11:20]), scales = 0:10) 
 req2 <- equate(rx, ry, type = "i") # identity 
 req3 <- equate(rx, ry, type = "l") # linear 
 req4 <- equate(rx, ry, type = "e", smooth = "loglin", degrees = 3) # equipercentile with loglinear smoothing
@@ -113,7 +115,7 @@ eq_table %>%
 ## Indirect equating
 
 ```{r}
-data1 <- read.delim("./data/data1_item.csv", sep = ",") %>% 
+data1 <- read.delim("data/data1_item.csv", sep = ",") %>% 
   select(a01:a10,b01:b10,c01:c10)
 ```
 
