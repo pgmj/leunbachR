@@ -1,6 +1,7 @@
 ---
 title: "Introduction to Leunbach test equating"
 author: "Magnus Johansson, PhD"
+date: 2026-01-20
 output: html_document
 resource_files:
   - ./data/data3a.csv
@@ -9,23 +10,29 @@ resource_files:
 
 This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R.
 
+Direct equating is made using the common person link between tests, meaning that the same individuals have taken two different tests that do not share any items.
+
+Indirect equating connects test A and C through test B, where test B has items in common with tests A and C, but A and C do not have any items in common. Again, it is assumed that the same persons have responded to all three tests.
+
+A basic assumption of the Leunbach method is that the observed sum score is a sufficient metric for the latent score, meaning that the items underlying the sum score fulfill the psychometric requirements of a Rasch model.
+
 ## Setup
 
-First, we load the package and a dataset.
+First, we load the package and set our seed for reproducibility of bootstrap results.
 
 ```{r}
 library(leunbachR)
 set.seed(1234) # for reproducibility of bootstrap results
-d3a <- read.delim("./data/data3a.csv", sep = ";")
 ```
+
+## Direct equating
 
 Looking at our data, we can see that it has two variables containing sum scores from the two tests that we want to equate.
 
 ```{r}
+d3a <- read.delim("./data/data3a.csv", sep = ";")
 head(d3a)
 ```
-
-## Direct equating
 
 First, we estimate the model.
 
@@ -66,7 +73,7 @@ get_orbit(orb, total_score = 5)
 ### Equating
 
 ```{r}
-leunbach_equate(fit, verbose = TRUE, direction = "1to2")
+leunbach_equate(fit, direction = "1to2")
 ```
 
 ### Bootstrap

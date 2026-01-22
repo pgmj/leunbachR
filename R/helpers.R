@@ -252,7 +252,7 @@ print_see_table <- function(x, direction = "1to2") {
     if (is.na(theta_val) || theta_val <= 0) {
       log_theta_str <- "       NA"
     } else {
-      log_theta_str <- sprintf("%9.4f", log(theta_val))
+      log_theta_str <- sprintf("%9.5f", log(theta_val))
     }
     ci_str <- sprintf("[%5.2f, %5.2f]", ci_lower[i], ci_upper[i])
     cat(sprintf("%5d  %s  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f\n",
@@ -295,7 +295,7 @@ print_indirect_see_table <- function(x) {
     if (is.na(theta_val) || theta_val <= 0) {
       log_theta_str <- "       NA"
     } else {
-      log_theta_str <- sprintf("%9.4f", log(theta_val))
+      log_theta_str <- sprintf("%9.5f", log(theta_val))
     }
     ci_str <- sprintf("[%5.2f, %5.2f]", x$ci_lower[i], x$ci_upper[i])
     cat(sprintf("%5d  %s  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f   %5.1f%%\n",

@@ -481,7 +481,7 @@ print.leunbach_equating <- function(x, ...) {
     Score = tab[, 1],
     Log_Theta = ifelse(is.na(tab[, 2]) | tab[, 2] <= 0, 
                        "      NA", 
-                       sprintf("%8.4f", log(tab[, 2]))),
+                       sprintf("%8.5f", log(tab[, 2]))),
     Expected = sprintf("%6.2f", tab[, 3]),
     Rounded = tab[, 4]
   )

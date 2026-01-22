@@ -1,0 +1,117 @@
+---
+title: "A brief comparison of test equating methods"
+author: "Magnus Johansson, PhD"
+date: 2026-01-20
+output: html_document
+resource_files:
+  - ./data/data3a_item.csv
+  - ./data/data1_item.csv
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, message=FALSE}
+library(tidyverse)
+library(leunbachR)
+library(equate) 
+library(knitr)
+library(mirt)
+#library(equateMultiple)
+#library(SNSequate)
+set.seed(1234) # for reproducibility of bootstrap results
+d3a_sum <- read.delim("./data/data3a.csv", sep = ";")
+d3a <- read.delim("./data/data3a_item.csv", sep = ",") %>% 
+  select(a01:a10,b01:b10)
+
+head(d3a)
+```
+
+While the Leunbach method allows for test equating based on observed sum scores under the assumption that the underlying data fits a Rasch model adequately, most other methods require item-level response data. For this comparison, we will use the item data that produced the sum scores used in the intro vignette.
+
+We will focus on comparing IRT true (and observed?) score equating methods.
+
+## Direct equating
+
+```{r}
+mod1 <- mirt(d3a[,1:10], 1, 'Rasch') 
+mod2 <- mirt(d3a[,11:20], 1, 'Rasch') 
+
+coef_ls1 <- list(a = rep(1,10), 
+                 b = coef(mod1, simplify=TRUE, IRTpars = TRUE)$item[,'b'],
+                 c = rep(0,10))
+coef_ls2 <- list(a = rep(1,10), 
+                 b = coef(mod2, simplify=TRUE, IRTpars = TRUE)$item[,'b'],
+                 c = rep(0,10))
+
+req1 <- irt.eq(n_items = 10, coef_ls1, coef_ls2, method="TS", A=1, B=0) # true score
+req2 <- equate(rx, ry, type = "i") # identity 
+req3 <- equate(rx, ry, type = "l") # linear 
+req4 <- equate(rx, ry, type = "e", smooth = "loglin", degrees = 3) # equipercentile with loglinear smoothing
+
+# Leunbach model
+lfit <- leunbach_ipf(d3a_sum)
+#leunbach_equate(lfit)
+lboot <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100)
+leq <- get_equating_table(lboot)
+
+# summary table
+max_score <- 10 
+eq_table <- data.frame(identity = pmin(pmax(req2$conc$yx, 0), max_score), 
+                       linear = pmin(pmax(req3$conc$yx, 0), max_score), 
+                       equiperc_loglin3 = pmin(pmax(req4$conc$yx, 0), max_score),
+                       leunbach_rounded = leq$rounded,
+                       IRT_truescore = req1$tau_y, 
+                       leunbach_expected = leq$expected,
+                       IRT_thetaequivalent = req1$theta_equivalent,
+                       leunbach_theta = leq$log_theta
+                       ) %>% 
+  round(2)
+
+kable(eq_table)
+```
+
+```{r}
+eq_table %>% 
+  select(!c(leunbach_theta,IRT_thetaequivalent)) %>% 
+  pivot_longer(!identity) %>% 
+  ggplot(aes(x = identity, y = value, color = name, shape = name, linetype = name)) +
+  geom_point(size = 2) + 
+  geom_line() +
+  scale_x_continuous(breaks = c(0:10), minor_breaks = NULL) +
+  scale_y_continuous(breaks = c(0:10)) +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(title = "Test equating on sum score scale",
+       color = "Equating model", shape = "Equating model", linetype = "Equating model",
+       y = "Predicted Y value", x = "X value")
+```
+
+```{r}
+eq_table %>% 
+  select(c(identity,leunbach_theta,IRT_thetaequivalent)) %>% 
+  pivot_longer(!identity) %>% 
+  filter(identity %in% c(1:9)) %>% 
+  ggplot(aes(x = identity, y = value, color = name, shape = name)) +
+  geom_point(size = 3) + 
+  geom_line() +
+  scale_x_continuous(breaks = c(0:10), minor_breaks = NULL) +
+  scale_y_continuous(breaks = c(-2:2)) +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(title = "Test equating on theta scale",
+       color = "Equating model", shape = "Equating model",
+       y = "Predicted Y value", x = "X value", caption = "Note: Min and max scores are excluded, since these need to be imputed for both methods.") +
+  theme(plot.caption = element_text(face = "italic", hjust = 0))
+```
+
+## Indirect equating
+
+```{r}
+data1 <- read.delim("./data/data1_item.csv", sep = ",") %>% 
+  select(a01:a10,b01:b10,c01:c10)
+```
+
+
+
+
+
