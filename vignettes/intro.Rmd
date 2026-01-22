@@ -2,7 +2,11 @@
 title: "Introduction to Leunbach test equating"
 author: "Magnus Johansson, PhD"
 date: 2026-01-20
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 resource_files:
   - ./data/data3a.csv
   - ./data/data1.csv

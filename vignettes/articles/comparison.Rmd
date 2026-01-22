@@ -2,16 +2,21 @@
 title: "A brief comparison of test equating methods"
 author: "Magnus Johansson, PhD"
 date: 2026-01-20
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{test}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 resource_files:
-  - ./data/data3a_item.csv
-  - ./data/data1_item.csv
+  - ../data/data3a_item.csv
+  - ../data/data1_item.csv
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r, message=FALSE}
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(leunbachR)
 library(equate) 
 library(knitr)
