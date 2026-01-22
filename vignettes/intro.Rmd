@@ -5,11 +5,10 @@ date: 2026-01-20
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to Leunbach test equating}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-resource_files:
-  - ../data/data3a.csv
-  - ../data/data1.csv
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R.
@@ -88,7 +87,6 @@ For the purposes of this vignette, we only use 100 bootstrap iterations. It is r
 
 ```{r}
 boot <- leunbach_bootstrap(fit, n_cores = 4, verbose = TRUE, nsim = 100)
-
 ```
 
 ```{r}

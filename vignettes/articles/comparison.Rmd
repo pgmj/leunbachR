@@ -7,15 +7,13 @@ vignette: >
   %\VignetteIndexEntry{A brief comparison of test equating methods}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-resource_files:
-  - ../data/data3a_item.csv
-  - ../data/data1_item.csv
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r, message=FALSE}
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(leunbachR)
 library(equate)

@@ -15,6 +15,7 @@ Suggests:
     mirai,
     rmarkdown,
     dplyr,
+    tidyr,
     ggplot2,
     mirt,
     equate,
