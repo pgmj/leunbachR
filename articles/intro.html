@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">leunbachR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/intro.html">Introduction to Leunbach test equating</a></li>
+<li><a class="dropdown-item" href="../articles/comparison.html">A brief comparison of test equating methods</a></li>
+    <li><a class="dropdown-item" href="../articles/intro.html">Introduction to Leunbach test equating</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -60,6 +61,7 @@
                         <h4 data-toc-skip class="author">Magnus
 Johansson, PhD</h4>
             
+            <h4 data-toc-skip class="date">2026-01-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pgmj/leunbachR/blob/main/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
       <div class="d-none name"><code>intro.Rmd</code></div>
@@ -69,18 +71,34 @@ Johansson, PhD</h4>
     
 <p>This document provides an overview of how to do direct and indirect
 equating using the <code>leunbachR</code> package for R.</p>
+<p>Direct equating is made using the common person link between tests,
+meaning that the same individuals have taken two different tests that do
+not share any items.</p>
+<p>Indirect equating connects test A and C through test B, where test B
+has items in common with tests A and C, but A and C do not have any
+items in common. Again, it is assumed that the same persons have
+responded to all three tests.</p>
+<p>A basic assumption of the Leunbach method is that the observed sum
+score is a sufficient metric for the latent score, meaning that the
+items underlying the sum score fulfill the psychometric requirements of
+a Rasch model.</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>First, we load the package and a dataset.</p>
+<p>First, we load the package and set our seed for reproducibility of
+bootstrap results.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pgmj/leunbachR" class="external-link">leunbachR</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span> <span class="co"># for reproducibility of bootstrap results</span></span>
-<span><span class="va">d3a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"./data/data3a.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span> <span class="co"># for reproducibility of bootstrap results</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="direct-equating">Direct equating<a class="anchor" aria-label="anchor" href="#direct-equating"></a>
+</h2>
 <p>Looking at our data, we can see that it has two variables containing
 sum scores from the two tests that we want to equate.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d3a</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">d3a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"data/data3a.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d3a</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   a_sum c_sum</span></span>
 <span><span class="co">## 1     1     8</span></span>
 <span><span class="co">## 2     4     4</span></span>
@@ -88,10 +106,6 @@ sum scores from the two tests that we want to equate.</p>
 <span><span class="co">## 4     6     3</span></span>
 <span><span class="co">## 5     8     5</span></span>
 <span><span class="co">## 6     6     6</span></span></code></pre>
-</div>
-<div class="section level2">
-<h2 id="direct-equating">Direct equating<a class="anchor" aria-label="anchor" href="#direct-equating"></a>
-</h2>
 <p>First, we estimate the model.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_ipf.html">leunbach_ipf</a></span><span class="op">(</span><span class="va">d3a</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -288,38 +302,23 @@ instance <code><a href="../reference/leunbach_ipf.html">?leunbach_ipf</a></code>
 <h3 id="equating">Equating<a class="anchor" aria-label="anchor" href="#equating"></a>
 </h3>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/leunbach_equate.html">leunbach_equate</a></span><span class="op">(</span><span class="va">fit</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, direction <span class="op">=</span> <span class="st">"1to2"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Equating Test1 to Test2 (method: optimize)</span></span>
-<span><span class="co">## ==========================================</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##  Test1        Theta Expected_Test2 Rounded_Test2</span></span>
-<span><span class="co">##      0 6.737947e-03       1.000000             1</span></span>
-<span><span class="co">##      1 2.378717e-01       1.732598             2</span></span>
-<span><span class="co">##      2 4.219350e-01       2.505289             3</span></span>
-<span><span class="co">##      3 6.007201e-01       3.367583             3</span></span>
-<span><span class="co">##      4 7.906978e-01       4.291332             4</span></span>
-<span><span class="co">##      5 1.006347e+00       5.214895             5</span></span>
-<span><span class="co">##      6 1.273970e+00       6.091660             6</span></span>
-<span><span class="co">##      7 1.657978e+00       6.910866             7</span></span>
-<span><span class="co">##      8 2.377035e+00       7.693731             8</span></span>
-<span><span class="co">##      9 4.835489e+00       8.460804             8</span></span>
-<span><span class="co">##     10 1.484132e+02       9.000000             9</span></span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/leunbach_equate.html">leunbach_equate</a></span><span class="op">(</span><span class="va">fit</span>, direction <span class="op">=</span> <span class="st">"1to2"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Leunbach Equating:  Test1 to Test2</span></span>
 <span><span class="co">## Method: optimize</span></span>
 <span><span class="co">## ==========================================</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  Test1    Theta Expected_Test2 Rounded_Test2</span></span>
-<span><span class="co">##      0  -5.0000           1.00             1</span></span>
-<span><span class="co">##      1  -1.4360           1.73             2</span></span>
-<span><span class="co">##      2  -0.8629           2.51             3</span></span>
-<span><span class="co">##      3  -0.5096           3.37             3</span></span>
-<span><span class="co">##      4  -0.2348           4.29             4</span></span>
-<span><span class="co">##      5   0.0063           5.21             5</span></span>
-<span><span class="co">##      6   0.2421           6.09             6</span></span>
-<span><span class="co">##      7   0.5056           6.91             7</span></span>
-<span><span class="co">##      8   0.8659           7.69             8</span></span>
-<span><span class="co">##      9   1.5760           8.46             8</span></span>
-<span><span class="co">##     10   5.0000           9.00             9</span></span></code></pre>
+<span><span class="co">##      0 -5.00000           1.00             1</span></span>
+<span><span class="co">##      1 -1.43602           1.73             2</span></span>
+<span><span class="co">##      2 -0.86290           2.51             3</span></span>
+<span><span class="co">##      3 -0.50963           3.37             3</span></span>
+<span><span class="co">##      4 -0.23484           4.29             4</span></span>
+<span><span class="co">##      5  0.00633           5.21             5</span></span>
+<span><span class="co">##      6  0.24214           6.09             6</span></span>
+<span><span class="co">##      7  0.50560           6.91             7</span></span>
+<span><span class="co">##      8  0.86585           7.69             8</span></span>
+<span><span class="co">##      9  1.57598           8.46             8</span></span>
+<span><span class="co">##     10  5.00000           9.00             9</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="bootstrap">Bootstrap<a class="anchor" aria-label="anchor" href="#bootstrap"></a>
@@ -331,7 +330,7 @@ on a modern Mac, you should only use the “performance cores”, not the
 “efficiency cores”.</p>
 <p>For the purposes of this vignette, we only use 100 bootstrap
 iterations. It is recommended to use at least 1000.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_bootstrap.html">leunbach_bootstrap</a></span><span class="op">(</span><span class="va">fit</span>, n_cores <span class="op">=</span> <span class="fl">4</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, nsim <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Parametric Bootstrap for Leunbach Model</span></span>
 <span><span class="co">## ========================================</span></span>
@@ -348,7 +347,7 @@ iterations. It is recommended to use at least 1000.</p>
 <span><span class="co">##   Bootstrap p-value for LR test: 0.860</span></span>
 <span><span class="co">##   Average SEE (Test1 to Test2): 0.23</span></span>
 <span><span class="co">##   Average SEE (Test2 to Test1): 0.26</span></span></code></pre>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Leunbach Model - Parametric Bootstrap Results</span></span>
 <span><span class="co">## ==============================================</span></span>
@@ -376,17 +375,17 @@ iterations. It is recommended to use at least 1000.</p>
 <span><span class="co">##                                                                       Frequency of bootstrap errors</span></span>
 <span><span class="co">## Score      Theta  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------</span></span>
-<span><span class="co">##     0    -5.0000        1     1.00    [ 1.00,  1.00]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
-<span><span class="co">##     1    -1.4360        2     1.73    [ 1.29,  2.22]   0.34     0.0  13.0  87.0   0.0   0.0</span></span>
-<span><span class="co">##     2    -0.8629        3     2.51    [ 2.09,  2.96]   0.50     0.0  43.0  57.0   0.0   0.0</span></span>
-<span><span class="co">##     3    -0.5096        3     3.37    [ 3.08,  3.76]   0.42     0.0   0.0  78.0  22.0   0.0</span></span>
-<span><span class="co">##     4    -0.2348        4     4.29    [ 4.05,  4.56]   0.27     0.0   0.0  92.0   8.0   0.0</span></span>
-<span><span class="co">##     5     0.0063        5     5.21    [ 4.99,  5.44]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
-<span><span class="co">##     6     0.2421        6     6.09    [ 5.90,  6.34]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
-<span><span class="co">##     7     0.5056        7     6.91    [ 6.61,  7.24]   0.10     0.0   1.0  99.0   0.0   0.0</span></span>
-<span><span class="co">##     8     0.8659        8     7.69    [ 7.33,  8.09]   0.36     0.0  15.0  85.0   0.0   0.0</span></span>
-<span><span class="co">##     9     1.5760        8     8.46    [ 8.14,  9.00]   0.50     0.0   0.0  53.0  47.0   0.0</span></span>
-<span><span class="co">##    10     5.0000        9     9.00    [ 9.00,  9.00]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">##     0   -5.00000        1     1.00    [ 1.00,  1.00]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">##     1   -1.43602        2     1.73    [ 1.29,  2.22]   0.34     0.0  13.0  87.0   0.0   0.0</span></span>
+<span><span class="co">##     2   -0.86290        3     2.51    [ 2.09,  2.96]   0.50     0.0  43.0  57.0   0.0   0.0</span></span>
+<span><span class="co">##     3   -0.50963        3     3.37    [ 3.08,  3.76]   0.42     0.0   0.0  78.0  22.0   0.0</span></span>
+<span><span class="co">##     4   -0.23484        4     4.29    [ 4.05,  4.56]   0.27     0.0   0.0  92.0   8.0   0.0</span></span>
+<span><span class="co">##     5    0.00633        5     5.21    [ 4.99,  5.44]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">##     6    0.24214        6     6.09    [ 5.90,  6.34]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">##     7    0.50560        7     6.91    [ 6.61,  7.24]   0.10     0.0   1.0  99.0   0.0   0.0</span></span>
+<span><span class="co">##     8    0.86585        8     7.69    [ 7.33,  8.09]   0.36     0.0  15.0  85.0   0.0   0.0</span></span>
+<span><span class="co">##     9    1.57598        8     8.46    [ 8.14,  9.00]   0.50     0.0   0.0  53.0  47.0   0.0</span></span>
+<span><span class="co">##    10    5.00000        9     9.00    [ 9.00,  9.00]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------</span></span>
 <span><span class="co">## Average SEE: 0.23</span></span>
 <span><span class="co">## </span></span>
@@ -396,19 +395,19 @@ iterations. It is recommended to use at least 1000.</p>
 <span><span class="co">##                                                                       Frequency of bootstrap errors</span></span>
 <span><span class="co">## Score      Theta  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------</span></span>
-<span><span class="co">##     1    -5.0000        0     0.00    [ 0.00,  0.00]   0.10     0.0   0.0  99.0   1.0   0.0</span></span>
-<span><span class="co">##     2    -1.1840        1     1.36    [ 0.74,  1.90]   0.45     0.0   0.0  72.0  28.0   0.0</span></span>
-<span><span class="co">##     3    -0.6424        3     2.59    [ 2.06,  2.92]   0.49     0.0  37.0  63.0   0.0   0.0</span></span>
-<span><span class="co">##     4    -0.3155        4     3.69    [ 3.30,  3.95]   0.30     0.0  10.0  90.0   0.0   0.0</span></span>
-<span><span class="co">##     5    -0.0491        5     4.76    [ 4.52,  5.02]   0.14     0.0   2.0  98.0   0.0   0.0</span></span>
-<span><span class="co">##     6     0.2161        6     5.89    [ 5.64,  6.14]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
-<span><span class="co">##     7     0.5392        7     7.11    [ 6.73,  7.55]   0.22     0.0   0.0  95.0   5.0   0.0</span></span>
-<span><span class="co">##     8     1.0740        8     8.39    [ 7.89,  8.83]   0.46     0.0   0.0  70.0  30.0   0.0</span></span>
-<span><span class="co">##     9     5.0000       10    10.00    [ 9.00, 10.00]   0.20     0.0   4.0  96.0   0.0   0.0</span></span>
+<span><span class="co">##     1   -5.00000        0     0.00    [ 0.00,  0.00]   0.10     0.0   0.0  99.0   1.0   0.0</span></span>
+<span><span class="co">##     2   -1.18397        1     1.36    [ 0.74,  1.90]   0.45     0.0   0.0  72.0  28.0   0.0</span></span>
+<span><span class="co">##     3   -0.64238        3     2.59    [ 2.06,  2.92]   0.49     0.0  37.0  63.0   0.0   0.0</span></span>
+<span><span class="co">##     4   -0.31551        4     3.69    [ 3.30,  3.95]   0.30     0.0  10.0  90.0   0.0   0.0</span></span>
+<span><span class="co">##     5   -0.04910        5     4.76    [ 4.52,  5.02]   0.14     0.0   2.0  98.0   0.0   0.0</span></span>
+<span><span class="co">##     6    0.21610        6     5.89    [ 5.64,  6.14]   0.00     0.0   0.0 100.0   0.0   0.0</span></span>
+<span><span class="co">##     7    0.53922        7     7.11    [ 6.73,  7.55]   0.22     0.0   0.0  95.0   5.0   0.0</span></span>
+<span><span class="co">##     8    1.07404        8     8.39    [ 7.89,  8.83]   0.46     0.0   0.0  70.0  30.0   0.0</span></span>
+<span><span class="co">##     9    5.00000       10    10.00    [ 9.00, 10.00]   0.20     0.0   4.0  96.0   0.0   0.0</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------</span></span>
 <span><span class="co">## Average SEE: 0.26</span></span></code></pre>
 <p>You can also get the equating table as a separate object.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/get_equating_table.html">get_equating_table</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    Test1 log_theta rounded expected ci_lower ci_upper  see</span></span>
 <span><span class="co">## 0      0   -5.0000       1     1.00     1.00     1.00 0.00</span></span>
@@ -423,7 +422,7 @@ iterations. It is recommended to use at least 1000.</p>
 <span><span class="co">## 9      9    1.5760       8     8.46     8.14     9.00 0.50</span></span>
 <span><span class="co">## 10    10    5.0000       9     9.00     9.00     9.00 0.00</span></span></code></pre>
 <p>Write the table to a CSV file.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_equating_table.html">get_equating_table</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span>, file <span class="op">=</span> <span class="st">"eqtable.csv"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -431,8 +430,8 @@ iterations. It is recommended to use at least 1000.</p>
 <h2 id="indirect-equating">Indirect equating<a class="anchor" aria-label="anchor" href="#indirect-equating"></a>
 </h2>
 <p>For this, we read a dataset with three tests.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"./data/data1.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"data/data1.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   a_sum b_sum c_sum</span></span>
 <span><span class="co">## 1     2     4    NA</span></span>
@@ -446,16 +445,16 @@ Test A with Test B; and Test B with Test C. Then the results will be
 used to indirectly equate Test A with Test C</p>
 <p>The code below uses base R methods to select the columns in the
 dataframe, first 1 and 2, second 2 and 3.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_ab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_ipf.html">leunbach_ipf</a></span><span class="op">(</span><span class="va">d1</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning in leunbach_ipf(d1[, c(1, 2)]): Removed 500 rows with missing values</span></span></code></pre>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_bc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_ipf.html">leunbach_ipf</a></span><span class="op">(</span><span class="va">d1</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning in leunbach_ipf(d1[, c(2, 3)]): Removed 500 rows with missing values</span></span></code></pre>
 <p>You can of course use the objects <code>fit_ab</code> and
 <code>fit_bc</code> to analyze orbits too, but we’ll skip that step
 here.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">indirect1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_indirect_equate.html">leunbach_indirect_equate</a></span><span class="op">(</span><span class="va">fit_ab</span>, <span class="va">fit_bc</span>,</span>
 <span>                                     direction_ab <span class="op">=</span> <span class="st">"1to2"</span>,</span>
 <span>                                     direction_bc <span class="op">=</span> <span class="st">"1to2"</span><span class="op">)</span></span>
@@ -486,7 +485,7 @@ here.</p>
 <h3 id="bootstrap-1">Bootstrap<a class="anchor" aria-label="anchor" href="#bootstrap-1"></a>
 </h3>
 <p>Again, only using 100 simulations for demonstration purposes.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">boot_indirect1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_indirect_bootstrap.html">leunbach_indirect_bootstrap</a></span><span class="op">(</span><span class="va">fit_ab</span>, <span class="va">fit_bc</span>,</span>
 <span>                                             direction_ab <span class="op">=</span> <span class="st">"1to2"</span>,</span>
 <span>                                             direction_bc <span class="op">=</span> <span class="st">"1to2"</span>,</span>
@@ -510,7 +509,7 @@ here.</p>
 <span><span class="co">##   Bootstrap p-value for Gamma test (A-B): 0.240</span></span>
 <span><span class="co">##   Bootstrap p-value for Gamma test (B-C): 0.050</span></span>
 <span><span class="co">##   Average SEE: 0.29</span></span></code></pre>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Leunbach Indirect Equating - Parametric Bootstrap Results</span></span>
 <span><span class="co">## ==========================================================</span></span>
@@ -549,20 +548,20 @@ here.</p>
 <span><span class="co">##                                                                          Frequency of bootstrap errors</span></span>
 <span><span class="co">## Score      Theta  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2   Failed%</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------------</span></span>
-<span><span class="co">##     0    -5.0000        0     0.00    [ 0.00,  1.00]   0.49     0.0   0.0  62.0  38.0   0.0     0.0%</span></span>
-<span><span class="co">##     1    -2.0865        1     1.23    [ 0.38,  2.03]   0.55     0.0   5.0  63.0  32.0   0.0     0.0%</span></span>
-<span><span class="co">##     2    -1.4308        2     2.20    [ 1.64,  2.76]   0.39     0.0   2.0  83.0  15.0   0.0     0.0%</span></span>
-<span><span class="co">##     3    -0.9309        3     3.22    [ 2.84,  3.56]   0.30     0.0   0.0  90.0  10.0   0.0     0.0%</span></span>
-<span><span class="co">##     4    -0.4880        4     4.19    [ 3.85,  4.51]   0.17     0.0   0.0  97.0   3.0   0.0     0.0%</span></span>
-<span><span class="co">##     5    -0.0846        5     5.08    [ 4.79,  5.37]   0.00     0.0   0.0 100.0   0.0   0.0     0.0%</span></span>
-<span><span class="co">##     6     0.3154        6     5.98    [ 5.64,  6.33]   0.00     0.0   0.0 100.0   0.0   0.0     0.0%</span></span>
-<span><span class="co">##     7     0.7833        7     7.09    [ 6.65,  7.54]   0.26     0.0   2.0  93.0   5.0   0.0     0.0%</span></span>
-<span><span class="co">##     8     1.4251        8     8.44    [ 7.68,  9.02]   0.50     0.0   0.0  53.0  47.0   0.0     0.0%</span></span>
-<span><span class="co">##     9     2.3503        9     9.42    [ 8.74, 10.00]   0.52     0.0   1.0  52.0  47.0   0.0     0.0%</span></span>
-<span><span class="co">##    10     5.0000       10    10.00    [10.00, 10.00]   0.00     0.0   0.0 100.0   0.0   0.0    12.0%</span></span>
+<span><span class="co">##     0   -5.00000        0     0.00    [ 0.00,  1.00]   0.49     0.0   0.0  62.0  38.0   0.0     0.0%</span></span>
+<span><span class="co">##     1   -2.08654        1     1.23    [ 0.38,  2.03]   0.55     0.0   5.0  63.0  32.0   0.0     0.0%</span></span>
+<span><span class="co">##     2   -1.43075        2     2.20    [ 1.64,  2.76]   0.39     0.0   2.0  83.0  15.0   0.0     0.0%</span></span>
+<span><span class="co">##     3   -0.93091        3     3.22    [ 2.84,  3.56]   0.30     0.0   0.0  90.0  10.0   0.0     0.0%</span></span>
+<span><span class="co">##     4   -0.48803        4     4.19    [ 3.85,  4.51]   0.17     0.0   0.0  97.0   3.0   0.0     0.0%</span></span>
+<span><span class="co">##     5   -0.08464        5     5.08    [ 4.79,  5.37]   0.00     0.0   0.0 100.0   0.0   0.0     0.0%</span></span>
+<span><span class="co">##     6    0.31545        6     5.98    [ 5.64,  6.33]   0.00     0.0   0.0 100.0   0.0   0.0     0.0%</span></span>
+<span><span class="co">##     7    0.78325        7     7.09    [ 6.65,  7.54]   0.26     0.0   2.0  93.0   5.0   0.0     0.0%</span></span>
+<span><span class="co">##     8    1.42505        8     8.44    [ 7.68,  9.02]   0.50     0.0   0.0  53.0  47.0   0.0     0.0%</span></span>
+<span><span class="co">##     9    2.35035        9     9.42    [ 8.74, 10.00]   0.52     0.0   1.0  52.0  47.0   0.0     0.0%</span></span>
+<span><span class="co">##    10    5.00000       10    10.00    [10.00, 10.00]   0.00     0.0   0.0 100.0   0.0   0.0    12.0%</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------------</span></span>
 <span><span class="co">## Average SEE: 0.29</span></span></code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Leunbach Indirect Equating - Bootstrap Summary</span></span>
 <span><span class="co">## ===============================================</span></span>
@@ -586,10 +585,10 @@ here.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## Scores with &gt;5% bootstrap failures:</span></span>
 <span><span class="co">##   Score 10: 12.0% failed</span></span></code></pre>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"equating"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"see"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="700"></p>
 </div>
