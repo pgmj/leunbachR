@@ -4,12 +4,12 @@ author: "Magnus Johansson, PhD"
 date: 2026-01-20
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{test}
+  %\VignetteIndexEntry{Introduction to Leunbach test equating}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 resource_files:
-  - ./data/data3a.csv
-  - ./data/data1.csv
+  - ../data/data3a.csv
+  - ../data/data1.csv
 ---
 
 This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R.
