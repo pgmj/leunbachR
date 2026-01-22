@@ -24,8 +24,8 @@ library(mirt)
 #library(equateMultiple)
 #library(SNSequate)
 set.seed(1234) # for reproducibility of bootstrap results
-d3a_sum <- read.delim("./data/data3a.csv", sep = ";")
-d3a <- read.delim("./data/data3a_item.csv", sep = ",") %>% 
+d3a_sum <- read.delim("../data/data3a.csv", sep = ";")
+d3a <- read.delim("../data/data3a_item.csv", sep = ",") %>% 
   select(a01:a10,b01:b10)
 
 head(d3a)
