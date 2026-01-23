@@ -784,13 +784,13 @@ print(fit)
 #> --- Goodness of Fit ---
 #> 
 #> 1. Likelihood Ratio Test:
-#>    LR = 18.30  DF = 20  p = 0.5676
+#>    LR = 18.30  DF = 21  p = 0.6299
 #> 
 #> 2. Goodman-Kruskal Gamma Test (one-sided):
-#>    Gamma (observed) = 0.7738
-#>    Gamma (expected) = 0.7723
-#>    SE = 1897.7131
-#>    Z = -0.00  p = 0.5000
+#>    Gamma (observed) = 0.7649
+#>    Gamma (expected) = 0.7630
+#>    SE = 0.0219
+#>    Z = -0.09  p = 0.5339
 #> 
 #> 3. Orbit Analysis:
 #>    Use analyze_orbits() to assess person fit within total score strata
@@ -807,15 +807,15 @@ summary(fit)
 #> === Goodness of Fit ===
 #> 
 #> 1. Likelihood Ratio Test (observed vs expected counts):
-#>    Likelihood ratio G² =    18.30 (df = 20, p = 0.5676)
+#>    Likelihood ratio G² =    18.30 (df = 21, p = 0.6299)
 #>    Pearson chi-square  =    17.31
 #> 
 #> 2. Goodman-Kruskal Gamma Test (one-sided):
 #>    Tests if observed correlation exceeds expected under the model.
-#>    Gamma (observed)    =   0.7738
-#>    Gamma (expected)    =   0.7723
-#>    Standard error      = 1897.7131
-#>    Z statistic         =    -0.00 (p = 0.5000, one-sided)
+#>    Gamma (observed)    =   0.7649
+#>    Gamma (expected)    =   0.7630
+#>    Standard error      =   0.0219
+#>    Z statistic         =    -0.09 (p = 0.5339, one-sided)
 #> 
 #> 3. Orbit Analysis (person fit):
 #>    Run analyze_orbits() separately to assess the number of cases

@@ -145,6 +145,7 @@ eq_table %>%
 ## Indirect equating
 
 ``` r
+#library(equateMultiple) #?
 data1 <- read.delim("data/data1_item.csv", sep = ",") %>% 
   select(a01:a10,b01:b10,c01:c10)
 ```

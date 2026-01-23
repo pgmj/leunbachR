@@ -13,7 +13,7 @@ Uses a one-sided test following the DIGRAM implementation."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">leunbachR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@ Uses a one-sided test following the DIGRAM implementation.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculate_gamma_test</span><span class="op">(</span><span class="va">observed</span>, <span class="va">expected</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculate_gamma_test</span><span class="op">(</span><span class="va">observed</span>, <span class="va">expected</span>, <span class="va">xmin</span>, <span class="va">xmax</span>, <span class="va">ymin</span>, <span class="va">ymax</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,12 +67,28 @@ Uses a one-sided test following the DIGRAM implementation.</p>
 <dt id="arg-expected">expected<a class="anchor" aria-label="anchor" href="#arg-expected"></a></dt>
 <dd><p>Expected (fitted) contingency table</p></dd>
 
+
+<dt id="arg-xmin">xmin<a class="anchor" aria-label="anchor" href="#arg-xmin"></a></dt>
+<dd><p>Minimum observed Test 1 score</p></dd>
+
+
+<dt id="arg-xmax">xmax<a class="anchor" aria-label="anchor" href="#arg-xmax"></a></dt>
+<dd><p>Maximum observed Test 1 score</p></dd>
+
+
+<dt id="arg-ymin">ymin<a class="anchor" aria-label="anchor" href="#arg-ymin"></a></dt>
+<dd><p>Minimum observed Test 2 score</p></dd>
+
+
+<dt id="arg-ymax">ymax<a class="anchor" aria-label="anchor" href="#arg-ymax"></a></dt>
+<dd><p>Maximum observed Test 2 score</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list containing:</p><ul><li><p>gamma_observed: Gamma coefficient for observed data</p></li>
 <li><p>gamma_expected: Gamma coefficient for expected data</p></li>
-<li><p>se_gamma:  Standard error of gamma</p></li>
+<li><p>se_gamma: Standard error of gamma</p></li>
 <li><p>z_statistic: Z statistic (expected - observed) / SE</p></li>
 <li><p>p_value: One-sided p-value from standard normal</p></li>
 </ul></div>

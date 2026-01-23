@@ -1,16 +1,17 @@
 # Introduction to Leunbach test equating
 
 This document provides an overview of how to do direct and indirect
-equating using the `leunbachR` package for R.
+equating using the `leunbachR` package for R, which is based on the
+DIGRAM implementation of the Leunbach method.
 
 Direct equating is made using the common person link between tests,
 meaning that the same individuals have taken two different tests that do
 not share any items.
 
-Indirect equating connects test A and C through test B, where test B has
-items in common with tests A and C, but A and C do not have any items in
-common. Again, it is assumed that the same persons have responded to all
-three tests.
+Indirect equating connects test A and C through test B, where some
+respondents have taken both tests A and B and some have taken both tests
+B and C, but none have taken tests A and C, thus the indirect connection
+between A and C through B.
 
 A basic assumption of the Leunbach method is that the observed sum score
 is a sufficient metric for the latent score, meaning that the items
@@ -30,7 +31,9 @@ set.seed(1234) # for reproducibility of bootstrap results
 ## Direct equating
 
 Looking at our data, we can see that it has two variables containing sum
-scores from the two tests that we want to equate.
+scores from the two tests that we want to equate. This is the type of
+input expected by the functions in `leunbachR`. Data needs to be in the
+form/class of either a data.frame or matrix.
 
 ``` r
 d3a <- read.delim("data/data3a.csv", sep = ";")
@@ -84,10 +87,10 @@ summary(fit)
     ## 
     ## 2. Goodman-Kruskal Gamma Test (one-sided):
     ##    Tests if observed correlation exceeds expected under the model.
-    ##    Gamma (observed)    =   0.0005
-    ##    Gamma (expected)    =  -0.0032
-    ##    Standard error      = 3671.3724
-    ##    Z statistic         =    -0.00 (p = 0.5000, one-sided)
+    ##    Gamma (observed)    =  -0.0461
+    ##    Gamma (expected)    =  -0.0501
+    ##    Standard error      =   0.0395
+    ##    Z statistic         =    -0.10 (p = 0.5405, one-sided)
     ## 
     ## 3. Orbit Analysis (person fit):
     ##    Run analyze_orbits() separately to assess the number of cases
@@ -166,10 +169,10 @@ print(fit)
     ##    LR = 53.75  DF = 63  p = 0.7904
     ## 
     ## 2. Goodman-Kruskal Gamma Test (one-sided):
-    ##    Gamma (observed) = 0.0005
-    ##    Gamma (expected) = -0.0032
-    ##    SE = 3671.3724
-    ##    Z = -0.00  p = 0.5000
+    ##    Gamma (observed) = -0.0461
+    ##    Gamma (expected) = -0.0501
+    ##    SE = 0.0395
+    ##    Z = -0.10  p = 0.5405
     ## 
     ## 3. Orbit Analysis:
     ##    Use analyze_orbits() to assess person fit within total score strata
@@ -340,9 +343,9 @@ print(boot)
     ##    Bootstrap p-value:   p = 0.8600
     ## 
     ## 2. Goodman-Kruskal Gamma Test (one-sided):
-    ##    Observed Z = -0.00
-    ##    Asymptotic p-value:   p = 0.5000
-    ##    Bootstrap p-value:   p = 0.3500
+    ##    Observed Z = -0.10
+    ##    Asymptotic p-value:   p = 0.5405
+    ##    Bootstrap p-value:   p = 0.7000
     ## 
     ## Equating Test1 to Test2 (with 95% CI)
     ## ============================================================================
@@ -503,9 +506,9 @@ boot_indirect1 <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
     ##   Valid samples: 100 of 100
     ##   Bootstrap p-value for LR test (A-B): 0.060
     ##   Bootstrap p-value for LR test (B-C): 0.130
-    ##   Bootstrap p-value for Gamma test (A-B): 0.240
-    ##   Bootstrap p-value for Gamma test (B-C): 0.050
-    ##   Average SEE: 0.29
+    ##   Bootstrap p-value for Gamma test (A-B): 0.780
+    ##   Bootstrap p-value for Gamma test (B-C): 0.970
+    ##   Average SEE: 0.31
 
 ``` r
 print(boot_indirect1)
@@ -524,23 +527,23 @@ print(boot_indirect1)
     ## 
     ## Equating A-B (Test1 -> Test2):
     ##   1. Likelihood Ratio Test:
-    ##      Observed LR = 77.72 (df = 78)
-    ##      Asymptotic p-value:    p = 0.4877
+    ##      Observed LR = 77.72 (df = 79)
+    ##      Asymptotic p-value:    p = 0.5197
     ##      Bootstrap p-value:    p = 0.0600
     ##   2. Goodman-Kruskal Gamma Test (one-sided):
-    ##      Observed Z = -0.00
-    ##      Asymptotic p-value:   p = 0.5000
-    ##      Bootstrap p-value:    p = 0.2400
+    ##      Observed Z = -0.10
+    ##      Asymptotic p-value:   p = 0.5404
+    ##      Bootstrap p-value:    p = 0.7800
     ## 
     ## Equating B-C (Test2 -> Test2):
     ##   1. Likelihood Ratio Test:
-    ##      Observed LR = 82.73 (df = 79)
-    ##      Asymptotic p-value:    p = 0.3649
+    ##      Observed LR = 82.73 (df = 80)
+    ##      Asymptotic p-value:    p = 0.3950
     ##      Bootstrap p-value:    p = 0.1300
     ##   2. Goodman-Kruskal Gamma Test (one-sided):
-    ##      Observed Z = -0.00
-    ##      Asymptotic p-value:   p = 0.5000
-    ##      Bootstrap p-value:    p = 0.0500
+    ##      Observed Z = -0.26
+    ##      Asymptotic p-value:   p = 0.6021
+    ##      Bootstrap p-value:    p = 0.9700
     ## 
     ## Indirect Equating: Test1 -> Test2 (with 95% CI)
     ## =======================================================================================
@@ -548,7 +551,7 @@ print(boot_indirect1)
     ##                                                                          Frequency of bootstrap errors
     ## Score      Theta  Rounded  Expected    95% CI          SEE      -2    -1     0    +1    +2   Failed%
     ## --------------------------------------------------------------------------------------------------------
-    ##     0   -5.00000        0     0.00    [ 0.00,  1.00]   0.49     0.0   0.0  62.0  38.0   0.0     0.0%
+    ##     0   -5.00000        0     0.00    [ 0.00,  1.03]   0.51     0.0   0.0  61.0  38.0   1.0     0.0%
     ##     1   -2.08654        1     1.23    [ 0.38,  2.03]   0.55     0.0   5.0  63.0  32.0   0.0     0.0%
     ##     2   -1.43075        2     2.20    [ 1.64,  2.76]   0.39     0.0   2.0  83.0  15.0   0.0     0.0%
     ##     3   -0.93091        3     3.22    [ 2.84,  3.56]   0.30     0.0   0.0  90.0  10.0   0.0     0.0%
@@ -558,9 +561,9 @@ print(boot_indirect1)
     ##     7    0.78325        7     7.09    [ 6.65,  7.54]   0.26     0.0   2.0  93.0   5.0   0.0     0.0%
     ##     8    1.42505        8     8.44    [ 7.68,  9.02]   0.50     0.0   0.0  53.0  47.0   0.0     0.0%
     ##     9    2.35035        9     9.42    [ 8.74, 10.00]   0.52     0.0   1.0  52.0  47.0   0.0     0.0%
-    ##    10    5.00000       10    10.00    [10.00, 10.00]   0.00     0.0   0.0 100.0   0.0   0.0    12.0%
+    ##    10    5.00000       10    10.00    [ 9.35, 10.00]   0.21     0.0   4.5  95.5   0.0   0.0    12.0%
     ## --------------------------------------------------------------------------------------------------------
-    ## Average SEE: 0.29
+    ## Average SEE: 0.31
 
 ``` r
 summary(boot_indirect1)
@@ -577,26 +580,50 @@ summary(boot_indirect1)
     ## Model Fit Summary:
     ## 
     ## Equating A-B (Test1 -> Test2):
-    ##   LR test:     asymptotic p = 0.4877, bootstrap p = 0.0600
-    ##   Gamma test:  asymptotic p = 0.5000, bootstrap p = 0.2400
+    ##   LR test:     asymptotic p = 0.5197, bootstrap p = 0.0600
+    ##   Gamma test:  asymptotic p = 0.5404, bootstrap p = 0.7800
     ## 
     ## Equating B-C (Test2 -> Test2):
-    ##   LR test:     asymptotic p = 0.3649, bootstrap p = 0.1300
-    ##   Gamma test: asymptotic p = 0.5000, bootstrap p = 0.0500
+    ##   LR test:     asymptotic p = 0.3950, bootstrap p = 0.1300
+    ##   Gamma test: asymptotic p = 0.6021, bootstrap p = 0.9700
     ## 
-    ## Average SEE: 0.29
+    ## Average SEE: 0.31
     ## 
     ## Scores with >5% bootstrap failures:
     ##   Score 10: 12.0% failed
+
+Get a clean table and write to a CSV file.
+
+``` r
+indirect_table <- get_indirect_equating_table(boot_indirect1)
+indirect_table
+```
+
+    ##    Test1 log_theta rounded expected ci_lower ci_upper  see pct_failed
+    ## 0      0   -5.0000       0     0.00     0.00     1.03 0.51          0
+    ## 1      1   -2.0865       1     1.23     0.38     2.03 0.55          0
+    ## 2      2   -1.4308       2     2.20     1.64     2.76 0.39          0
+    ## 3      3   -0.9309       3     3.22     2.84     3.56 0.30          0
+    ## 4      4   -0.4880       4     4.19     3.85     4.51 0.17          0
+    ## 5      5   -0.0846       5     5.08     4.79     5.37 0.00          0
+    ## 6      6    0.3154       6     5.98     5.64     6.33 0.00          0
+    ## 7      7    0.7833       7     7.09     6.65     7.54 0.26          0
+    ## 8      8    1.4251       8     8.44     7.68     9.02 0.50          0
+    ## 9      9    2.3503       9     9.42     8.74    10.00 0.52          0
+    ## 10    10    5.0000      10    10.00     9.35    10.00 0.21         12
+
+``` r
+write.csv(indirect_table, file = "indirect_table.csv")
+```
 
 ``` r
 plot(boot_indirect1, type = "equating")
 ```
 
-![](intro_files/figure-html/unnamed-chunk-19-1.png)
+![](intro_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
 plot(boot_indirect1, type = "see")
 ```
 
-![](intro_files/figure-html/unnamed-chunk-20-1.png)
+![](intro_files/figure-html/unnamed-chunk-21-1.png)

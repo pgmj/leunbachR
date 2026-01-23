@@ -8,7 +8,7 @@ a one-sided test following the DIGRAM implementation.
 ## Usage
 
 ``` r
-calculate_gamma_test(observed, expected)
+calculate_gamma_test(observed, expected, xmin, xmax, ymin, ymax)
 ```
 
 ## Arguments
@@ -20,6 +20,22 @@ calculate_gamma_test(observed, expected)
 - expected:
 
   Expected (fitted) contingency table
+
+- xmin:
+
+  Minimum observed Test 1 score
+
+- xmax:
+
+  Maximum observed Test 1 score
+
+- ymin:
+
+  Minimum observed Test 2 score
+
+- ymax:
+
+  Maximum observed Test 2 score
 
 ## Value
 
