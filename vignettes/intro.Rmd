@@ -11,11 +11,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R.
+This document provides an overview of how to do direct and indirect equating using the `leunbachR` package for R, which is based on the DIGRAM implementation of the Leunbach method.
 
 Direct equating is made using the common person link between tests, meaning that the same individuals have taken two different tests that do not share any items.
 
-Indirect equating connects test A and C through test B, where test B has items in common with tests A and C, but A and C do not have any items in common. Again, it is assumed that the same persons have responded to all three tests.
+Indirect equating connects test A and C through test B, where some respondents have taken both tests A and B and some have taken both tests B and C, but none have taken tests A and C, thus the indirect connection between A and C through B.
 
 A basic assumption of the Leunbach method is that the observed sum score is a sufficient metric for the latent score, meaning that the items underlying the sum score fulfill the psychometric requirements of a Rasch model.
 
@@ -30,7 +30,7 @@ set.seed(1234) # for reproducibility of bootstrap results
 
 ## Direct equating
 
-Looking at our data, we can see that it has two variables containing sum scores from the two tests that we want to equate.
+Looking at our data, we can see that it has two variables containing sum scores from the two tests that we want to equate. This is the type of input expected by the functions in `leunbachR`. Data needs to be in the form/class of either a data.frame or matrix.
 
 ```{r}
 d3a <- read.delim("data/data3a.csv", sep = ";")
@@ -149,6 +149,15 @@ boot_indirect1 <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
 print(boot_indirect1)
 summary(boot_indirect1)
 ```
+
+Get a clean table and write to a CSV file.
+
+```{r}
+indirect_table <- get_indirect_equating_table(boot_indirect1)
+indirect_table
+write.csv(indirect_table, file = "indirect_table.csv")
+```
+
 
 ```{r}
 plot(boot_indirect1, type = "equating")

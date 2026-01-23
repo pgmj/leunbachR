@@ -434,166 +434,154 @@ get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
 #' @description
 #' Computes Goodman & Kruskal's Gamma coefficient for both observed and
 #' expected tables, and tests whether they differ significantly.
-#' Gamma measures the strength of association between two ordinal variables. 
+#' Gamma measures the strength of association between two ordinal variables.
 #' Uses a one-sided test following the DIGRAM implementation.
 #'
 #' @param observed Observed contingency table
 #' @param expected Expected (fitted) contingency table
+#' @param xmin Minimum observed Test 1 score
+#' @param xmax Maximum observed Test 1 score
+#' @param ymin Minimum observed Test 2 score
+#' @param ymax Maximum observed Test 2 score
 #'
 #' @return A list containing:
 #'   - gamma_observed: Gamma coefficient for observed data
 #'   - gamma_expected: Gamma coefficient for expected data
-#'   - se_gamma:  Standard error of gamma
+#'   - se_gamma: Standard error of gamma
 #'   - z_statistic: Z statistic (expected - observed) / SE
 #'   - p_value: One-sided p-value from standard normal
 #'
 #' @keywords internal
-calculate_gamma_test <- function(observed, expected) {
+calculate_gamma_test <- function(observed, expected, xmin, xmax, ymin, ymax) {
   
-  # Calculate Gamma for a contingency table
-  # Gamma = (P - Q) / (P + Q)
-  # where P = concordant pairs, Q = discordant pairs
+  # Get row and column names as numeric scores
+  row_scores <- as.numeric(rownames(observed))
+  col_scores <- as.numeric(colnames(observed))
   
-  calc_gamma <- function(tab) {
-    n_row <- nrow(tab)
-    n_col <- ncol(tab)
-    
-    P <- 0  # Concordant pairs
-    Q <- 0  # Discordant pairs
-    
-    for (i in 1:(n_row - 1)) {
-      for (j in 1:(n_col - 1)) {
-        n_ij <- tab[i, j]
-        if (n_ij > 0) {
-          # Concordant:  cells below and to the right
-          for (k in (i + 1):n_row) {
-            for (l in (j + 1):n_col) {
-              P <- P + n_ij * tab[k, l]
-            }
-          }
-          # Discordant: cells below and to the left
-          for (k in (i + 1):n_row) {
-            for (l in 1:(j - 1)) {
-              if (l >= 1) {
-                Q <- Q + n_ij * tab[k, l]
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    if ((P + Q) == 0) {
-      return(list(gamma = NA, P = P, Q = Q))
-    }
-    
-    gamma_val <- (P - Q) / (P + Q)
-    return(list(gamma = gamma_val, P = P, Q = Q))
+  # Get indices for the observed range
+  row_idx <- which(row_scores >= xmin & row_scores <= xmax)
+  col_idx <- which(col_scores >= ymin & col_scores <= ymax)
+  
+  if (length(row_idx) < 2 || length(col_idx) < 2) {
+    return(list(gamma_observed = NA, gamma_expected = NA, 
+                se_gamma = NA, z_statistic = NA, p_value = NA))
   }
   
-  # Calculate gamma for observed and expected
-  obs_result <- calc_gamma(observed)
-  exp_result <- calc_gamma(expected)
+  # Subset tables to observed range
+  obs_tab <- observed[row_idx, col_idx, drop = FALSE]
+  exp_tab <- expected[row_idx, col_idx, drop = FALSE]
   
-  gamma_observed <- obs_result$gamma
-  gamma_expected <- exp_result$gamma
+  n_row <- nrow(obs_tab)
+  n_col <- ncol(obs_tab)
   
-  if (is.na(gamma_observed) || is.na(gamma_expected)) {
-    return(list(
-      gamma_observed = gamma_observed,
-      gamma_expected = gamma_expected,
-      se_gamma = NA,
-      z_statistic = NA,
-      p_value = NA
-    ))
-  }
+  # Pre-compute C_ij and D_ij matrices for observed table
+  # C_ij = cells concordant with (i,j): above-left + below-right
+  # D_ij = cells discordant with (i,j): above-right + below-left
   
-  # Calculate standard error of gamma using ASE1
-  # ASE1 = (2 / (P + Q)) * sqrt(sum_ij n_ij * (Q * C_ij - P * D_ij)^2)
-  # where C_ij = sum of cells concordant with (i,j)
-  #       D_ij = sum of cells discordant with (i,j)
-  
-  n_row <- nrow(observed)
-  n_col <- ncol(observed)
-  P <- obs_result$P
-  Q <- obs_result$Q
-  
-  # Pre-compute C_ij and D_ij for each cell
-  C_matrix <- matrix(0, nrow = n_row, ncol = n_col)
-  D_matrix <- matrix(0, nrow = n_row, ncol = n_col)
+  C_obs <- matrix(0, nrow = n_row, ncol = n_col)
+  D_obs <- matrix(0, nrow = n_row, ncol = n_col)
   
   for (i in 1:n_row) {
     for (j in 1:n_col) {
-      # C_ij:  cells that would be concordant with (i,j)
-      # Cells above-left and below-right
       c_sum <- 0
       d_sum <- 0
       
-      # Above and to the left
+      # Above and to the left (concordant)
       if (i > 1 && j > 1) {
-        for (k in 1:(i - 1)) {
-          for (l in 1:(j - 1)) {
-            c_sum <- c_sum + observed[k, l]
-          }
-        }
+        c_sum <- c_sum + sum(obs_tab[1:(i-1), 1:(j-1)])
       }
       
-      # Below and to the right
+      # Below and to the right (concordant)
       if (i < n_row && j < n_col) {
-        for (k in (i + 1):n_row) {
-          for (l in (j + 1):n_col) {
-            c_sum <- c_sum + observed[k, l]
-          }
-        }
+        c_sum <- c_sum + sum(obs_tab[(i+1):n_row, (j+1):n_col])
       }
       
       # Above and to the right (discordant)
       if (i > 1 && j < n_col) {
-        for (k in 1:(i - 1)) {
-          for (l in (j + 1):n_col) {
-            d_sum <- d_sum + observed[k, l]
-          }
-        }
+        d_sum <- d_sum + sum(obs_tab[1:(i-1), (j+1):n_col])
       }
       
       # Below and to the left (discordant)
       if (i < n_row && j > 1) {
-        for (k in (i + 1):n_row) {
-          for (l in 1:(j - 1)) {
-            d_sum <- d_sum + observed[k, l]
-          }
-        }
+        d_sum <- d_sum + sum(obs_tab[(i+1):n_row, 1:(j-1)])
       }
       
-      C_matrix[i, j] <- c_sum
-      D_matrix[i, j] <- d_sum
+      C_obs[i, j] <- c_sum
+      D_obs[i, j] <- d_sum
     }
   }
   
-  # ASE1 calculation (variance, not SD yet)
-  sum_sq <- 0
+  # Calculate P (concordant pairs) and Q (discordant pairs) for observed
+  # P = sum(C_ij * n_ij) / 2, Q = sum(D_ij * n_ij) / 2
+  P_obs <- sum(C_obs * obs_tab) / 2
+  Q_obs <- sum(D_obs * obs_tab) / 2
+  
+  if ((P_obs + Q_obs) == 0) {
+    return(list(gamma_observed = NA, gamma_expected = NA, 
+                se_gamma = NA, z_statistic = NA, p_value = NA))
+  }
+  
+  gamma_observed <- (P_obs - Q_obs) / (P_obs + Q_obs)
+  
+  # Pre-compute C_ij and D_ij matrices for expected table
+  C_exp <- matrix(0, nrow = n_row, ncol = n_col)
+  D_exp <- matrix(0, nrow = n_row, ncol = n_col)
+  
   for (i in 1:n_row) {
     for (j in 1:n_col) {
-      n_ij <- observed[i, j]
-      if (n_ij > 0) {
-        term <- Q * C_matrix[i, j] - P * D_matrix[i, j]
-        sum_sq <- sum_sq + n_ij * term^2
+      c_sum <- 0
+      d_sum <- 0
+      
+      if (i > 1 && j > 1) {
+        c_sum <- c_sum + sum(exp_tab[1:(i-1), 1:(j-1)])
       }
+      
+      if (i < n_row && j < n_col) {
+        c_sum <- c_sum + sum(exp_tab[(i+1):n_row, (j+1):n_col])
+      }
+      
+      if (i > 1 && j < n_col) {
+        d_sum <- d_sum + sum(exp_tab[1:(i-1), (j+1):n_col])
+      }
+      
+      if (i < n_row && j > 1) {
+        d_sum <- d_sum + sum(exp_tab[(i+1):n_row, 1:(j-1)])
+      }
+      
+      C_exp[i, j] <- c_sum
+      D_exp[i, j] <- d_sum
     }
   }
   
-  # SE calculation
-  if ((P + Q) > 0 && sum_sq > 0) {
-    se_gamma <- (2 / (P + Q)) * sqrt(sum_sq)
+  # Calculate P and Q for expected
+  P_exp <- sum(C_exp * exp_tab) / 2
+  Q_exp <- sum(D_exp * exp_tab) / 2
+  
+  if ((P_exp + Q_exp) == 0) {
+    gamma_expected <- NA
+  } else {
+    gamma_expected <- (P_exp - Q_exp) / (P_exp + Q_exp)
+  }
+  
+  # Calculate standard error using expected table (following DIGRAM)
+  # psi_ij = 2 * (Q * C_ij - P * D_ij) / (P + Q)^2
+  # sigma^2 = sum(n_ij * psi_ij^2)
+  # se = sqrt(sigma^2)
+  
+  psi_exp <- 2 * (Q_exp * C_exp - P_exp * D_exp) / (P_exp + Q_exp)^2
+  sigma2_exp <- sum(exp_tab * psi_exp^2)
+  
+  if (sigma2_exp > 0) {
+    se_gamma <- sqrt(sigma2_exp)
   } else {
     se_gamma <- NA
   }
   
-  # Z test:  (expected - observed) / SE
-  # One-sided p-value following DIGRAM
-  if (! is.na(se_gamma) && se_gamma > 0) {
+  # Z test: (expected - observed) / SE
+  # One-sided p-value following DIGRAM: tests if observed gamma is lower than expected
+  if (!is.na(se_gamma) && se_gamma > 0) {
     z_statistic <- (gamma_expected - gamma_observed) / se_gamma
-    p_value <- pnorm(z_statistic)  # One-sided p-value
+    p_value <- 1 - pnorm(z_statistic)  # One-sided p-value (lower tail)
   } else {
     z_statistic <- NA
     p_value <- NA

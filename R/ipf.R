@@ -517,7 +517,7 @@ calculate_statistics <- function(object) {
     x_char <- as.character(x)
     x_idx <- which(object$test1_scores == x)
     
-    if (! is.na(gamma[x_char]) && gamma[x_char] > 0) {
+    if (!is.na(gamma[x_char]) && gamma[x_char] > 0) {
       lngamx <- log(gamma[x_char])
     } else {
       lngamx <- 0
@@ -535,7 +535,7 @@ calculate_statistics <- function(object) {
         lngamy <- 0
       }
       
-      if (! is.na(sigma[s_char]) && sigma[s_char] > 0) {
+      if (!is.na(sigma[s_char]) && sigma[s_char] > 0) {
         lngams <- log(sigma[s_char])
       } else {
         lngams <- 0
@@ -549,7 +549,7 @@ calculate_statistics <- function(object) {
       }
       
       exp_xy <- expected[x_idx, y_idx]
-      if (! is.na(exp_xy) && exp_xy > 0) {
+      if (!is.na(exp_xy) && exp_xy > 0) {
         d <- n_xy - exp_xy
         chi_sq_cell <- d * d / exp_xy
         chi_sq <- chi_sq + chi_sq_cell
@@ -587,28 +587,29 @@ calculate_statistics <- function(object) {
   df <- 0
   for (s in object$total_scores) {
     s_char <- as.character(s)
-    if (! is.na(smargin[s_char]) && smargin[s_char] > 0) {
+    if (!is.na(smargin[s_char]) && smargin[s_char] > 0) {
       df <- df + orbit_df[s_char]
     }
   }
   
-  # Subtract parameter count using OBSERVED score ranges
-  df <- df - (xmax - xmin) - (ymax - ymin) + 1
+  # Count scores with positive parameters
+  n_gamma_positive <- sum(gamma > 0, na.rm = TRUE)
+  n_delta_positive <- sum(delta > 0, na.rm = TRUE)
   
-  # Add back 1 for each score where gamma = 0
-  for (x in object$test1_scores) {
-    x_char <- as.character(x)
-    if (is.na(gamma[x_char]) || gamma[x_char] == 0) {
-      df <- df + 1
-    }
-  }
+  # Subtract parameter count: n_gamma+ + n_delta+ - 3
+  # The -3 accounts for three identification constraints:
+  #   1. gamma[xmin] = 1
+  #   2. delta[ymin] = 1  
+  #   3. log-linear constraint on gamma[xmax] * delta[ymax]
+  n_params <- n_gamma_positive + n_delta_positive - 3
   
-  # Add back 1 for each score where delta = 0
-  for (y in object$test2_scores) {
-    y_char <- as.character(y)
-    if (is.na(delta[y_char]) || delta[y_char] == 0) {
-      df <- df + 1
-    }
+  df <- df - n_params
+  
+  # Adjustment when at least one of xmin or ymin is 0
+  # When the minimum observed score equals the theoretical minimum (0),
+  # there is one fewer effective constraint, so we add back 1 df
+  if (xmin == 0 || ymin == 0) {
+    df <- df + 1
   }
   
   df <- max(0, df)
@@ -621,8 +622,8 @@ calculate_statistics <- function(object) {
     p_chi_sq <- NA
   }
   
-  # Calculate Goodman-Kruskal Gamma test
-  gk_gamma <- calculate_gamma_test(obs, expected)
+  # Calculate Goodman-Kruskal Gamma test (pass observed ranges)
+  gk_gamma <- calculate_gamma_test(obs, expected, xmin, xmax, ymin, ymax)
   
   list(
     g_sq = g_sq,
@@ -642,6 +643,7 @@ calculate_statistics <- function(object) {
     gk_gamma_p = gk_gamma$p_value
   )
 }
+
 
 
 #' Print method for leunbach_ipf objects

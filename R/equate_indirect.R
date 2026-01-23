@@ -162,16 +162,38 @@ compute_indirect_equating <- function(eq_ab, eq_bc) {
     # Store the theta from source test
     theta_indirect[i] <- theta_a
     
-    # Handle boundary cases
-    if (exp_b <= anchor_min) {
-      expected_indirect[i] <- target_min
-      rounded_indirect[i] <- target_min
+    # Handle boundary cases - strictly outside the anchor range
+    if (exp_b < anchor_min) {
+      # Extrapolate below: use slope at anchor_min
+      c_at_min <- bc_lookup[as.character(anchor_min)]
+      c_at_min_plus_1 <- bc_lookup[as.character(anchor_min + 1)]
+      if (!is.na(c_at_min) && !is.na(c_at_min_plus_1)) {
+        slope <- c_at_min_plus_1 - c_at_min
+        expected_indirect[i] <- c_at_min + slope * (exp_b - anchor_min)
+        expected_indirect[i] <- max(target_min, expected_indirect[i])
+      } else if (!is.na(c_at_min)) {
+        expected_indirect[i] <- c_at_min
+      } else {
+        expected_indirect[i] <- target_min
+      }
+      rounded_indirect[i] <- round(expected_indirect[i])
       next
     }
     
-    if (exp_b >= anchor_max) {
-      expected_indirect[i] <- target_max
-      rounded_indirect[i] <- target_max
+    if (exp_b > anchor_max) {
+      # Extrapolate above: use slope at anchor_max
+      c_at_max <- bc_lookup[as.character(anchor_max)]
+      c_at_max_minus_1 <- bc_lookup[as.character(anchor_max - 1)]
+      if (!is.na(c_at_max) && !is.na(c_at_max_minus_1)) {
+        slope <- c_at_max - c_at_max_minus_1
+        expected_indirect[i] <- c_at_max + slope * (exp_b - anchor_max)
+        expected_indirect[i] <- min(target_max, expected_indirect[i])
+      } else if (!is.na(c_at_max)) {
+        expected_indirect[i] <- c_at_max
+      } else {
+        expected_indirect[i] <- target_max
+      }
+      rounded_indirect[i] <- round(expected_indirect[i])
       next
     }
     
@@ -215,7 +237,6 @@ compute_indirect_equating <- function(eq_ab, eq_bc) {
     rounded = as.integer(rounded_indirect)
   )
 }
-
 
 #' Find nearest valid equated score
 #'
@@ -472,8 +493,8 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   valid_gamma_ab <- !is.na(gk_gamma_z_ab_bootstrap)
   valid_gamma_bc <- !is.na(gk_gamma_z_bc_bootstrap)
   
-  if (sum(valid_gamma_ab) > 0 && ! is.na(gk_gamma_z_ab_observed)) {
-    n_significant_gamma_ab <- sum(gk_gamma_z_ab_bootstrap[valid_gamma_ab] <= gk_gamma_z_ab_observed)
+  if (sum(valid_gamma_ab) > 0 && !is.na(gk_gamma_z_ab_observed)) {
+    n_significant_gamma_ab <- sum(gk_gamma_z_ab_bootstrap[valid_gamma_ab] >= gk_gamma_z_ab_observed)
     p_gamma_ab <- n_significant_gamma_ab / sum(valid_gamma_ab)
   } else {
     n_significant_gamma_ab <- NA
@@ -481,7 +502,7 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   }
   
   if (sum(valid_gamma_bc) > 0 && !is.na(gk_gamma_z_bc_observed)) {
-    n_significant_gamma_bc <- sum(gk_gamma_z_bc_bootstrap[valid_gamma_bc] <= gk_gamma_z_bc_observed)
+    n_significant_gamma_bc <- sum(gk_gamma_z_bc_bootstrap[valid_gamma_bc] >= gk_gamma_z_bc_observed)
     p_gamma_bc <- n_significant_gamma_bc / sum(valid_gamma_bc)
   } else {
     n_significant_gamma_bc <- NA

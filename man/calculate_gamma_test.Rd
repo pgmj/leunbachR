@@ -4,19 +4,27 @@
 \alias{calculate_gamma_test}
 \title{Calculate Goodman-Kruskal Gamma and test statistic}
 \usage{
-calculate_gamma_test(observed, expected)
+calculate_gamma_test(observed, expected, xmin, xmax, ymin, ymax)
 }
 \arguments{
 \item{observed}{Observed contingency table}
 
 \item{expected}{Expected (fitted) contingency table}
+
+\item{xmin}{Minimum observed Test 1 score}
+
+\item{xmax}{Maximum observed Test 1 score}
+
+\item{ymin}{Minimum observed Test 2 score}
+
+\item{ymax}{Maximum observed Test 2 score}
 }
 \value{
 A list containing:
 \itemize{
 \item gamma_observed: Gamma coefficient for observed data
 \item gamma_expected: Gamma coefficient for expected data
-\item se_gamma:  Standard error of gamma
+\item se_gamma: Standard error of gamma
 \item z_statistic: Z statistic (expected - observed) / SE
 \item p_value: One-sided p-value from standard normal
 }

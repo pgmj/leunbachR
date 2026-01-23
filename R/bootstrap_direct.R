@@ -159,13 +159,12 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
   gk_gamma_z_observed <- fit$gk_gamma_z
   
   # Compute bootstrap p-value for Gamma test (one-sided)
-  # Under H0, Z should be around 0. We test if observed Z is more extreme
-  # in the direction indicating misfit (observed gamma > expected, so Z < 0)
+  # z = (expected - observed) / se
+  # Large positive z indicates observed gamma is more negative than expected
+  # p-value = proportion of bootstrap samples with z >= observed z
   valid_gamma <- !is.na(gk_gamma_z_bootstrap)
-  if (sum(valid_gamma) > 0 && ! is.na(gk_gamma_z_observed)) {
-    # One-sided:  count bootstrap samples with Z <= observed Z
-    # (more extreme in the direction of observed > expected)
-    n_significant_gamma <- sum(gk_gamma_z_bootstrap[valid_gamma] <= gk_gamma_z_observed)
+  if (sum(valid_gamma) > 0 && !is.na(gk_gamma_z_observed)) {
+    n_significant_gamma <- sum(gk_gamma_z_bootstrap[valid_gamma] >= gk_gamma_z_observed)
     p_gamma <- n_significant_gamma / sum(valid_gamma)
   } else {
     n_significant_gamma <- NA
