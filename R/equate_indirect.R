@@ -68,11 +68,11 @@ leunbach_indirect_equate <- function(fit_ab, fit_bc,
   if (verbose) {
     cat("Indirect Equating\n")
     cat("=================\n\n")
-    cat(sprintf("Step 1: %s → %s (anchor test)\n", eq_ab$source_name, eq_ab$target_name))
+    cat(sprintf("Step 1: %s → %s (anchor test)\n", "Test A", "Test B"))
     cat(sprintf("        Anchor range from eq_ab: %d to %d\n", anchor_min_ab, anchor_max_ab))
-    cat(sprintf("Step 2: %s → %s\n", eq_bc$source_name, eq_bc$target_name))
+    cat(sprintf("Step 2: %s → %s\n", "Test B", "Test C"))
     cat(sprintf("        Anchor range from eq_bc: %d to %d\n", anchor_min_bc, anchor_max_bc))
-    cat(sprintf("Result: %s → %s (indirect)\n\n", eq_ab$source_name, eq_bc$target_name))
+    cat(sprintf("Result: %s → %s (indirect)\n\n", "Test A", "Test C"))
   }
   
   # Perform indirect equating using interpolation
@@ -91,9 +91,9 @@ leunbach_indirect_equate <- function(fit_ab, fit_bc,
     direction_ab = direction_ab,
     direction_bc = direction_bc,
     method = method,
-    source_name = eq_ab$source_name,
-    anchor_name = eq_ab$target_name,
-    target_name = eq_bc$target_name,
+    source_name = "Test A",
+    anchor_name = "Test B",
+    target_name = "Test C",
     source_min = eq_ab$source_min,
     source_max = eq_ab$source_max,
     anchor_min = max(anchor_min_ab, anchor_min_bc),
