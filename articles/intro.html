@@ -465,25 +465,25 @@ here.</p>
 <pre><code><span><span class="co">## Leunbach Indirect Equating</span></span>
 <span><span class="co">## ==========================</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Path: Test A -&gt; Test B -&gt; Test C</span></span>
 <span><span class="co">## Method: optimize</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Source (Test1) range:  0 to 10</span></span>
-<span><span class="co">## Anchor (Test2) range: 0 to 10</span></span>
-<span><span class="co">## Target (Test2) range: 0 to 10</span></span>
+<span><span class="co">## Source (Test A) range:  0 to 10</span></span>
+<span><span class="co">## Anchor (Test B) range: 0 to 10</span></span>
+<span><span class="co">## Target (Test C) range: 0 to 10</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  Test1    Theta Expected_Test2 Rounded_Test2</span></span>
-<span><span class="co">##      0  -5.0000           0.00             0</span></span>
-<span><span class="co">##      1  -2.0865           1.23             1</span></span>
-<span><span class="co">##      2  -1.4308           2.20             2</span></span>
-<span><span class="co">##      3  -0.9309           3.22             3</span></span>
-<span><span class="co">##      4  -0.4880           4.19             4</span></span>
-<span><span class="co">##      5  -0.0846           5.08             5</span></span>
-<span><span class="co">##      6   0.3154           5.98             6</span></span>
-<span><span class="co">##      7   0.7833           7.09             7</span></span>
-<span><span class="co">##      8   1.4251           8.44             8</span></span>
-<span><span class="co">##      9   2.3503           9.42             9</span></span>
-<span><span class="co">##     10   5.0000          10.00            10</span></span></code></pre>
+<span><span class="co">##  Test A    Theta Expected_Test C Rounded_Test C</span></span>
+<span><span class="co">##       0  -5.0000            0.00              0</span></span>
+<span><span class="co">##       1  -2.0865            1.23              1</span></span>
+<span><span class="co">##       2  -1.4308            2.20              2</span></span>
+<span><span class="co">##       3  -0.9309            3.22              3</span></span>
+<span><span class="co">##       4  -0.4880            4.19              4</span></span>
+<span><span class="co">##       5  -0.0846            5.08              5</span></span>
+<span><span class="co">##       6   0.3154            5.98              6</span></span>
+<span><span class="co">##       7   0.7833            7.09              7</span></span>
+<span><span class="co">##       8   1.4251            8.44              8</span></span>
+<span><span class="co">##       9   2.3503            9.42              9</span></span>
+<span><span class="co">##      10   5.0000           10.00             10</span></span></code></pre>
 <div class="section level3">
 <h3 id="bootstrap-1">Bootstrap<a class="anchor" aria-label="anchor" href="#bootstrap-1"></a>
 </h3>
@@ -497,7 +497,7 @@ here.</p>
 <pre><code><span><span class="co">## Parametric Bootstrap for Indirect Equating</span></span>
 <span><span class="co">## ===========================================</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Path: Test A -&gt; Test B -&gt; Test C</span></span>
 <span><span class="co">## Optimization method: optimize</span></span>
 <span><span class="co">## Running 100 bootstrap samples using 4 cores...</span></span>
 <span><span class="co">## </span></span>
@@ -517,7 +517,7 @@ here.</p>
 <pre><code><span><span class="co">## Leunbach Indirect Equating - Parametric Bootstrap Results</span></span>
 <span><span class="co">## ==========================================================</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Path: Test A -&gt; Test B -&gt; Test C</span></span>
 <span><span class="co">## Bootstrap samples: 100 (100 valid)</span></span>
 <span><span class="co">## Processing:  parallel (4 cores)</span></span>
 <span><span class="co">## Optimization method: optimize</span></span>
@@ -525,7 +525,7 @@ here.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## Assessment of significance by parametric bootstrapping:</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Equating A-B (Test1 -&gt; Test2):</span></span>
+<span><span class="co">## Equating A-B (Test A -&gt; Test B):</span></span>
 <span><span class="co">##   1. Likelihood Ratio Test:</span></span>
 <span><span class="co">##      Observed LR = 77.72 (df = 79)</span></span>
 <span><span class="co">##      Asymptotic p-value:    p = 0.5197</span></span>
@@ -535,7 +535,7 @@ here.</p>
 <span><span class="co">##      Asymptotic p-value:   p = 0.5404</span></span>
 <span><span class="co">##      Bootstrap p-value:    p = 0.7800</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Equating B-C (Test2 -&gt; Test2):</span></span>
+<span><span class="co">## Equating B-C (Test B -&gt; Test C):</span></span>
 <span><span class="co">##   1. Likelihood Ratio Test:</span></span>
 <span><span class="co">##      Observed LR = 82.73 (df = 80)</span></span>
 <span><span class="co">##      Asymptotic p-value:    p = 0.3950</span></span>
@@ -545,7 +545,7 @@ here.</p>
 <span><span class="co">##      Asymptotic p-value:   p = 0.6021</span></span>
 <span><span class="co">##      Bootstrap p-value:    p = 0.9700</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Indirect Equating: Test1 -&gt; Test2 (with 95% CI)</span></span>
+<span><span class="co">## Indirect Equating: Test A -&gt; Test C (with 95% CI)</span></span>
 <span><span class="co">## =======================================================================================</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##                                                                          Frequency of bootstrap errors</span></span>
@@ -569,18 +569,18 @@ here.</p>
 <pre><code><span><span class="co">## Leunbach Indirect Equating - Bootstrap Summary</span></span>
 <span><span class="co">## ===============================================</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Path: Test1 -&gt; Test2 -&gt; Test2</span></span>
+<span><span class="co">## Path: Test A -&gt; Test B -&gt; Test C</span></span>
 <span><span class="co">## Bootstrap samples:  100 (100 valid)</span></span>
 <span><span class="co">## Confidence level: 95%</span></span>
 <span><span class="co">## SEE type: rounded scores</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Model Fit Summary:</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Equating A-B (Test1 -&gt; Test2):</span></span>
+<span><span class="co">## Equating A-B (Test A -&gt; Test B):</span></span>
 <span><span class="co">##   LR test:     asymptotic p = 0.5197, bootstrap p = 0.0600</span></span>
 <span><span class="co">##   Gamma test:  asymptotic p = 0.5404, bootstrap p = 0.7800</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Equating B-C (Test2 -&gt; Test2):</span></span>
+<span><span class="co">## Equating B-C (Test B -&gt; Test C):</span></span>
 <span><span class="co">##   LR test:     asymptotic p = 0.3950, bootstrap p = 0.1300</span></span>
 <span><span class="co">##   Gamma test: asymptotic p = 0.6021, bootstrap p = 0.9700</span></span>
 <span><span class="co">## </span></span>
@@ -592,18 +592,18 @@ here.</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">indirect_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_indirect_equating_table.html">get_indirect_equating_table</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span>
 <span><span class="va">indirect_table</span></span></code></pre></div>
-<pre><code><span><span class="co">##    Test1 log_theta rounded expected ci_lower ci_upper  see pct_failed</span></span>
-<span><span class="co">## 0      0   -5.0000       0     0.00     0.00     1.03 0.51          0</span></span>
-<span><span class="co">## 1      1   -2.0865       1     1.23     0.38     2.03 0.55          0</span></span>
-<span><span class="co">## 2      2   -1.4308       2     2.20     1.64     2.76 0.39          0</span></span>
-<span><span class="co">## 3      3   -0.9309       3     3.22     2.84     3.56 0.30          0</span></span>
-<span><span class="co">## 4      4   -0.4880       4     4.19     3.85     4.51 0.17          0</span></span>
-<span><span class="co">## 5      5   -0.0846       5     5.08     4.79     5.37 0.00          0</span></span>
-<span><span class="co">## 6      6    0.3154       6     5.98     5.64     6.33 0.00          0</span></span>
-<span><span class="co">## 7      7    0.7833       7     7.09     6.65     7.54 0.26          0</span></span>
-<span><span class="co">## 8      8    1.4251       8     8.44     7.68     9.02 0.50          0</span></span>
-<span><span class="co">## 9      9    2.3503       9     9.42     8.74    10.00 0.52          0</span></span>
-<span><span class="co">## 10    10    5.0000      10    10.00     9.35    10.00 0.21         12</span></span></code></pre>
+<pre><code><span><span class="co">##    Test A log_theta rounded expected ci_lower ci_upper  see pct_failed</span></span>
+<span><span class="co">## 0       0   -5.0000       0     0.00     0.00     1.03 0.51          0</span></span>
+<span><span class="co">## 1       1   -2.0865       1     1.23     0.38     2.03 0.55          0</span></span>
+<span><span class="co">## 2       2   -1.4308       2     2.20     1.64     2.76 0.39          0</span></span>
+<span><span class="co">## 3       3   -0.9309       3     3.22     2.84     3.56 0.30          0</span></span>
+<span><span class="co">## 4       4   -0.4880       4     4.19     3.85     4.51 0.17          0</span></span>
+<span><span class="co">## 5       5   -0.0846       5     5.08     4.79     5.37 0.00          0</span></span>
+<span><span class="co">## 6       6    0.3154       6     5.98     5.64     6.33 0.00          0</span></span>
+<span><span class="co">## 7       7    0.7833       7     7.09     6.65     7.54 0.26          0</span></span>
+<span><span class="co">## 8       8    1.4251       8     8.44     7.68     9.02 0.50          0</span></span>
+<span><span class="co">## 9       9    2.3503       9     9.42     8.74    10.00 0.52          0</span></span>
+<span><span class="co">## 10     10    5.0000      10    10.00     9.35    10.00 0.21         12</span></span></code></pre>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">indirect_table</span>, file <span class="op">=</span> <span class="st">"indirect_table.csv"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">

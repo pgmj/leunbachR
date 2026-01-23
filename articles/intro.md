@@ -459,25 +459,25 @@ print(indirect1)
     ## Leunbach Indirect Equating
     ## ==========================
     ## 
-    ## Path: Test1 -> Test2 -> Test2
+    ## Path: Test A -> Test B -> Test C
     ## Method: optimize
     ## 
-    ## Source (Test1) range:  0 to 10
-    ## Anchor (Test2) range: 0 to 10
-    ## Target (Test2) range: 0 to 10
+    ## Source (Test A) range:  0 to 10
+    ## Anchor (Test B) range: 0 to 10
+    ## Target (Test C) range: 0 to 10
     ## 
-    ##  Test1    Theta Expected_Test2 Rounded_Test2
-    ##      0  -5.0000           0.00             0
-    ##      1  -2.0865           1.23             1
-    ##      2  -1.4308           2.20             2
-    ##      3  -0.9309           3.22             3
-    ##      4  -0.4880           4.19             4
-    ##      5  -0.0846           5.08             5
-    ##      6   0.3154           5.98             6
-    ##      7   0.7833           7.09             7
-    ##      8   1.4251           8.44             8
-    ##      9   2.3503           9.42             9
-    ##     10   5.0000          10.00            10
+    ##  Test A    Theta Expected_Test C Rounded_Test C
+    ##       0  -5.0000            0.00              0
+    ##       1  -2.0865            1.23              1
+    ##       2  -1.4308            2.20              2
+    ##       3  -0.9309            3.22              3
+    ##       4  -0.4880            4.19              4
+    ##       5  -0.0846            5.08              5
+    ##       6   0.3154            5.98              6
+    ##       7   0.7833            7.09              7
+    ##       8   1.4251            8.44              8
+    ##       9   2.3503            9.42              9
+    ##      10   5.0000           10.00             10
 
 ### Bootstrap
 
@@ -494,7 +494,7 @@ boot_indirect1 <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
     ## Parametric Bootstrap for Indirect Equating
     ## ===========================================
     ## 
-    ## Path: Test1 -> Test2 -> Test2
+    ## Path: Test A -> Test B -> Test C
     ## Optimization method: optimize
     ## Running 100 bootstrap samples using 4 cores...
     ## 
@@ -517,7 +517,7 @@ print(boot_indirect1)
     ## Leunbach Indirect Equating - Parametric Bootstrap Results
     ## ==========================================================
     ## 
-    ## Path: Test1 -> Test2 -> Test2
+    ## Path: Test A -> Test B -> Test C
     ## Bootstrap samples: 100 (100 valid)
     ## Processing:  parallel (4 cores)
     ## Optimization method: optimize
@@ -525,7 +525,7 @@ print(boot_indirect1)
     ## 
     ## Assessment of significance by parametric bootstrapping:
     ## 
-    ## Equating A-B (Test1 -> Test2):
+    ## Equating A-B (Test A -> Test B):
     ##   1. Likelihood Ratio Test:
     ##      Observed LR = 77.72 (df = 79)
     ##      Asymptotic p-value:    p = 0.5197
@@ -535,7 +535,7 @@ print(boot_indirect1)
     ##      Asymptotic p-value:   p = 0.5404
     ##      Bootstrap p-value:    p = 0.7800
     ## 
-    ## Equating B-C (Test2 -> Test2):
+    ## Equating B-C (Test B -> Test C):
     ##   1. Likelihood Ratio Test:
     ##      Observed LR = 82.73 (df = 80)
     ##      Asymptotic p-value:    p = 0.3950
@@ -545,7 +545,7 @@ print(boot_indirect1)
     ##      Asymptotic p-value:   p = 0.6021
     ##      Bootstrap p-value:    p = 0.9700
     ## 
-    ## Indirect Equating: Test1 -> Test2 (with 95% CI)
+    ## Indirect Equating: Test A -> Test C (with 95% CI)
     ## =======================================================================================
     ## 
     ##                                                                          Frequency of bootstrap errors
@@ -572,18 +572,18 @@ summary(boot_indirect1)
     ## Leunbach Indirect Equating - Bootstrap Summary
     ## ===============================================
     ## 
-    ## Path: Test1 -> Test2 -> Test2
+    ## Path: Test A -> Test B -> Test C
     ## Bootstrap samples:  100 (100 valid)
     ## Confidence level: 95%
     ## SEE type: rounded scores
     ## 
     ## Model Fit Summary:
     ## 
-    ## Equating A-B (Test1 -> Test2):
+    ## Equating A-B (Test A -> Test B):
     ##   LR test:     asymptotic p = 0.5197, bootstrap p = 0.0600
     ##   Gamma test:  asymptotic p = 0.5404, bootstrap p = 0.7800
     ## 
-    ## Equating B-C (Test2 -> Test2):
+    ## Equating B-C (Test B -> Test C):
     ##   LR test:     asymptotic p = 0.3950, bootstrap p = 0.1300
     ##   Gamma test: asymptotic p = 0.6021, bootstrap p = 0.9700
     ## 
@@ -599,18 +599,18 @@ indirect_table <- get_indirect_equating_table(boot_indirect1)
 indirect_table
 ```
 
-    ##    Test1 log_theta rounded expected ci_lower ci_upper  see pct_failed
-    ## 0      0   -5.0000       0     0.00     0.00     1.03 0.51          0
-    ## 1      1   -2.0865       1     1.23     0.38     2.03 0.55          0
-    ## 2      2   -1.4308       2     2.20     1.64     2.76 0.39          0
-    ## 3      3   -0.9309       3     3.22     2.84     3.56 0.30          0
-    ## 4      4   -0.4880       4     4.19     3.85     4.51 0.17          0
-    ## 5      5   -0.0846       5     5.08     4.79     5.37 0.00          0
-    ## 6      6    0.3154       6     5.98     5.64     6.33 0.00          0
-    ## 7      7    0.7833       7     7.09     6.65     7.54 0.26          0
-    ## 8      8    1.4251       8     8.44     7.68     9.02 0.50          0
-    ## 9      9    2.3503       9     9.42     8.74    10.00 0.52          0
-    ## 10    10    5.0000      10    10.00     9.35    10.00 0.21         12
+    ##    Test A log_theta rounded expected ci_lower ci_upper  see pct_failed
+    ## 0       0   -5.0000       0     0.00     0.00     1.03 0.51          0
+    ## 1       1   -2.0865       1     1.23     0.38     2.03 0.55          0
+    ## 2       2   -1.4308       2     2.20     1.64     2.76 0.39          0
+    ## 3       3   -0.9309       3     3.22     2.84     3.56 0.30          0
+    ## 4       4   -0.4880       4     4.19     3.85     4.51 0.17          0
+    ## 5       5   -0.0846       5     5.08     4.79     5.37 0.00          0
+    ## 6       6    0.3154       6     5.98     5.64     6.33 0.00          0
+    ## 7       7    0.7833       7     7.09     6.65     7.54 0.26          0
+    ## 8       8    1.4251       8     8.44     7.68     9.02 0.50          0
+    ## 9       9    2.3503       9     9.42     8.74    10.00 0.52          0
+    ## 10     10    5.0000      10    10.00     9.35    10.00 0.21         12
 
 ``` r
 write.csv(indirect_table, file = "indirect_table.csv")
