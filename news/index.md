@@ -5,6 +5,7 @@
 - Fix for LRT df calculations.
 - Fix for gamma test SE, p-value, reverse one-sided test.
 - Fix for indirect equating boundary case.
+- Fix for text labels of tests in indirect equating output.
 
 ## leunbachR 0.0.2 (2026-01-20)
 
