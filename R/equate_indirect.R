@@ -392,8 +392,7 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   if (verbose) {
     cat("Parametric Bootstrap for Indirect Equating\n")
     cat("===========================================\n\n")
-    cat(sprintf("Path: %s -> %s -> %s\n", indirect_eq$source_name, 
-                indirect_eq$anchor_name, indirect_eq$target_name))
+    cat(sprintf("Path: %s -> %s -> %s\n", "Test A", "Test B", "Test C"))
     cat(sprintf("Optimization method: %s\n", method))
     if (use_parallel) {
       cat(sprintf("Running %d bootstrap samples using %d cores...\n\n", nsim, n_cores))
@@ -845,8 +844,7 @@ print.leunbach_indirect_bootstrap <- function(x, ...) {
   cat("Leunbach Indirect Equating - Parametric Bootstrap Results\n")
   cat("==========================================================\n\n")
   
-  cat(sprintf("Path: %s -> %s -> %s\n", x$indirect_eq$source_name,
-              x$indirect_eq$anchor_name, x$indirect_eq$target_name))
+  cat(sprintf("Path: %s -> %s -> %s\n", "Test A", "Test B", "Test C"))
   cat(sprintf("Bootstrap samples: %d (%d valid)\n", x$nsim, x$n_valid))
   if (x$parallel) {
     cat(sprintf("Processing:  parallel (%d cores)\n", x$n_cores))
@@ -860,7 +858,7 @@ print.leunbach_indirect_bootstrap <- function(x, ...) {
   
   # Equating A-B
   cat(sprintf("Equating A-B (%s -> %s):\n", 
-              x$indirect_eq$source_name, x$indirect_eq$anchor_name))
+              "Test A", "Test B"))
   cat("  1. Likelihood Ratio Test:\n")
   cat(sprintf("     Observed LR = %.2f (df = %d)\n", x$lr_ab_observed, x$df_ab))
   cat(sprintf("     Asymptotic p-value:    p = %.4f\n", x$fit_ab$p_value))
@@ -876,7 +874,7 @@ print.leunbach_indirect_bootstrap <- function(x, ...) {
   
   # Equating B-C
   cat(sprintf("Equating B-C (%s -> %s):\n", 
-              x$indirect_eq$anchor_name, x$indirect_eq$target_name))
+              "Test B", "Test C"))
   cat("  1. Likelihood Ratio Test:\n")
   cat(sprintf("     Observed LR = %.2f (df = %d)\n", x$lr_bc_observed, x$df_bc))
   cat(sprintf("     Asymptotic p-value:    p = %.4f\n", x$fit_bc$p_value))
@@ -902,8 +900,7 @@ summary.leunbach_indirect_bootstrap <- function(object, ...) {
   cat("Leunbach Indirect Equating - Bootstrap Summary\n")
   cat("===============================================\n\n")
   
-  cat(sprintf("Path: %s -> %s -> %s\n", object$indirect_eq$source_name,
-              object$indirect_eq$anchor_name, object$indirect_eq$target_name))
+  cat(sprintf("Path: %s -> %s -> %s\n", "Test A", "Test B", "Test C"))
   cat(sprintf("Bootstrap samples:  %d (%d valid)\n", object$nsim, object$n_valid))
   cat(sprintf("Confidence level: %d%%\n", round(object$conf_level * 100)))
   cat(sprintf("SEE type: %s scores\n\n", object$see_type))
@@ -912,7 +909,7 @@ summary.leunbach_indirect_bootstrap <- function(object, ...) {
   
   # A-B fit
   cat(sprintf("Equating A-B (%s -> %s):\n", 
-              object$indirect_eq$source_name, object$indirect_eq$anchor_name))
+              "Test A", "Test B"))
   cat(sprintf("  LR test:     asymptotic p = %.4f, bootstrap p = %.4f\n", 
               object$fit_ab$p_value, object$p_lr_ab))
   if (!is.na(object$gk_gamma_z_ab_observed)) {
@@ -924,7 +921,7 @@ summary.leunbach_indirect_bootstrap <- function(object, ...) {
   
   # B-C fit
   cat(sprintf("Equating B-C (%s -> %s):\n", 
-              object$indirect_eq$anchor_name, object$indirect_eq$target_name))
+              "Test B", "Test C"))
   cat(sprintf("  LR test:     asymptotic p = %.4f, bootstrap p = %.4f\n", 
               object$fit_bc$p_value, object$p_lr_bc))
   if (!is.na(object$gk_gamma_z_bc_observed)) {
@@ -962,7 +959,7 @@ print_indirect_see_table <- function(x) {
   conf_pct <- round(x$conf_level * 100)
   
   cat(sprintf("Indirect Equating:  %s → %s (with %d%% CI)\n",
-              x$indirect_eq$source_name, x$indirect_eq$target_name, conf_pct))
+              "Test A", "Test C", conf_pct))
   cat("==========================================================\n\n")
   
   valid <- x$source_scores >= x$source_min & x$source_scores <= x$source_max
@@ -1000,9 +997,9 @@ plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...
     plot(x$source_scores[valid], x$observed_expected[valid], type = "b", pch = 19,
          ylim = range(c(x$ci_lower[valid], x$ci_upper[valid]), na.rm = TRUE),
          xlab = x$indirect_eq$source_name,
-         ylab = paste("Expected", x$indirect_eq$target_name),
+         ylab = paste("Expected", "Test C"),
          main = sprintf("Indirect Equating: %s → %s (%d%% CI)",
-                        x$indirect_eq$source_name, x$indirect_eq$target_name,
+                        "Test A", "Test C",
                         round(x$conf_level * 100)))
     
     polygon(c(x$source_scores[valid], rev(x$source_scores[valid])),
@@ -1016,7 +1013,7 @@ plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...
          xlab = x$indirect_eq$source_name,
          ylab = "SEE",
          main = sprintf("Standard Error of Equating: %s → %s",
-                        x$indirect_eq$source_name, x$indirect_eq$target_name))
+                        "Test A", "Test C"))
     grid()
     abline(h = x$avg_see, col = "red", lty = 2)
   }
