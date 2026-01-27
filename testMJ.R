@@ -173,7 +173,7 @@ print(indirect1)
 boot_indirect1 <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
                                               direction_ab = "1to2",
                                               direction_bc = "1to2",
-                                              nsim = 500,
+                                              nsim = 100,
                                               verbose = TRUE, n_cores = 12)
 print(boot_indirect1)
 summary(boot_indirect1)
@@ -462,3 +462,85 @@ plot(orbits, type = "orbit", total_score = 10)  # Specific orbit
 
 # Get misfitting persons
 misfits <- get_misfitting_persons(orbits)
+
+
+
+# kequate -----------------------------------------------------------------
+
+
+# number of moments chosen based on AIC
+glm_a5 <- glm(count~I(total) + I(total^2) + I(total^3) + I(total^4) + I(total^5), 
+              family = "poisson", data = rx, x = TRUE)
+glm_b3 <- glm(count~I(total) + I(total^2) + I(total^3), 
+              family = "poisson", data = ry, x = TRUE)
+glm_a_ns <- glm(count ~ splines::bs(total, df = 3), 
+               family = "poisson", data = rx, x = TRUE)
+glm_a_ns_nb <- MASS::glm.nb(count ~ splines::bs(total, df = 3), 
+              data = rx, x = TRUE, control = glm.control(maxit = 1000))
+AIC(glm_a5,glm_a_ns,glm_a_ns_nb)
+library(kequate)
+# Equivalent groups design: In an EG design, two groups that have been randomly selected from a common population are given separate but parallel tests.
+eg_eq <- kequate(design = "EG", # assuming that these are two independent groups from the same sample
+        r = glm_a_ns, s = glm_b3,
+        x = c(0:10), y = c(0:10))
+
+eg_eq@equating
+lboot2 <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100, see_type = "expected")
+
+
+data.frame(score = c(0:10,0:10),
+           see = c(lboot2[["see_1to2"]],eg_eq@equating$SEEYx),
+           model = c(rep("Leunbach",11),rep("glm",11))
+) %>% ggplot(aes(x=score,y=see, color = model)) +
+  geom_point(size = 3) +
+  geom_line()
+
+#After having obtained satisfactory univariate models, the bivariate model needs to be estimated. 
+# The bivariate model should include the univariate moments of the respective univariate log-linear models, along with cross-moments between the two tests X and A. We consider for inclusion in the bivariate log-linear model the cross-moments up to the highest moments contained in the univariate log-linear models.
+
+
+rxx <- rx %>% 
+  as.data.frame() %>% 
+  rename(count_a = count) 
+ryy <- ry %>% 
+  as.data.frame() %>% 
+  rename(count_b = count) 
+# rxy <- rxx %>% 
+#   add_column(count_b = ryy$count_b)
+
+rxy <- data.frame(
+  count = c(rxx$count_a,ryy$count_b),
+  test_a = c(0:10,rep(NA,11)),
+  test_b = c(rep(NA,11),0:10)
+)
+
+glm(count~I(test_a) + I(test_a^2) + I(test_a^3) + I(test_a^4) + I(test_a^5) + I(test_b) + I(test_b^2) + I(test_b^3) + I(test_a):I(test_b) + I(test_a^2):I(test_b^2), data = rxy, family = "poisson", x = TRUE)
+
+
+
+## Indirect equating
+
+#This is work in progress.
+
+
+data1 <- read.delim("data/data1_item.csv", sep = ",") %>% 
+  select(a01:a10,b01:b10,c01:c10)
+data1_sum <- read.delim("data/data1_item.csv", sep = ",") %>% 
+  select(a_sum,b_sum,c_sum)
+
+# equate test a and b
+lfit_ab <- leunbach_ipf(data1_sum[,c(1,2)])
+# equate test b and c
+lfit_bc <- leunbach_ipf(data1_sum[,c(2,3)])
+
+indirect1 <- leunbach_indirect_equate(lfit_ab, lfit_bc,
+                                      direction_ab = "1to2",
+                                      direction_bc = "1to2")
+
+# subset equating table for test a -> c
+id1table <- indirect1[["equating_table"]]
+id1table
+
+
+
+

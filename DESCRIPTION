@@ -19,7 +19,8 @@ Suggests:
     ggplot2,
     mirt,
     equate,
-    SNSequate
+    SNSequate,
+    kequate
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

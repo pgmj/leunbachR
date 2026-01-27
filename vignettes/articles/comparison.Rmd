@@ -1,7 +1,7 @@
 ---
 title: "A brief comparison of test equating methods"
 author: "Magnus Johansson, PhD"
-date: 2026-01-20
+date: 2026-01-27
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{A brief comparison of test equating methods}
@@ -9,6 +9,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
+bibliography: refs.bib
 ---
 
 ```{r, message=FALSE}
@@ -20,19 +21,25 @@ library(equate)
 library(SNSequate)
 library(knitr)
 library(mirt)
-#library(equateMultiple)
-#library(SNSequate)
+library(kequate)
 set.seed(1234) # for reproducibility of bootstrap results
-d3a_sum <- read.delim("data/data3a.csv", sep = ";")
+select <- dplyr::select
+d3a_sum <- read.delim("data/data3a_item.csv", sep = ",") %>% 
+  select(a01:a10,b01:b10) %>% 
+  mutate(a_sum = rowSums(across(c(a01:a10))),
+         b_sum = rowSums(across(c(b01:b10)))) %>% 
+  select(a_sum,b_sum)
 d3a <- read.delim("data/data3a_item.csv", sep = ",") %>% 
-  select(a01:a10,b01:b10)
-
+  dplyr::select(a01:a10,b01:b10)
+# d3a_theta <- read.delim("data/data3a_item.csv", sep = ",") %>% 
+#   select(theta1,theta2) %>% 
+#   round(2)
 head(d3a)
 ```
 
 While the Leunbach method allows for test equating based on observed sum scores under the assumption that the underlying data fits a Rasch model adequately, most other methods require item-level response data. For this comparison, we will use the item data that produced the sum scores used in the intro vignette.
 
-We will focus on comparing IRT true (and observed?) score equating methods.
+We will focus on comparing IRT true score equating methods, but also include some other methods.
 
 ## Direct equating
 
@@ -56,10 +63,13 @@ req4 <- equate(rx, ry, type = "e", smooth = "loglin", degrees = 3) # equipercent
 
 # Leunbach model
 lfit <- leunbach_ipf(d3a_sum)
-#leunbach_equate(lfit)
+#leq <- leunbach_equate(lfit)
+#leq[["equating_table"]]
 lboot <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100)
 leq <- get_equating_table(lboot)
+```
 
+```{r}
 # summary table
 max_score <- 10 
 eq_table <- data.frame(identity = pmin(pmax(req2$conc$yx, 0), max_score), 
@@ -78,7 +88,7 @@ kable(eq_table)
 
 ```{r}
 eq_table %>% 
-  select(!c(leunbach_theta,IRT_thetaequivalent)) %>% 
+  dplyr::select(!c(leunbach_theta,IRT_thetaequivalent)) %>% 
   pivot_longer(!identity) %>% 
   ggplot(aes(x = identity, y = value, color = name, shape = name, linetype = name)) +
   geom_point(size = 2) + 
@@ -94,7 +104,7 @@ eq_table %>%
 
 ```{r}
 eq_table %>% 
-  select(c(identity,leunbach_theta,IRT_thetaequivalent)) %>% 
+  dplyr::select(c(identity,leunbach_theta,IRT_thetaequivalent)) %>% 
   pivot_longer(!identity) %>% 
   filter(identity %in% c(1:9)) %>% 
   ggplot(aes(x = identity, y = value, color = name, shape = name)) +
@@ -110,12 +120,63 @@ eq_table %>%
   theme(plot.caption = element_text(face = "italic", hjust = 0))
 ```
 
-## Indirect equating
+### Kernel equating
+
+We'll apply the equal groups method, following the `kequate` package vignette [@andersson_kequate_2022]. First, we fit two separate generalized linear models (GLM) using the poisson distribution for the counts of each score. The `kequate` vignette suggests using AIC to evaluate model fit (lower values are better) and finding the optimal number of moments to include in the model specification. I have opted for using basis splines instead, and adjusting the degrees of freedom based on AIC. The `glm()` output objects are then used by the `kequate()` function.
+
+Notably, kernel equating also allows for equating using only sum scores.
 
 ```{r}
-#library(equateMultiple) #?
-data1 <- read.delim("data/data1_item.csv", sep = ",") %>% 
-  select(a01:a10,b01:b10,c01:c10)
+glm_a <- glm(count ~ splines::bs(total, df = 3),
+  family = "poisson", data = rx, x = TRUE)
+glm_b <- glm(count ~ splines::bs(total, df = 3),
+  family = "poisson", data = ry, x = TRUE)
+
+eg_eq <- kequate(
+  design = "EG",
+  r = glm_a, s = glm_b,
+  x = c(0:10), y = c(0:10)
+)
+```
+
+```{r}
+data.frame(
+  predicted = c(eg_eq@equating$eqYx, leq$expected),
+  Model = c(rep("Kernel equating",11),rep("Leunbach",11)),
+  sumscore = c(0:10,0:10)
+  ) %>% 
+  ggplot(aes(x = sumscore, y = predicted, color = Model, shape = Model)) +
+  geom_point(size = 3) + 
+  geom_line() +
+  scale_x_continuous(breaks = c(0:10), minor_breaks = NULL) +
+  #scale_y_continuous(breaks = c(-2:2)) +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(title = "Test equating expected scores",
+       color = "Equating model", shape = "Equating model",
+       y = "Predicted Y value", x = "X value") +
+  theme(plot.caption = element_text(face = "italic", hjust = 0))
+```
+
+
+### Standard error of equating
+
+In order to make reasonable comparisons between kernel equating and Leunbach, we need to use the expected values for estimating standard errors of equating (SEE) in the Leunbach bootstrap, rather than the rounded values (default). It should be noted that the methods of estimating SEE are different for these two equating models.
+
+```{r}
+lboot2 <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100, see_type = "expected")
+
+data.frame(score = c(0:10,0:10),
+           see = c(lboot2[["see_1to2"]],eg_eq@equating$SEEYx),
+           model = c(rep("Leunbach",11),rep("Kernel (glm)",11))
+) %>% ggplot(aes(x=score,y=see, color = model)) +
+  geom_point(size = 3) +
+  geom_line() +
+  theme_bw() +
+  scale_x_continuous(breaks = c(0:10), minor_breaks = NULL) +
+  scale_color_viridis_d(option = "G", end = 0.8) +
+  labs(title = "Standard error of equating (SEE)",
+       x = "Sum score", y = "SEE", color = "Equating method")
 ```
 
 

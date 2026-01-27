@@ -1,7 +1,7 @@
 ---
 title: "Introduction to Leunbach test equating"
 author: "Magnus Johansson, PhD"
-date: 2026-01-20
+date: 2026-01-27
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to Leunbach test equating}
@@ -132,6 +132,13 @@ indirect1 <- leunbach_indirect_equate(fit_ab, fit_bc,
                                      direction_bc = "1to2")
 print(indirect1)
 ```
+
+To get the table as a dataframe:
+
+```{r}
+id1table <- indirect1[["equating_table"]]
+```
+
 
 ### Bootstrap
 
