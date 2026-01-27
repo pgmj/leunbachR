@@ -56,11 +56,15 @@ functionality.
 ## Credits
 
 - This work was funded by the [Swedish Defence
-  University](https://www.fhs.se/en/swedish-defence-university.html).
+  University](https://www.fhs.se/en/swedish-defence-university.html) and
+  the [Swedish Defence Conscription and Assessment
+  Agency](https://pliktverket.se/om-myndigheten/in-english).
 - Svend Kreiner kindly shared the source code for the DIGRAM test
   equating procedure and provided helpful information and guidance.
 - Claude Opus 4.5 produced most of the code, based on the DIGRAM pascal
   code.
+- Jeanette Melin and Henrik Nordström at the Swedish Defence University
+  helped with testing and provided useful feedback.
 
 ## Author
 

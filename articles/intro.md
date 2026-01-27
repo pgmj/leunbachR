@@ -479,6 +479,12 @@ print(indirect1)
     ##       9   2.3503            9.42              9
     ##      10   5.0000           10.00             10
 
+To get the table as a dataframe:
+
+``` r
+id1table <- indirect1[["equating_table"]]
+```
+
 ### Bootstrap
 
 Again, only using 100 simulations for demonstration purposes.
@@ -620,10 +626,10 @@ write.csv(indirect_table, file = "indirect_table.csv")
 plot(boot_indirect1, type = "equating")
 ```
 
-![](intro_files/figure-html/unnamed-chunk-20-1.png)
+![](intro_files/figure-html/unnamed-chunk-21-1.png)
 
 ``` r
 plot(boot_indirect1, type = "see")
 ```
 
-![](intro_files/figure-html/unnamed-chunk-21-1.png)
+![](intro_files/figure-html/unnamed-chunk-22-1.png)

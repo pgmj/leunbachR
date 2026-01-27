@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">Magnus
 Johansson, PhD</h4>
             
-            <h4 data-toc-skip class="date">2026-01-20</h4>
+            <h4 data-toc-skip class="date">2026-01-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pgmj/leunbachR/blob/main/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
       <div class="d-none name"><code>intro.Rmd</code></div>
@@ -484,11 +484,14 @@ here.</p>
 <span><span class="co">##       8   1.4251            8.44              8</span></span>
 <span><span class="co">##       9   2.3503            9.42              9</span></span>
 <span><span class="co">##      10   5.0000           10.00             10</span></span></code></pre>
+<p>To get the table as a dataframe:</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">id1table</span> <span class="op">&lt;-</span> <span class="va">indirect1</span><span class="op">[[</span><span class="st">"equating_table"</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bootstrap-1">Bootstrap<a class="anchor" aria-label="anchor" href="#bootstrap-1"></a>
 </h3>
 <p>Again, only using 100 simulations for demonstration purposes.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">boot_indirect1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_indirect_bootstrap.html">leunbach_indirect_bootstrap</a></span><span class="op">(</span><span class="va">fit_ab</span>, <span class="va">fit_bc</span>,</span>
 <span>                                             direction_ab <span class="op">=</span> <span class="st">"1to2"</span>,</span>
 <span>                                             direction_bc <span class="op">=</span> <span class="st">"1to2"</span>,</span>
@@ -512,7 +515,7 @@ here.</p>
 <span><span class="co">##   Bootstrap p-value for Gamma test (A-B): 0.780</span></span>
 <span><span class="co">##   Bootstrap p-value for Gamma test (B-C): 0.970</span></span>
 <span><span class="co">##   Average SEE: 0.31</span></span></code></pre>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Leunbach Indirect Equating - Parametric Bootstrap Results</span></span>
 <span><span class="co">## ==========================================================</span></span>
@@ -564,7 +567,7 @@ here.</p>
 <span><span class="co">##    10    5.00000       10    10.00    [ 9.35, 10.00]   0.21     0.0   4.5  95.5   0.0   0.0    12.0%</span></span>
 <span><span class="co">## --------------------------------------------------------------------------------------------------------</span></span>
 <span><span class="co">## Average SEE: 0.31</span></span></code></pre>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Leunbach Indirect Equating - Bootstrap Summary</span></span>
 <span><span class="co">## ===============================================</span></span>
@@ -589,7 +592,7 @@ here.</p>
 <span><span class="co">## Scores with &gt;5% bootstrap failures:</span></span>
 <span><span class="co">##   Score 10: 12.0% failed</span></span></code></pre>
 <p>Get a clean table and write to a CSV file.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">indirect_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_indirect_equating_table.html">get_indirect_equating_table</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span>
 <span><span class="va">indirect_table</span></span></code></pre></div>
 <pre><code><span><span class="co">##    Test A log_theta rounded expected ci_lower ci_upper  see pct_failed</span></span>
@@ -604,14 +607,14 @@ here.</p>
 <span><span class="co">## 8       8    1.4251       8     8.44     7.68     9.02 0.50          0</span></span>
 <span><span class="co">## 9       9    2.3503       9     9.42     8.74    10.00 0.52          0</span></span>
 <span><span class="co">## 10     10    5.0000      10    10.00     9.35    10.00 0.21         12</span></span></code></pre>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">indirect_table</span>, file <span class="op">=</span> <span class="st">"indirect_table.csv"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"equating"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="700"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">indirect_table</span>, file <span class="op">=</span> <span class="st">"indirect_table.csv"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"see"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"equating"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"see"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="intro_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
