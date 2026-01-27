@@ -164,7 +164,7 @@ eq_bc <- leunbach_equate(fit_bc, direction = "1to2")  # B → C
 indirect1 <- leunbach_indirect_equate(fit_ab, fit_bc,
                                       direction_ab = "1to2",
                                       direction_bc = "1to2",
-                                      verbose = TRUE)
+                                      )
 print(indirect1)
 
 

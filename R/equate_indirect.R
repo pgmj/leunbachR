@@ -284,14 +284,15 @@ print.leunbach_indirect <- function(x, ...) {
   # Format for display
   display_tab <- data.frame(
     Score = tab$source,
-    Log_Theta = ifelse(is.na(tab$theta) | tab$theta <= 0, 
-                       "      NA", 
-                       sprintf("%8.4f", log(tab$theta))),
+    #Log_Theta = ifelse(is.na(tab$theta) | tab$theta <= 0, 
+    #                   "      NA", 
+    #                   sprintf("%8.4f", log(tab$theta))),
     Expected = sprintf("%6.2f", tab$expected),
     Rounded = tab$rounded
   )
   
-  colnames(display_tab) <- c(x$source_name, "Theta",
+  colnames(display_tab) <- c(paste0("Score_",x$source_name),
+                             #x$source_name, "Theta",
                              paste0("Expected_", x$target_name), 
                              paste0("Rounded_", x$target_name))
   
@@ -954,35 +955,35 @@ summary.leunbach_indirect_bootstrap <- function(object, ...) {
 
 #' Print SEE table for indirect equating
 #' @keywords internal
-print_indirect_see_table <- function(x) {
-  
-  conf_pct <- round(x$conf_level * 100)
-  
-  cat(sprintf("Indirect Equating:  %s → %s (with %d%% CI)\n",
-              "Test A", "Test C", conf_pct))
-  cat("==========================================================\n\n")
-  
-  valid <- x$source_scores >= x$source_min & x$source_scores <= x$source_max
-  
-  cat("                                                         Frequency of bootstrap errors\n")
-  cat(sprintf("Score  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2   Failed%%\n", conf_pct))
-  cat("---------------------------------------------------------------------------------------------\n")
-  
-  for (i in which(valid)) {
-    if (is.na(x$observed_expected[i])) next
-    
-    ci_str <- sprintf("[%5.2f, %5.2f]", x$ci_lower[i], x$ci_upper[i])
-    cat(sprintf("%5d  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f   %5.1f%%\n",
-                x$source_scores[i], x$observed_rounded[i], x$observed_expected[i],
-                ci_str, x$see[i],
-                x$error_freq[i, 1], x$error_freq[i, 2], x$error_freq[i, 3],
-                x$error_freq[i, 4], x$error_freq[i, 5],
-                x$prop_failed[i]))
-  }
-  
-  cat("---------------------------------------------------------------------------------------------\n")
-  cat(sprintf("Average SEE:   %.2f\n", x$avg_see))
-}
+# print_indirect_see_table <- function(x) {
+#   
+#   conf_pct <- round(x$conf_level * 100)
+#   
+#   cat(sprintf("Indirect Equating:  %s → %s (with %d%% CI)\n",
+#               "Test A", "Test C", conf_pct))
+#   cat("==========================================================\n\n")
+#   
+#   valid <- x$source_scores >= x$source_min & x$source_scores <= x$source_max
+#   
+#   cat("                                                         Frequency of bootstrap errors\n")
+#   cat(sprintf("Score  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2   Failed%%\n", conf_pct))
+#   cat("---------------------------------------------------------------------------------------------\n")
+#   
+#   for (i in which(valid)) {
+#     if (is.na(x$observed_expected[i])) next
+#     
+#     ci_str <- sprintf("[%5.2f, %5.2f]", x$ci_lower[i], x$ci_upper[i])
+#     cat(sprintf("%5d  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f   %5.1f%%\n",
+#                 x$source_scores[i], x$observed_rounded[i], x$observed_expected[i],
+#                 ci_str, x$see[i],
+#                 x$error_freq[i, 1], x$error_freq[i, 2], x$error_freq[i, 3],
+#                 x$error_freq[i, 4], x$error_freq[i, 5],
+#                 x$prop_failed[i]))
+#   }
+#   
+#   cat("---------------------------------------------------------------------------------------------\n")
+#   cat(sprintf("Average SEE:   %.2f\n", x$avg_see))
+# }
 
 
 #' Plot method for leunbach_indirect_bootstrap objects
@@ -1037,16 +1038,16 @@ get_indirect_equating_table <- function(boot) {
     boot$source_scores <= boot$source_max
   
   # Get theta values from indirect equating table and convert to log
-  theta_values <- boot$indirect_eq$equating_table$theta[valid]
-  log_theta <- ifelse(is.na(theta_values) | theta_values <= 0, NA, round(log(theta_values), 4))
+  #theta_values <- boot$indirect_eq$equating_table$theta[valid]
+  #log_theta <- ifelse(is.na(theta_values) | theta_values <= 0, NA, round(log(theta_values), 4))
   
   result <- data.frame(
     source = boot$source_scores[valid],
-    log_theta = log_theta,
-    rounded = boot$observed_rounded[valid],
+    #log_theta = log_theta,
     expected = round(boot$observed_expected[valid], 2),
     ci_lower = round(boot$ci_lower[valid], 2),
     ci_upper = round(boot$ci_upper[valid], 2),
+    rounded = boot$observed_rounded[valid],
     see = round(boot$see[valid], 2),
     pct_failed = round(boot$prop_failed[valid], 1)
   )

@@ -1,3 +1,7 @@
+# leunbachR 0.0.3.1 (2026-01-27)
+
+- Removed theta values output from indirect equating print functions.
+
 # leunbachR 0.0.3 (2026-01-23)
 
 - Fix for LRT df calculations.

@@ -2,10 +2,16 @@
 % Please edit documentation in R/equate_indirect.R
 \name{plot.leunbach_indirect_bootstrap}
 \alias{plot.leunbach_indirect_bootstrap}
-\title{Plot method for leunbach_indirect_bootstrap objects}
+\title{Print SEE table for indirect equating}
 \usage{
 \method{plot}{leunbach_indirect_bootstrap}(x, type = c("equating", "see"), ...)
 }
 \description{
-Plot method for leunbach_indirect_bootstrap objects
+Print SEE table for indirect equating
 }
+\keyword{Plot}
+\keyword{for}
+\keyword{internal}
+\keyword{leunbach_indirect_bootstrap}
+\keyword{method}
+\keyword{objects}

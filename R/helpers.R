@@ -243,7 +243,7 @@ print_see_table <- function(x, direction = "1to2") {
   
   valid <- scores >= source_min & scores <= source_max
   
-  cat("                                                                      Frequency of bootstrap errors\n")
+  cat("                                                                Frequency of bootstrap errors\n")
   cat(sprintf("Score      Theta  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2\n", conf_pct))
   cat("--------------------------------------------------------------------------------------------------\n")
   
@@ -282,24 +282,25 @@ print_indirect_see_table <- function(x) {
   valid <- x$source_scores >= x$source_min & x$source_scores <= x$source_max
   
   # Get theta values from indirect equating table
-  theta_values <- x$indirect_eq$equating_table$theta
+  #theta_values <- x$indirect_eq$equating_table$theta
   
-  cat("                                                                         Frequency of bootstrap errors\n")
-  cat(sprintf("Score      Theta  Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2   Failed%%\n", conf_pct))
+  cat("                                                         Frequency of bootstrap errors\n")
+  cat(sprintf("Score      Rounded  Expected    %d%% CI          SEE      -2    -1     0    +1    +2   Failed%%\n", conf_pct))
   cat("--------------------------------------------------------------------------------------------------------\n")
   
   for (i in which(valid)) {
     if (is.na(x$observed_expected[i])) next
     
-    theta_val <- theta_values[i]
-    if (is.na(theta_val) || theta_val <= 0) {
-      log_theta_str <- "       NA"
-    } else {
-      log_theta_str <- sprintf("%9.5f", log(theta_val))
-    }
+    # theta_val <- theta_values[i]
+    # if (is.na(theta_val) || theta_val <= 0) {
+    #   log_theta_str <- "       NA"
+    # } else {
+    #   log_theta_str <- sprintf("%9.5f", log(theta_val))
+    # }
     ci_str <- sprintf("[%5.2f, %5.2f]", x$ci_lower[i], x$ci_upper[i])
-    cat(sprintf("%5d  %s  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f   %5.1f%%\n",
-                x$source_scores[i], log_theta_str, x$observed_rounded[i], x$observed_expected[i],
+    cat(sprintf("%5d  %7d    %5.2f   %15s  %5.2f   %5.1f %5.1f %5.1f %5.1f %5.1f   %5.1f%%\n",
+                x$source_scores[i], #log_theta_str, 
+                x$observed_rounded[i], x$observed_expected[i],
                 ci_str, x$see[i],
                 x$error_freq[i, 1], x$error_freq[i, 2], x$error_freq[i, 3],
                 x$error_freq[i, 4], x$error_freq[i, 5],

@@ -81,7 +81,7 @@ leunbach_equate(fit, direction = "1to2")
 
 ### Bootstrap
 
-If you have installed the package `mirai` and have a computer with multiple CPU cores, you can significantly reduce the time needed for bootstrap. Note that not all cores are equal. For instance, on a modern Mac, you should only use the "performance cores", not the "efficiency cores".
+If you have installed the package `mirai` and have a computer with multiple CPU cores, you can significantly reduce the time needed for bootstrap. Note that not all cores are equal. For instance, on a modern Mac, you should only use the "performance cores", not the "efficiency cores". Setting the option `verbose = TRUE` outputs a progress bar.
 
 For the purposes of this vignette, we only use 100 bootstrap iterations. It is recommended to use at least 1000.
 
