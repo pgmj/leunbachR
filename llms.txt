@@ -105,8 +105,6 @@ Department of Clinical Neuroscience, Center for Psychiatry Research.
 - [`leunbach_ipf()`](https://pgmj.github.io/leunbachR/reference/leunbach_ipf.md)
   : Estimate Leunbach Score Parameters using Iterative Proportional
   Fitting
-- [`plot(`*`<leunbach_indirect_bootstrap>`*`)`](https://pgmj.github.io/leunbachR/reference/plot.leunbach_indirect_bootstrap.md)
-  : Plot method for leunbach_indirect_bootstrap objects
 - [`plot(`*`<leunbach_ipf>`*`)`](https://pgmj.github.io/leunbachR/reference/plot.leunbach_ipf.md)
   : Plot method for leunbach_ipf objects
 - [`plot(`*`<leunbach_orbits>`*`)`](https://pgmj.github.io/leunbachR/reference/plot.leunbach_orbits.md)

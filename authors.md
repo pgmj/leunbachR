@@ -11,12 +11,12 @@ Source:
 [`DESCRIPTION`](https://github.com/pgmj/leunbachR/blob/main/DESCRIPTION)
 
 Johansson M (2026). *leunbachR: Leunbach Test Equating*. R package
-version 0.0.3, <https://github.com/pgmj/leunbachR>.
+version 0.0.3.1, <https://github.com/pgmj/leunbachR>.
 
     @Manual{,
       title = {leunbachR: Leunbach Test Equating},
       author = {Magnus Johansson},
       year = {2026},
-      note = {R package version 0.0.3},
+      note = {R package version 0.0.3.1},
       url = {https://github.com/pgmj/leunbachR},
     }

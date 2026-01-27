@@ -18,7 +18,7 @@ d3a_sum <- read.delim("data/data3a_item.csv", sep = ",") %>%
          b_sum = rowSums(across(c(b01:b10)))) %>% 
   select(a_sum,b_sum)
 d3a <- read.delim("data/data3a_item.csv", sep = ",") %>% 
-  dplyr::select(a01:a10,b01:b10)
+  select(a01:a10,b01:b10)
 # d3a_theta <- read.delim("data/data3a_item.csv", sep = ",") %>% 
 #   select(theta1,theta2) %>% 
 #   round(2)
@@ -110,7 +110,7 @@ kable(eq_table)
 
 ``` r
 eq_table %>% 
-  dplyr::select(!c(leunbach_theta,IRT_thetaequivalent)) %>% 
+  select(!c(leunbach_theta,IRT_thetaequivalent)) %>% 
   pivot_longer(!identity) %>% 
   ggplot(aes(x = identity, y = value, color = name, shape = name, linetype = name)) +
   geom_point(size = 2) + 
@@ -128,7 +128,7 @@ eq_table %>%
 
 ``` r
 eq_table %>% 
-  dplyr::select(c(identity,leunbach_theta,IRT_thetaequivalent)) %>% 
+  select(c(identity,leunbach_theta,IRT_thetaequivalent)) %>% 
   pivot_longer(!identity) %>% 
   filter(identity %in% c(1:9)) %>% 
   ggplot(aes(x = identity, y = value, color = name, shape = name)) +
@@ -148,16 +148,17 @@ eq_table %>%
 
 ### Kernel equating
 
-We’ll apply the equal groups method, following the `kequate` package
-vignette (Andersson, Bränberg, and Wiberg 2022). First, we fit two
-separate generalized linear models (GLM) using the poisson distribution
-for the counts of each score. The `kequate` vignette suggests using AIC
-to evaluate model fit (lower values are better) and finding the optimal
-number of moments to include in the model specification. I have opted
-for using basis splines instead, and adjusting the degrees of freedom
-based on AIC. The [`glm()`](https://rdrr.io/r/stats/glm.html) output
-objects are then used by the
-[`kequate()`](https://rdrr.io/pkg/kequate/man/kequate.html) function.
+We’ll apply the equivalent groups design, following the `kequate`
+package vignette (Andersson, Bränberg, and Wiberg 2022). First, we fit
+two separate generalized linear models (GLM) using the poisson
+distribution for the counts of each score. The `kequate` vignette
+suggests using AIC to evaluate model fit (lower values are better) and
+finding the optimal number of moments to include in the model
+specification. I have opted for using basis splines instead, and
+adjusting the degrees of freedom based on AIC. The
+[`glm()`](https://rdrr.io/r/stats/glm.html) output objects are then used
+by the [`kequate()`](https://rdrr.io/pkg/kequate/man/kequate.html)
+function.
 
 Notably, kernel equating also allows for equating using only sum scores.
 
@@ -220,6 +221,8 @@ data.frame(score = c(0:10,0:10),
 ```
 
 ![](comparison_files/figure-html/unnamed-chunk-8-1.png)
+
+## References
 
 Andersson, Björn, Kenny Bränberg, and Marie Wiberg. 2022. “Kequate: The
 Kernel Method of Test Equating.”

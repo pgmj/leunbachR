@@ -1,6 +1,6 @@
-# Plot method for leunbach_indirect_bootstrap objects
+# Print SEE table for indirect equating
 
-Plot method for leunbach_indirect_bootstrap objects
+Print SEE table for indirect equating
 
 ## Usage
 
