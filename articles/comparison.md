@@ -43,12 +43,10 @@ head(d3a)
 
 While the Leunbach method allows for test equating based on observed sum
 scores under the assumption that the underlying data fits a Rasch model
-adequately, most other methods require item-level response data. For
-this comparison, we will use the item data that produced the sum scores
-used in the intro vignette.
+adequately, most other methods require item-level response data.
 
-We will focus on comparing IRT true score equating methods, but also
-include some other methods.
+We will first focus on comparing IRT true score equating to Leunbach,
+but also include some other methods.
 
 ## Direct equating
 
@@ -166,10 +164,17 @@ glm_a <- glm(count ~ splines::bs(total, df = 3),
   family = "poisson", data = rx, x = TRUE)
 glm_b <- glm(count ~ splines::bs(total, df = 3),
   family = "poisson", data = ry, x = TRUE)
+```
 
+Bias correction following Kosmidis et al. (2020).
+
+``` r
+library(brglm2)
+glm_a2 <- update(glm_a, method = "brglmFit")
+glm_b2 <- update(glm_b, method = "brglmFit")
 eg_eq <- kequate(
   design = "EG",
-  r = glm_a, s = glm_b,
+  r = glm_a2, s = glm_b2,
   x = c(0:10), y = c(0:10)
 )
 ```
@@ -193,7 +198,7 @@ data.frame(
   theme(plot.caption = element_text(face = "italic", hjust = 0))
 ```
 
-![](comparison_files/figure-html/unnamed-chunk-7-1.png)
+![](comparison_files/figure-html/unnamed-chunk-8-1.png)
 
 ### Standard error of equating
 
@@ -208,7 +213,7 @@ lboot2 <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100, see_type = "expected
 
 data.frame(score = c(0:10,0:10),
            see = c(lboot2[["see_1to2"]],eg_eq@equating$SEEYx),
-           model = c(rep("Leunbach",11),rep("Kernel\n(glm poisson)",11))
+           model = c(rep("Leunbach",11),rep("Kernel\n(GLM poisson)",11))
 ) %>% ggplot(aes(x=score,y=see, color = model)) +
   geom_point(size = 3) +
   geom_line() +
@@ -219,10 +224,15 @@ data.frame(score = c(0:10,0:10),
        x = "Sum score", y = "SEE", color = "Equating method")
 ```
 
-![](comparison_files/figure-html/unnamed-chunk-8-1.png)
+![](comparison_files/figure-html/unnamed-chunk-9-1.png)
 
 ## References
 
 Andersson, Björn, Kenny Bränberg, and Marie Wiberg. 2022. “Kequate: The
 Kernel Method of Test Equating.”
 <https://cran.uni-muenster.de/web/packages/kequate/index.html>.
+
+Kosmidis, Ioannis, Euloge Clovis Kenne Pagui, and Nicola Sartori. 2020.
+“Mean and Median Bias Reduction in Generalized Linear Models.”
+*Statistics and Computing* 30 (1): 43–59.
+<https://doi.org/10.1007/s11222-019-09860-6>.

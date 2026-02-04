@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">Magnus
 Johansson, PhD</h4>
             
-            <h4 data-toc-skip class="date">2026-01-27</h4>
+            <h4 data-toc-skip class="date">2026-02-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pgmj/leunbachR/blob/main/vignettes/articles/comparison.Rmd" class="external-link"><code>vignettes/articles/comparison.Rmd</code></a></small>
       <div class="d-none name"><code>comparison.Rmd</code></div>
@@ -109,11 +109,10 @@ Johansson, PhD</h4>
 <span><span class="co">## 6   1</span></span></code></pre>
 <p>While the Leunbach method allows for test equating based on observed
 sum scores under the assumption that the underlying data fits a Rasch
-model adequately, most other methods require item-level response data.
-For this comparison, we will use the item data that produced the sum
-scores used in the intro vignette.</p>
-<p>We will focus on comparing IRT true score equating methods, but also
-include some other methods.</p>
+model adequately, most other methods require item-level response
+data.</p>
+<p>We will first focus on comparing IRT true score equating to Leunbach,
+but also include some other methods.</p>
 <div class="section level2">
 <h2 id="direct-equating">Direct equating<a class="anchor" aria-label="anchor" href="#direct-equating"></a>
 </h2>
@@ -325,14 +324,18 @@ using only sum scores.</p>
 <code class="sourceCode R"><span><span class="va">glm_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">count</span> <span class="op">~</span> <span class="fu">splines</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/splines/bs.html" class="external-link">bs</a></span><span class="op">(</span><span class="va">total</span>, df <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  family <span class="op">=</span> <span class="st">"poisson"</span>, data <span class="op">=</span> <span class="va">rx</span>, x <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">glm_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">count</span> <span class="op">~</span> <span class="fu">splines</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/splines/bs.html" class="external-link">bs</a></span><span class="op">(</span><span class="va">total</span>, df <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  family <span class="op">=</span> <span class="st">"poisson"</span>, data <span class="op">=</span> <span class="va">ry</span>, x <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
+<span>  family <span class="op">=</span> <span class="st">"poisson"</span>, data <span class="op">=</span> <span class="va">ry</span>, x <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>Bias correction following Kosmidis et al. <span class="citation">(2020)</span>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ikosmidis/brglm2" class="external-link">brglm2</a></span><span class="op">)</span></span>
+<span><span class="va">glm_a2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">glm_a</span>, method <span class="op">=</span> <span class="st">"brglmFit"</span><span class="op">)</span></span>
+<span><span class="va">glm_b2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">glm_b</span>, method <span class="op">=</span> <span class="st">"brglmFit"</span><span class="op">)</span></span>
 <span><span class="va">eg_eq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/kequate/man/kequate.html" class="external-link">kequate</a></span><span class="op">(</span></span>
 <span>  design <span class="op">=</span> <span class="st">"EG"</span>,</span>
-<span>  r <span class="op">=</span> <span class="va">glm_a</span>, s <span class="op">=</span> <span class="va">glm_b</span>,</span>
+<span>  r <span class="op">=</span> <span class="va">glm_a2</span>, s <span class="op">=</span> <span class="va">glm_b2</span>,</span>
 <span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  predicted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">eg_eq</span><span class="op">@</span><span class="va">equating</span><span class="op">$</span><span class="va">eqYx</span>, <span class="va">leq</span><span class="op">$</span><span class="va">expected</span><span class="op">)</span>,</span>
 <span>  Model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Kernel equating"</span>,<span class="fl">11</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Leunbach"</span>,<span class="fl">11</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -349,7 +352,7 @@ using only sum scores.</p>
 <span>       color <span class="op">=</span> <span class="st">"Equating model"</span>, shape <span class="op">=</span> <span class="st">"Equating model"</span>,</span>
 <span>       y <span class="op">=</span> <span class="st">"Predicted Y value"</span>, x <span class="op">=</span> <span class="st">"X value"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.caption <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>face <span class="op">=</span> <span class="st">"italic"</span>, hjust <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="comparison_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="standard-error-of-equating">Standard error of equating<a class="anchor" aria-label="anchor" href="#standard-error-of-equating"></a>
@@ -359,12 +362,12 @@ Leunbach, we need to use the expected values for estimating standard
 errors of equating (SEE) in the Leunbach bootstrap, rather than the
 rounded values (default). It should be noted that the methods of
 estimating SEE are different for these two equating models.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lboot2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leunbach_bootstrap.html">leunbach_bootstrap</a></span><span class="op">(</span><span class="va">lfit</span>, n_cores <span class="op">=</span> <span class="fl">4</span>, nsim <span class="op">=</span> <span class="fl">100</span>, see_type <span class="op">=</span> <span class="st">"expected"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span>,<span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span>
 <span>           see <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lboot2</span><span class="op">[[</span><span class="st">"see_1to2"</span><span class="op">]</span><span class="op">]</span>,<span class="va">eg_eq</span><span class="op">@</span><span class="va">equating</span><span class="op">$</span><span class="va">SEEYx</span><span class="op">)</span>,</span>
-<span>           model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Leunbach"</span>,<span class="fl">11</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Kernel\n(glm poisson)"</span>,<span class="fl">11</span><span class="op">)</span><span class="op">)</span></span>
+<span>           model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Leunbach"</span>,<span class="fl">11</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Kernel\n(GLM poisson)"</span>,<span class="fl">11</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">score</span>,y<span class="op">=</span><span class="va">see</span>, color <span class="op">=</span> <span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -373,7 +376,7 @@ estimating SEE are different for these two equating models.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_color_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span>, end <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Standard error of equating (SEE)"</span>,</span>
 <span>       x <span class="op">=</span> <span class="st">"Sum score"</span>, y <span class="op">=</span> <span class="st">"SEE"</span>, color <span class="op">=</span> <span class="st">"Equating method"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="comparison_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level2 unnumbered">
@@ -384,6 +387,11 @@ estimating SEE are different for these two equating models.</p>
 Andersson, Björn, Kenny Bränberg, and Marie Wiberg. 2022.
 <span>“Kequate: <span>The</span> <span>Kernel</span> <span>Method</span>
 of <span>Test</span> <span>Equating</span>.”</span> <a href="https://cran.uni-muenster.de/web/packages/kequate/index.html" class="external-link">https://cran.uni-muenster.de/web/packages/kequate/index.html</a>.
+</div>
+<div id="ref-kosmidis_mean_2020" class="csl-entry">
+Kosmidis, Ioannis, Euloge Clovis Kenne Pagui, and Nicola Sartori. 2020.
+<span>“Mean and Median Bias Reduction in Generalized Linear
+Models.”</span> <em>Statistics and Computing</em> 30 (1): 43–59. <a href="https://doi.org/10.1007/s11222-019-09860-6" class="external-link">https://doi.org/10.1007/s11222-019-09860-6</a>.
 </div>
 </div>
 </div>
