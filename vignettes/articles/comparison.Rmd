@@ -1,7 +1,7 @@
 ---
 title: "A brief comparison of test equating methods"
 author: "Magnus Johansson, PhD"
-date: 2026-01-27
+date: 2026-02-04
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{A brief comparison of test equating methods}
@@ -38,9 +38,9 @@ d3a <- read.delim("data/data3a_item.csv", sep = ",") %>%
 head(d3a)
 ```
 
-While the Leunbach method allows for test equating based on observed sum scores under the assumption that the underlying data fits a Rasch model adequately, most other methods require item-level response data. For this comparison, we will use the item data that produced the sum scores used in the intro vignette.
+While the Leunbach method allows for test equating based on observed sum scores under the assumption that the underlying data fits a Rasch model adequately, most other methods require item-level response data.
 
-We will focus on comparing IRT true score equating methods, but also include some other methods.
+We will first focus on comparing IRT true score equating to Leunbach, but also include some other methods.
 
 ## Direct equating
 
@@ -129,10 +129,17 @@ glm_a <- glm(count ~ splines::bs(total, df = 3),
   family = "poisson", data = rx, x = TRUE)
 glm_b <- glm(count ~ splines::bs(total, df = 3),
   family = "poisson", data = ry, x = TRUE)
+```
 
+Bias correction following Kosmidis et al. [-@kosmidis_mean_2020].
+
+```{r}
+library(brglm2)
+glm_a2 <- update(glm_a, method = "brglmFit")
+glm_b2 <- update(glm_b, method = "brglmFit")
 eg_eq <- kequate(
   design = "EG",
-  r = glm_a, s = glm_b,
+  r = glm_a2, s = glm_b2,
   x = c(0:10), y = c(0:10)
 )
 ```
@@ -166,7 +173,7 @@ lboot2 <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100, see_type = "expected
 
 data.frame(score = c(0:10,0:10),
            see = c(lboot2[["see_1to2"]],eg_eq@equating$SEEYx),
-           model = c(rep("Leunbach",11),rep("Kernel\n(glm poisson)",11))
+           model = c(rep("Leunbach",11),rep("Kernel\n(GLM poisson)",11))
 ) %>% ggplot(aes(x=score,y=see, color = model)) +
   geom_point(size = 3) +
   geom_line() +
