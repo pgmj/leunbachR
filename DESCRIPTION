@@ -24,5 +24,6 @@ Suggests:
     mirai,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
-Config/Needs/website: rmarkdown
+Config/Needs/website: rmarkdown, dplyr, tidyr, ggplot2, knitr, mirt,
+    equate, SNSequate, kequate, brglm2
 Config/testthat/edition: 3
