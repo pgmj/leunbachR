@@ -11,16 +11,15 @@ equating with parametric bootstrap standard errors.
 
 ## Test environments
 
-* local macOS, R 4.x
+* local macOS, R 4.5.3
 * win-builder (devel and release)
 * R-hub: ubuntu-latest, windows-latest, macos-latest
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 notes
 
-(Update these counts after running `devtools::check(remote = TRUE, manual = TRUE)`
-and address any remaining notes here.)
+Note on CRAN submission
 
 ## Reverse dependencies
 
