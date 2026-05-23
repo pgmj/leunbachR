@@ -12,14 +12,14 @@ equating with parametric bootstrap standard errors.
 ## Test environments
 
 * local macOS, R 4.5.3
-* win-builder (devel and release)
+* `devtools::check_win_devel()`
 * R-hub: ubuntu-latest, windows-latest, macos-latest
 
 ## R CMD check results
 
 0 errors | 0 warnings | 1 notes
 
-Note on CRAN submission
+Note on CRAN submission.
 
 ## Reverse dependencies
 
