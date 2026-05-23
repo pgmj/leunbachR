@@ -1,6 +1,7 @@
 # A brief comparison of test equating methods
 
 ``` r
+
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -51,6 +52,7 @@ but also include some other methods.
 ## Direct equating
 
 ``` r
+
 mod1 <- mirt(d3a[,1:10], 1, 'Rasch', verbose = FALSE) 
 mod2 <- mirt(d3a[,11:20], 1, 'Rasch', verbose = FALSE) 
 
@@ -75,6 +77,7 @@ leq <- get_equating_table(lboot)
 ```
 
 ``` r
+
 # summary table
 max_score <- 10 
 eq_table <- data.frame(identity = pmin(pmax(req2$conc$yx, 0), max_score), 
@@ -91,20 +94,21 @@ kable(eq_table)
 ```
 
 | identity | linear | equiperc_loglin3 | IRT_truescore | leunbach_expected | IRT_thetaequivalent | leunbach_theta |
-|---------:|-------:|-----------------:|--------------:|------------------:|--------------------:|---------------:|
-|        0 |   0.36 |             0.00 |          0.00 |              0.00 |                  NA |          -5.00 |
-|        1 |   1.30 |             0.96 |          0.91 |              0.79 |               -2.18 |          -1.98 |
-|        2 |   2.23 |             2.10 |          1.93 |              1.90 |               -1.49 |          -1.33 |
-|        3 |   3.16 |             3.19 |          2.99 |              3.07 |               -0.94 |          -0.86 |
-|        4 |   4.10 |             4.20 |          4.04 |              4.16 |               -0.45 |          -0.45 |
-|        5 |   5.03 |             5.14 |          5.08 |              5.11 |                0.02 |          -0.07 |
-|        6 |   5.97 |             6.03 |          6.10 |              5.95 |                0.49 |           0.29 |
-|        7 |   6.90 |             6.88 |          7.09 |              6.71 |                0.98 |           0.66 |
-|        8 |   7.84 |             7.64 |          8.08 |              7.53 |                1.51 |           1.13 |
-|        9 |   8.77 |             8.42 |          9.06 |              8.80 |                2.19 |           2.01 |
-|       10 |   9.71 |             9.38 |         10.00 |             10.00 |                  NA |           5.00 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 0.36 | 0.00 | 0.00 | 0.00 | NA | -5.00 |
+| 1 | 1.30 | 0.96 | 0.91 | 0.79 | -2.18 | -1.98 |
+| 2 | 2.23 | 2.10 | 1.93 | 1.90 | -1.49 | -1.33 |
+| 3 | 3.16 | 3.19 | 2.99 | 3.07 | -0.94 | -0.86 |
+| 4 | 4.10 | 4.20 | 4.04 | 4.16 | -0.45 | -0.45 |
+| 5 | 5.03 | 5.14 | 5.08 | 5.11 | 0.02 | -0.07 |
+| 6 | 5.97 | 6.03 | 6.10 | 5.95 | 0.49 | 0.29 |
+| 7 | 6.90 | 6.88 | 7.09 | 6.71 | 0.98 | 0.66 |
+| 8 | 7.84 | 7.64 | 8.08 | 7.53 | 1.51 | 1.13 |
+| 9 | 8.77 | 8.42 | 9.06 | 8.80 | 2.19 | 2.01 |
+| 10 | 9.71 | 9.38 | 10.00 | 10.00 | NA | 5.00 |
 
 ``` r
+
 eq_table %>% 
   select(!c(leunbach_theta,IRT_thetaequivalent)) %>% 
   pivot_longer(!identity) %>% 
@@ -123,6 +127,7 @@ eq_table %>%
 ![](comparison_files/figure-html/unnamed-chunk-4-1.png)
 
 ``` r
+
 eq_table %>% 
   select(c(identity,leunbach_theta,IRT_thetaequivalent)) %>% 
   pivot_longer(!identity) %>% 
@@ -145,21 +150,22 @@ eq_table %>%
 ### Kernel equating
 
 We’ll apply the equivalent groups design, following the `kequate`
-package vignette (Andersson, Bränberg, and Wiberg 2022). First, we fit
-two separate generalized linear models (GLM) using the poisson
-distribution for the counts of each score. The `kequate` vignette
-suggests using AIC to evaluate model fit (lower values are better) and
-finding the optimal number of moments to include in the model
-specification. I have opted for using B-splines instead for slightly
-improved model fit, and adjusting the degrees of freedom based on AIC.
-The [`glm()`](https://rdrr.io/r/stats/glm.html) output objects are then
-used by the [`kequate()`](https://rdrr.io/pkg/kequate/man/kequate.html)
+package vignette (Andersson et al. 2022). First, we fit two separate
+generalized linear models (GLM) using the poisson distribution for the
+counts of each score. The `kequate` vignette suggests using AIC to
+evaluate model fit (lower values are better) and finding the optimal
+number of moments to include in the model specification. I have opted
+for using B-splines instead for slightly improved model fit, and
+adjusting the degrees of freedom based on AIC. The
+[`glm()`](https://rdrr.io/r/stats/glm.html) output objects are then used
+by the [`kequate()`](https://rdrr.io/pkg/kequate/man/kequate.html)
 function.
 
 Notably, like Leunbach, kernel equating also allows for equating using
 only sum scores.
 
 ``` r
+
 glm_a <- glm(count ~ splines::bs(total, df = 3),
   family = "poisson", data = rx, x = TRUE)
 glm_b <- glm(count ~ splines::bs(total, df = 3),
@@ -169,6 +175,7 @@ glm_b <- glm(count ~ splines::bs(total, df = 3),
 Bias correction following Kosmidis et al. (2020).
 
 ``` r
+
 library(brglm2)
 glm_a2 <- update(glm_a, method = "brglmFit")
 glm_b2 <- update(glm_b, method = "brglmFit")
@@ -180,6 +187,7 @@ eg_eq <- kequate(
 ```
 
 ``` r
+
 data.frame(
   predicted = c(eg_eq@equating$eqYx, leq$expected),
   Model = c(rep("Kernel equating",11),rep("Leunbach",11)),
@@ -209,6 +217,7 @@ rounded values (default). It should be noted that the methods of
 estimating SEE are different for these two equating models.
 
 ``` r
+
 lboot2 <- leunbach_bootstrap(lfit, n_cores = 4, nsim = 100, see_type = "expected")
 
 data.frame(score = c(0:10,0:10),
@@ -228,8 +237,8 @@ data.frame(score = c(0:10,0:10),
 
 ## References
 
-Andersson, Björn, Kenny Bränberg, and Marie Wiberg. 2022. “Kequate: The
-Kernel Method of Test Equating.”
+Andersson, Björn, Kenny Bränberg, and Marie Wiberg. 2022. *Kequate: The
+Kernel Method of Test Equating*.
 <https://cran.uni-muenster.de/web/packages/kequate/index.html>.
 
 Kosmidis, Ioannis, Euloge Clovis Kenne Pagui, and Nicola Sartori. 2020.

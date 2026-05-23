@@ -26,12 +26,14 @@ First, install the [`pak`](https://pak.r-lib.org/) package, if you don’t
 already have it installed:
 
 ``` r
+
 install.packages('pak')
 ```
 
 Then install the package.
 
 ``` r
+
 pak::pkg_install("pgmj/leunbachR")
 ```
 
@@ -39,12 +41,14 @@ If you have the `remotes` or `devtools` package installed, you can
 instead use:
 
 ``` r
+
 remotes::install_github("pgmj/leunbachR")
 ```
 
 or
 
 ``` r
+
 devtools::install_github("pgmj/leunbachR")
 ```
 

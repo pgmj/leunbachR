@@ -115,13 +115,13 @@ whether two tests measure the same personal factor. Copenhagen: Danish
 Institute for Educational Research.
 
 Adroher, N. D., Kreiner, S., Young, C., Mills, R., & Tennant, A. (2019).
-Test equating sleep scales: Applying the Leunbach’s model. BMC Medical
+Test equating sleep scales: Applying the Leunbach's model. BMC Medical
 Research Methodology, 19(1), 141.
-<https://doi.org/10.1186/s12874-019-0768-y>
+[doi:10.1186/s12874-019-0768-y](https://doi.org/10.1186/s12874-019-0768-y)
 
 Kreiner, S. (2007). Validity and objectivity: Reflections on the role
 and nature of Rasch models. Nordic Psychology, 59(3), 268-298.
-<https://doi.org/10.1027/1901-2276.59.3.268>
+[doi:10.1027/1901-2276.59.3.268](https://doi.org/10.1027/1901-2276.59.3.268)
 
 ## Examples
 
@@ -807,7 +807,7 @@ summary(fit)
 #> === Goodness of Fit ===
 #> 
 #> 1. Likelihood Ratio Test (observed vs expected counts):
-#>    Likelihood ratio G² =    18.30 (df = 21, p = 0.6299)
+#>    Likelihood ratio G^2 =    18.30 (df = 21, p = 0.6299)
 #>    Pearson chi-square  =    17.31
 #> 
 #> 2. Goodman-Kruskal Gamma Test (one-sided):
