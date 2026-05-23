@@ -2,3 +2,7 @@ url: https://pgmj.github.io/leunbachR/
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [search, github, lightswitch]

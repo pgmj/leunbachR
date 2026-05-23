@@ -6,6 +6,17 @@
 \usage{
 \method{plot}{leunbach_orbits}(x, type = c("orbits", "cumulative", "significant"), ...)
 }
+\arguments{
+\item{x}{A \code{leunbach_orbits} object.}
+
+\item{type}{One of \code{"orbits"}, \code{"cumulative"}, or \code{"significant"}. Selects
+what to display.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{x}.
+}
 \description{
 Plot method for leunbach_orbits objects
 }

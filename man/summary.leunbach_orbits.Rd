@@ -6,6 +6,14 @@
 \usage{
 \method{summary}{leunbach_orbits}(object, ...)
 }
+\arguments{
+\item{object}{A \code{leunbach_orbits} object.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{object}.
+}
 \description{
 Summary method for leunbach_orbits objects
 }

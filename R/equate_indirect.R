@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Performs indirect equating from Test A to Test C via an anchor Test B.
-#' This chains two direct equatings:  A → B and B → C.
+#' This chains two direct equatings:  A -> B and B -> C.
 #'
 #' @param fit_ab A leunbach_ipf object for the A-B equating (Tests A and B)
 #' @param fit_bc A leunbach_ipf object for the B-C equating (Tests B and C)
@@ -13,8 +13,8 @@
 #'
 #' @return A list of class "leunbach_indirect" containing:
 #'   - equating_table: Data frame with source scores, expected equated scores, and rounded scores
-#'   - eq_ab: Direct equating object for A → B
-#'   - eq_bc: Direct equating object for B → C
+#'   - eq_ab: Direct equating object for A -> B
+#'   - eq_bc: Direct equating object for B -> C
 #'   - fit_ab: Original leunbach_ipf object for A-B
 #'   - fit_bc:  Original leunbach_ipf object for B-C
 #'
@@ -26,14 +26,25 @@
 #' 4. Round to get the equated integer score
 #'
 #' @examples
-#' # Fit models for A-B and B-C
-#' fit_ab <- leunbach_ipf(data_ab)
-#' fit_bc <- leunbach_ipf(data_bc)
+#' # Simulate scores for three tests, with B serving as the anchor.
+#' # Group 1 takes tests A and B; group 2 takes tests B and C.
+#' set.seed(123)
+#' n <- 400
+#' theta1 <- rnorm(n)
+#' a <- pmin(pmax(round(3 + 1.5 * theta1 + rnorm(n, sd = 0.8)), 0), 6)
+#' b1 <- pmin(pmax(round(2.5 + 1.3 * theta1 + rnorm(n, sd = 0.7)), 0), 5)
 #'
-#' # Indirect equating:  Test1 of fit_ab → Test2 of fit_ab → Test2 of fit_bc
-#' indirect <- leunbach_indirect_equate(fit_ab, fit_bc, 
-#'                                       direction_ab = "1to2", 
-#'                                       direction_bc = "1to2")
+#' theta2 <- rnorm(n)
+#' b2 <- pmin(pmax(round(2.5 + 1.3 * theta2 + rnorm(n, sd = 0.7)), 0), 5)
+#' cc <- pmin(pmax(round(3 + 1.4 * theta2 + rnorm(n, sd = 0.8)), 0), 6)
+#'
+#' fit_ab <- leunbach_ipf(data.frame(a, b1), max_score1 = 6, max_score2 = 5)
+#' fit_bc <- leunbach_ipf(data.frame(b2, cc), max_score1 = 5, max_score2 = 6)
+#'
+#' # Indirect equating: A -> B -> C
+#' indirect <- leunbach_indirect_equate(fit_ab, fit_bc,
+#'                                      direction_ab = "1to2",
+#'                                      direction_bc = "1to2")
 #' print(indirect)
 #'
 #' @export
@@ -68,11 +79,11 @@ leunbach_indirect_equate <- function(fit_ab, fit_bc,
   if (verbose) {
     cat("Indirect Equating\n")
     cat("=================\n\n")
-    cat(sprintf("Step 1: %s → %s (anchor test)\n", "Test A", "Test B"))
+    cat(sprintf("Step 1: %s -> %s (anchor test)\n", "Test A", "Test B"))
     cat(sprintf("        Anchor range from eq_ab: %d to %d\n", anchor_min_ab, anchor_max_ab))
-    cat(sprintf("Step 2: %s → %s\n", "Test B", "Test C"))
+    cat(sprintf("Step 2: %s -> %s\n", "Test B", "Test C"))
     cat(sprintf("        Anchor range from eq_bc: %d to %d\n", anchor_min_bc, anchor_max_bc))
-    cat(sprintf("Result: %s → %s (indirect)\n\n", "Test A", "Test C"))
+    cat(sprintf("Result: %s -> %s (indirect)\n\n", "Test A", "Test C"))
   }
   
   # Perform indirect equating using interpolation
@@ -265,6 +276,11 @@ find_nearest_equated <- function(score, lookup, direction = c("down", "up")) {
 
 
 #' Print method for leunbach_indirect objects
+#'
+#' @param x A `leunbach_indirect` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 print.leunbach_indirect <- function(x, ...) {
   cat("Leunbach Indirect Equating\n")
@@ -326,6 +342,27 @@ print.leunbach_indirect <- function(x, ...) {
 #'   - Bootstrap results and standard errors
 #'   - Bootstrap p-values for LR and Gamma tests for both equatings
 #'
+#' @examples
+#' \donttest{
+#' set.seed(123)
+#' n <- 300
+#' theta1 <- rnorm(n)
+#' a <- pmin(pmax(round(3 + 1.5 * theta1 + rnorm(n, sd = 0.8)), 0), 6)
+#' b1 <- pmin(pmax(round(2.5 + 1.3 * theta1 + rnorm(n, sd = 0.7)), 0), 5)
+#' theta2 <- rnorm(n)
+#' b2 <- pmin(pmax(round(2.5 + 1.3 * theta2 + rnorm(n, sd = 0.7)), 0), 5)
+#' cc <- pmin(pmax(round(3 + 1.4 * theta2 + rnorm(n, sd = 0.8)), 0), 6)
+#' fit_ab <- leunbach_ipf(data.frame(a, b1), max_score1 = 6, max_score2 = 5)
+#' fit_bc <- leunbach_ipf(data.frame(b2, cc), max_score1 = 5, max_score2 = 6)
+#'
+#' boot <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
+#'                                     direction_ab = "1to2",
+#'                                     direction_bc = "1to2",
+#'                                     nsim = 25, parallel = FALSE,
+#'                                     seed = 1)
+#' print(boot)
+#' }
+#'
 #' @export
 leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
                                         direction_ab = c("1to2", "2to1"),
@@ -361,7 +398,9 @@ leunbach_indirect_bootstrap <- function(fit_ab, fit_bc,
   
   if (use_parallel) {
     if (is.null(n_cores)) {
-      n_cores <- max(1, parallel::detectCores() - 1)
+      stop("For parallel processing, please specify the number of cores via the ",
+           "`n_cores` argument. See parallel::detectCores() for the maximum ",
+           "available on your machine.")
     }
     n_cores <- min(n_cores, nsim)
   }
@@ -840,6 +879,11 @@ run_indirect_bootstrap_parallel <- function(nsim, boot_seeds, boot_data_list,
 
 
 #' Print method for leunbach_indirect_bootstrap objects
+#'
+#' @param x A `leunbach_indirect_bootstrap` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 print.leunbach_indirect_bootstrap <- function(x, ...) {
   cat("Leunbach Indirect Equating - Parametric Bootstrap Results\n")
@@ -896,6 +940,11 @@ print.leunbach_indirect_bootstrap <- function(x, ...) {
 
 
 #' Summary method for leunbach_indirect_bootstrap objects
+#'
+#' @param object A `leunbach_indirect_bootstrap` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `object`.
 #' @export
 summary.leunbach_indirect_bootstrap <- function(object, ...) {
   cat("Leunbach Indirect Equating - Bootstrap Summary\n")
@@ -959,7 +1008,7 @@ summary.leunbach_indirect_bootstrap <- function(object, ...) {
 #   
 #   conf_pct <- round(x$conf_level * 100)
 #   
-#   cat(sprintf("Indirect Equating:  %s → %s (with %d%% CI)\n",
+#   cat(sprintf("Indirect Equating:  %s -> %s (with %d%% CI)\n",
 #               "Test A", "Test C", conf_pct))
 #   cat("==========================================================\n\n")
 #   
@@ -987,6 +1036,13 @@ summary.leunbach_indirect_bootstrap <- function(object, ...) {
 
 
 #' Plot method for leunbach_indirect_bootstrap objects
+#'
+#' @param x A `leunbach_indirect_bootstrap` object.
+#' @param type One of `"equating"` (point estimates and CI band) or `"see"`
+#'   (standard error of equating).
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...) {
   type <- match.arg(type)
@@ -999,7 +1055,7 @@ plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...
          ylim = range(c(x$ci_lower[valid], x$ci_upper[valid]), na.rm = TRUE),
          xlab = x$indirect_eq$source_name,
          ylab = paste("Expected", "Test C"),
-         main = sprintf("Indirect Equating: %s → %s (%d%% CI)",
+         main = sprintf("Indirect Equating: %s -> %s (%d%% CI)",
                         "Test A", "Test C",
                         round(x$conf_level * 100)))
     
@@ -1013,7 +1069,7 @@ plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...
     plot(x$source_scores[valid], x$see[valid], type = "b", pch = 19,
          xlab = x$indirect_eq$source_name,
          ylab = "SEE",
-         main = sprintf("Standard Error of Equating: %s → %s",
+         main = sprintf("Standard Error of Equating: %s -> %s",
                         "Test A", "Test C"))
     grid()
     abline(h = x$avg_see, col = "red", lty = 2)
@@ -1027,6 +1083,24 @@ plot.leunbach_indirect_bootstrap <- function(x, type = c("equating", "see"), ...
 #'
 #' @param boot A leunbach_indirect_bootstrap object
 #' @return A data frame with equating results and CIs
+#'
+#' @examples
+#' \donttest{
+#' set.seed(123)
+#' n <- 300
+#' theta1 <- rnorm(n)
+#' a <- pmin(pmax(round(3 + 1.5 * theta1 + rnorm(n, sd = 0.8)), 0), 6)
+#' b1 <- pmin(pmax(round(2.5 + 1.3 * theta1 + rnorm(n, sd = 0.7)), 0), 5)
+#' theta2 <- rnorm(n)
+#' b2 <- pmin(pmax(round(2.5 + 1.3 * theta2 + rnorm(n, sd = 0.7)), 0), 5)
+#' cc <- pmin(pmax(round(3 + 1.4 * theta2 + rnorm(n, sd = 0.8)), 0), 6)
+#' fit_ab <- leunbach_ipf(data.frame(a, b1), max_score1 = 6, max_score2 = 5)
+#' fit_bc <- leunbach_ipf(data.frame(b2, cc), max_score1 = 5, max_score2 = 6)
+#' boot <- leunbach_indirect_bootstrap(fit_ab, fit_bc, nsim = 25,
+#'                                     parallel = FALSE, seed = 1)
+#' get_indirect_equating_table(boot)
+#' }
+#'
 #' @export
 get_indirect_equating_table <- function(boot) {
   

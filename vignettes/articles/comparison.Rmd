@@ -1,6 +1,10 @@
 ---
 title: "A brief comparison of test equating methods"
-author: "Magnus Johansson, PhD"
+author:
+  - name: "Magnus Johansson, PhD"
+    email: "pgmj@pm.me"
+    affiliation: "Karolinska Institutet, Department of Clinical Neuroscience"
+    orcid: "0000-0003-1669-592X"
 date: 2026-02-04
 output: rmarkdown::html_vignette
 vignette: >

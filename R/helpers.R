@@ -322,6 +322,19 @@ print_indirect_see_table <- function(x) {
 #' @param direction Direction of equating:  "1to2" or "2to1"
 #' @param method Optimization method: "optimize" or "newton"
 #'
+#' @return Invisibly returns `NULL`; called for its side effect of printing
+#'   a diagnostic table.
+#'
+#' @examples
+#' set.seed(123)
+#' n <- 400
+#' theta <- rnorm(n)
+#' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' fit <- leunbach_ipf(data.frame(test1, test2),
+#'                     max_score1 = 6, max_score2 = 5)
+#' diagnose_equating(fit, direction = "1to2")
+#'
 #' @export
 diagnose_equating <- function(fit, direction = c("1to2", "2to1"),
                               method = c("optimize", "newton")) {
@@ -381,6 +394,20 @@ diagnose_equating <- function(fit, direction = c("1to2", "2to1"),
 #' @param direction "1to2" or "2to1"
 #'
 #' @return A data frame with equating results and CIs
+#'
+#' @examples
+#' \donttest{
+#' set.seed(123)
+#' n <- 300
+#' theta <- rnorm(n)
+#' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' fit <- leunbach_ipf(data.frame(test1, test2),
+#'                     max_score1 = 6, max_score2 = 5)
+#' boot <- leunbach_bootstrap(fit, nsim = 25, parallel = FALSE, seed = 1)
+#' get_equating_table(boot, direction = "1to2")
+#' }
+#'
 #' @export
 get_equating_table <- function(boot, direction = c("1to2", "2to1")) {
   

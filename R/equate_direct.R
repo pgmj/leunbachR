@@ -341,6 +341,20 @@ calculate_true_score <- function(theta, gamma, score_min, score_max) {
 #'   - method: Optimization method used
 #'   - fit: Original leunbach_ipf object
 #'
+#' @examples
+#' # Simulate paired test score data
+#' set.seed(123)
+#' n <- 400
+#' theta <- rnorm(n)
+#' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' fit <- leunbach_ipf(data.frame(test1, test2),
+#'                     max_score1 = 6, max_score2 = 5)
+#'
+#' # Equate Test 1 scores onto the Test 2 metric
+#' eq <- leunbach_equate(fit, direction = "1to2")
+#' print(eq)
+#'
 #' @export
 leunbach_equate <- function(fit, direction = c("1to2", "2to1"),
                             method = c("optimize", "newton"),
@@ -465,6 +479,11 @@ leunbach_equate <- function(fit, direction = c("1to2", "2to1"),
 
 
 #' Print method for leunbach_equating objects
+#'
+#' @param x A `leunbach_equating` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 print.leunbach_equating <- function(x, ...) {
   cat(sprintf("Leunbach Equating:  %s to %s\n", x$source_name, x$target_name))

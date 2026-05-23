@@ -98,11 +98,11 @@ two tests measure the same personal factor. Copenhagen: Danish Institute for
 Educational Research.
 
 Adroher, N. D., Kreiner, S., Young, C., Mills, R., & Tennant, A. (2019).
-Test equating sleep scales: Applying the Leunbach’s model.
+Test equating sleep scales: Applying the Leunbach's model.
 BMC Medical Research Methodology, 19(1), 141.
-\url{https://doi.org/10.1186/s12874-019-0768-y}
+\doi{10.1186/s12874-019-0768-y}
 
 Kreiner, S. (2007). Validity and objectivity:  Reflections on the role and
 nature of Rasch models. Nordic Psychology, 59(3), 268-298.
-\url{https://doi.org/10.1027/1901-2276.59.3.268}
+\doi{10.1027/1901-2276.59.3.268}
 }

@@ -58,14 +58,14 @@
 #' two tests measure the same personal factor. Copenhagen: Danish Institute for
 #' Educational Research.
 #' 
-#' Adroher, N. D., Kreiner, S., Young, C., Mills, R., & Tennant, A. (2019). 
-#' Test equating sleep scales: Applying the Leunbach’s model. 
-#' BMC Medical Research Methodology, 19(1), 141. 
-#' <https://doi.org/10.1186/s12874-019-0768-y>
+#' Adroher, N. D., Kreiner, S., Young, C., Mills, R., & Tennant, A. (2019).
+#' Test equating sleep scales: Applying the Leunbach's model.
+#' BMC Medical Research Methodology, 19(1), 141.
+#' \doi{10.1186/s12874-019-0768-y}
 #'
 #' Kreiner, S. (2007). Validity and objectivity:  Reflections on the role and
-#' nature of Rasch models. Nordic Psychology, 59(3), 268-298. 
-#' <https://doi.org/10.1027/1901-2276.59.3.268>
+#' nature of Rasch models. Nordic Psychology, 59(3), 268-298.
+#' \doi{10.1027/1901-2276.59.3.268}
 #'
 #' @examples
 #' # Simulate test score data
@@ -647,6 +647,11 @@ calculate_statistics <- function(object) {
 
 
 #' Print method for leunbach_ipf objects
+#'
+#' @param x A `leunbach_ipf` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 print.leunbach_ipf <- function(x, ...) {
   cat("Leunbach Score Parameter Estimation\n")
@@ -710,6 +715,11 @@ print.leunbach_ipf <- function(x, ...) {
 
 
 #' Summary method for leunbach_ipf objects
+#'
+#' @param object A `leunbach_ipf` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns a list of fit statistics.
 #' @export
 summary.leunbach_ipf <- function(object, ...) {
   cat("Leunbach Score Parameter Estimation - Summary\n")
@@ -732,7 +742,7 @@ summary.leunbach_ipf <- function(object, ...) {
   
   # 1. Likelihood Ratio Test
   cat("1. Likelihood Ratio Test (observed vs expected counts):\n")
-  cat(sprintf("   Likelihood ratio G² = %8.2f (df = %d, p = %.4f)\n",
+  cat(sprintf("   Likelihood ratio G^2 = %8.2f (df = %d, p = %.4f)\n",
               object$g_sq, object$df, object$p_value))
   cat(sprintf("   Pearson chi-square  = %8.2f\n\n", object$chi_sq))
   
@@ -770,6 +780,13 @@ summary.leunbach_ipf <- function(object, ...) {
 }
 
 #' Plot method for leunbach_ipf objects
+#'
+#' @param x A `leunbach_ipf` object.
+#' @param type One of `"parameters"`, `"residuals"`, `"observed"`, or
+#'   `"sigma"`. Selects what to display.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 plot.leunbach_ipf <- function(x, type = c("parameters", "residuals", "observed", "sigma"), ...) {
   type <- match.arg(type)

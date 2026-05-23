@@ -6,6 +6,14 @@
 \usage{
 \method{print}{leunbach_indirect_bootstrap}(x, ...)
 }
+\arguments{
+\item{x}{A \code{leunbach_indirect_bootstrap} object.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{x}.
+}
 \description{
 Print method for leunbach_indirect_bootstrap objects
 }

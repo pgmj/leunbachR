@@ -6,6 +6,14 @@
 \usage{
 \method{summary}{leunbach_ipf}(object, ...)
 }
+\arguments{
+\item{object}{A \code{leunbach_ipf} object.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns a list of fit statistics.
+}
 \description{
 Summary method for leunbach_ipf objects
 }

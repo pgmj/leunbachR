@@ -6,6 +6,14 @@
 \usage{
 \method{summary}{leunbach_indirect_bootstrap}(object, ...)
 }
+\arguments{
+\item{object}{A \code{leunbach_indirect_bootstrap} object.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{object}.
+}
 \description{
 Summary method for leunbach_indirect_bootstrap objects
 }

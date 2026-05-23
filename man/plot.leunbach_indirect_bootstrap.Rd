@@ -6,6 +6,17 @@
 \usage{
 \method{plot}{leunbach_indirect_bootstrap}(x, type = c("equating", "see"), ...)
 }
+\arguments{
+\item{x}{A \code{leunbach_indirect_bootstrap} object.}
+
+\item{type}{One of \code{"equating"} (point estimates and CI band) or \code{"see"}
+(standard error of equating).}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{x}.
+}
 \description{
 Print SEE table for indirect equating
 }

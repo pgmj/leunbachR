@@ -1,6 +1,10 @@
 ---
 title: "Introduction to Leunbach test equating"
-author: "Magnus Johansson, PhD"
+author:
+  - name: "Magnus Johansson, PhD"
+    email: "pgmj@pm.me"
+    affiliation: "Karolinska Institutet, Department of Clinical Neuroscience"
+    orcid: "0000-0003-1669-592X"
 date: 2026-01-27
 output: rmarkdown::html_vignette
 vignette: >
@@ -33,7 +37,8 @@ set.seed(1234) # for reproducibility of bootstrap results
 Looking at our data, we can see that it has two variables containing sum scores from the two tests that we want to equate. This is the type of input expected by the functions in `leunbachR`. Data needs to be in the form/class of either a data.frame or matrix.
 
 ```{r}
-d3a <- read.delim("data/data3a.csv", sep = ";")
+d3a_path <- system.file("extdata", "data3a.csv", package = "leunbachR")
+d3a <- read.delim(d3a_path, sep = ";")
 head(d3a)
 ```
 
@@ -111,7 +116,8 @@ write.csv(get_equating_table(boot), file = "eqtable.csv")
 For this, we read a dataset with three tests.
 
 ```{r}
-d1 <- read.delim("data/data1.csv", sep = ";")
+d1_path <- system.file("extdata", "data1.csv", package = "leunbachR")
+d1 <- read.delim(d1_path, sep = ";")
 head(d1)
 ```
 

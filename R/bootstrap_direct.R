@@ -22,6 +22,22 @@
 #' @return A list of class "leunbach_bootstrap" containing bootstrap results
 #'   and standard errors of equating
 #'
+#' @examples
+#' \donttest{
+#' # Simulate paired test score data
+#' set.seed(123)
+#' n <- 300
+#' theta <- rnorm(n)
+#' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' fit <- leunbach_ipf(data.frame(test1, test2),
+#'                     max_score1 = 6, max_score2 = 5)
+#'
+#' # Sequential bootstrap with few iterations for the example
+#' boot <- leunbach_bootstrap(fit, nsim = 25, parallel = FALSE, seed = 1)
+#' print(boot)
+#' }
+#'
 #' @export
 leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
                                see_type = c("rounded", "expected"),
@@ -47,9 +63,9 @@ leunbach_bootstrap <- function(fit, nsim = 1000, conf_level = 0.95,
   # Set up cores for parallel processing
   if (use_parallel) {
     if (is.null(n_cores)) {
-      stop(paste0("For parallel processing, you need to specify how many cores to use,
-                  by setting the option `n_cores` to a useful number.
-                  It seems like your computer has ",parallel::detectCores()," cores available."))
+      stop("For parallel processing, please specify the number of cores via the ",
+           "`n_cores` argument. See parallel::detectCores() for the maximum ",
+           "available on your machine.")
     }
     n_cores <- min(n_cores, nsim)
   }
@@ -518,6 +534,11 @@ run_bootstrap_sequential <- function(nsim, boot_seeds, boot_data_list, verbose =
 
 
 #' Print method for leunbach_bootstrap objects
+#'
+#' @param x A `leunbach_bootstrap` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 print.leunbach_bootstrap <- function(x, ...) {
   cat("Leunbach Model - Parametric Bootstrap Results\n")

@@ -48,3 +48,20 @@ Performs parametric bootstrapping to assess significance of tests and
 compute standard errors of equating (SEE) with confidence intervals.
 Supports parallel processing using the mirai package.
 }
+\examples{
+\donttest{
+# Simulate paired test score data
+set.seed(123)
+n <- 300
+theta <- rnorm(n)
+test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+fit <- leunbach_ipf(data.frame(test1, test2),
+                    max_score1 = 6, max_score2 = 5)
+
+# Sequential bootstrap with few iterations for the example
+boot <- leunbach_bootstrap(fit, nsim = 25, parallel = FALSE, seed = 1)
+print(boot)
+}
+
+}

@@ -56,3 +56,25 @@ A list of class "leunbach_indirect_bootstrap" containing:
 Performs parametric bootstrapping for indirect equating to assess
 standard errors of the indirect equated scores.
 }
+\examples{
+\donttest{
+set.seed(123)
+n <- 300
+theta1 <- rnorm(n)
+a <- pmin(pmax(round(3 + 1.5 * theta1 + rnorm(n, sd = 0.8)), 0), 6)
+b1 <- pmin(pmax(round(2.5 + 1.3 * theta1 + rnorm(n, sd = 0.7)), 0), 5)
+theta2 <- rnorm(n)
+b2 <- pmin(pmax(round(2.5 + 1.3 * theta2 + rnorm(n, sd = 0.7)), 0), 5)
+cc <- pmin(pmax(round(3 + 1.4 * theta2 + rnorm(n, sd = 0.8)), 0), 6)
+fit_ab <- leunbach_ipf(data.frame(a, b1), max_score1 = 6, max_score2 = 5)
+fit_bc <- leunbach_ipf(data.frame(b2, cc), max_score1 = 5, max_score2 = 6)
+
+boot <- leunbach_indirect_bootstrap(fit_ab, fit_bc,
+                                    direction_ab = "1to2",
+                                    direction_bc = "1to2",
+                                    nsim = 25, parallel = FALSE,
+                                    seed = 1)
+print(boot)
+}
+
+}

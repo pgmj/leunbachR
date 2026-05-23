@@ -17,8 +17,8 @@ analyze_orbits(fit, alpha = 0.05, verbose = FALSE)
 A list of class "leunbach_orbits" containing:
 \itemize{
 \item orbits: Matrix of expected percentages within each total score
-\item left_right:  Cumulative probabilities P(X ≤ x | S = s)
-\item right_left: Cumulative probabilities P(X ≥ x | S = s)
+\item left_right:  Cumulative probabilities P(X <= x | S = s)
+\item right_left: Cumulative probabilities P(X >= x | S = s)
 \item crit_left: Critical values for left tail by total score
 \item crit_right: Critical values for right tail by total score
 \item crit_values: Combined critical values (two-tailed)
@@ -40,7 +40,19 @@ P(X = x | S = s) = (gamma_x * delta_y) / sigma_s
 
 Cumulative probabilities are computed in both directions:
 \itemize{
-\item Left-to-right: P(X ≤ x | S = s) - tests if Test1 score is unusually low
-\item Right-to-left: P(X ≥ x | S = s) - tests if Test1 score is unusually high
+\item Left-to-right: P(X <= x | S = s) - tests if Test1 score is unusually low
+\item Right-to-left: P(X >= x | S = s) - tests if Test1 score is unusually high
 }
+}
+\examples{
+set.seed(123)
+n <- 400
+theta <- rnorm(n)
+test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+fit <- leunbach_ipf(data.frame(test1, test2),
+                    max_score1 = 6, max_score2 = 5)
+orb <- analyze_orbits(fit)
+print(orb)
+
 }

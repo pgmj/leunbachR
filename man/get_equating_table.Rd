@@ -18,3 +18,17 @@ A data frame with equating results and CIs
 Extracts equating results from a bootstrap object as a clean data frame
 with log theta values, confidence intervals and standard errors.
 }
+\examples{
+\donttest{
+set.seed(123)
+n <- 300
+theta <- rnorm(n)
+test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+fit <- leunbach_ipf(data.frame(test1, test2),
+                    max_score1 = 6, max_score2 = 5)
+boot <- leunbach_bootstrap(fit, nsim = 25, parallel = FALSE, seed = 1)
+get_equating_table(boot, direction = "1to2")
+}
+
+}

@@ -6,6 +6,17 @@
 \usage{
 \method{plot}{leunbach_ipf}(x, type = c("parameters", "residuals", "observed", "sigma"), ...)
 }
+\arguments{
+\item{x}{A \code{leunbach_ipf} object.}
+
+\item{type}{One of \code{"parameters"}, \code{"residuals"}, \code{"observed"}, or
+\code{"sigma"}. Selects what to display.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{x}.
+}
 \description{
 Plot method for leunbach_ipf objects
 }

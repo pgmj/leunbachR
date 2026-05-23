@@ -17,3 +17,15 @@ A data frame with the orbit distribution
 \description{
 Get orbit distribution for a specific total score
 }
+\examples{
+set.seed(123)
+n <- 400
+theta <- rnorm(n)
+test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+fit <- leunbach_ipf(data.frame(test1, test2),
+                    max_score1 = 6, max_score2 = 5)
+orb <- analyze_orbits(fit)
+get_orbit(orb, total_score = 5)
+
+}

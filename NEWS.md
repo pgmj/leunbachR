@@ -1,3 +1,15 @@
+# leunbachR 0.1.0
+
+- First CRAN submission.
+- Made `mirai` an optional Suggest; parallel processing is opt-in via
+  `parallel = TRUE` and an explicit `n_cores` value. The package now has no
+  hard dependencies beyond base R.
+- Moved example datasets to `inst/extdata/` and updated the vignette to
+  load them via `system.file()`.
+- Replaced non-ASCII characters in documentation and console output.
+- Added unit tests under `tests/testthat/` and runnable examples for all
+  exported functions.
+
 # leunbachR 0.0.3.1 (2026-01-27)
 
 - Removed theta values output from indirect equating print functions.

@@ -11,8 +11,8 @@
 #'
 #' @return A list of class "leunbach_orbits" containing:
 #'   - orbits: Matrix of expected percentages within each total score
-#'   - left_right:  Cumulative probabilities P(X ≤ x | S = s)
-#'   - right_left: Cumulative probabilities P(X ≥ x | S = s)
+#'   - left_right:  Cumulative probabilities P(X <= x | S = s)
+#'   - right_left: Cumulative probabilities P(X >= x | S = s)
 #'   - crit_left: Critical values for left tail by total score
 #'   - crit_right: Critical values for right tail by total score
 #'   - crit_values: Combined critical values (two-tailed)
@@ -26,9 +26,20 @@
 #' The expected probability of each cell within an orbit is:
 #' P(X = x | S = s) = (gamma_x * delta_y) / sigma_s
 #'
-#' Cumulative probabilities are computed in both directions:  
-#' - Left-to-right: P(X ≤ x | S = s) - tests if Test1 score is unusually low
-#' - Right-to-left: P(X ≥ x | S = s) - tests if Test1 score is unusually high
+#' Cumulative probabilities are computed in both directions:
+#' - Left-to-right: P(X <= x | S = s) - tests if Test1 score is unusually low
+#' - Right-to-left: P(X >= x | S = s) - tests if Test1 score is unusually high
+#'
+#' @examples
+#' set.seed(123)
+#' n <- 400
+#' theta <- rnorm(n)
+#' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' fit <- leunbach_ipf(data.frame(test1, test2),
+#'                     max_score1 = 6, max_score2 = 5)
+#' orb <- analyze_orbits(fit)
+#' print(orb)
 #'
 #' @export
 analyze_orbits <- function(fit, alpha = 0.05, verbose = FALSE) {
@@ -281,6 +292,11 @@ analyze_orbits <- function(fit, alpha = 0.05, verbose = FALSE) {
 
 
 #' Print method for leunbach_orbits objects
+#'
+#' @param x A `leunbach_orbits` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 print.leunbach_orbits <- function(x, ...) {
   cat("Leunbach Orbit Analysis\n")
@@ -318,6 +334,11 @@ print.leunbach_orbits <- function(x, ...) {
 
 
 #' Summary method for leunbach_orbits objects
+#'
+#' @param object A `leunbach_orbits` object.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `object`.
 #' @export
 summary.leunbach_orbits <- function(object, ...) {
   cat("Leunbach Orbit Analysis - Summary\n")
@@ -354,6 +375,13 @@ summary.leunbach_orbits <- function(object, ...) {
 
 
 #' Plot method for leunbach_orbits objects
+#'
+#' @param x A `leunbach_orbits` object.
+#' @param type One of `"orbits"`, `"cumulative"`, or `"significant"`. Selects
+#'   what to display.
+#' @param ... Further arguments passed to or from other methods.
+#'
+#' @return Invisibly returns `x`.
 #' @export
 plot.leunbach_orbits <- function(x, type = c("orbits", "cumulative", "significant"), ...) {
   type <- match.arg(type)
@@ -379,12 +407,12 @@ plot.leunbach_orbits <- function(x, type = c("orbits", "cumulative", "significan
     image(fit$test1_scores, fit$test2_scores, x$left_right,
           col = colorRampPalette(c("white", "orange", "red"))(20),
           xlab = "Test 1 Score", ylab = "Test 2 Score",
-          main = "P(Test1 ≤ x | Total) %")
+          main = "P(Test1 <= x | Total) %")
     
     image(fit$test1_scores, fit$test2_scores, x$right_left,
           col = colorRampPalette(c("white", "lightblue", "blue"))(20),
           xlab = "Test 1 Score", ylab = "Test 2 Score",
-          main = "P(Test1 ≥ x | Total) %")
+          main = "P(Test1 >= x | Total) %")
     
   } else if (type == "significant") {
     # Show cells with significant differences
@@ -406,6 +434,18 @@ plot.leunbach_orbits <- function(x, type = c("orbits", "cumulative", "significan
 #' @param orbits A leunbach_orbits object
 #' @param total_score The total score to examine
 #' @return A data frame with the orbit distribution
+#'
+#' @examples
+#' set.seed(123)
+#' n <- 400
+#' theta <- rnorm(n)
+#' test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+#' test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+#' fit <- leunbach_ipf(data.frame(test1, test2),
+#'                     max_score1 = 6, max_score2 = 5)
+#' orb <- analyze_orbits(fit)
+#' get_orbit(orb, total_score = 5)
+#'
 #' @export
 get_orbit <- function(orbits, total_score) {
   if (! inherits(orbits, "leunbach_orbits")) {

@@ -35,3 +35,18 @@ A list of class "leunbach_equating" containing:
 Creates equating tables to convert scores from one test to another using
 the estimated score parameters from the Leunbach model.
 }
+\examples{
+# Simulate paired test score data
+set.seed(123)
+n <- 400
+theta <- rnorm(n)
+test1 <- pmin(pmax(round(3 + 1.5 * theta + rnorm(n, sd = 0.8)), 0), 6)
+test2 <- pmin(pmax(round(2.5 + 1.3 * theta + rnorm(n, sd = 0.7)), 0), 5)
+fit <- leunbach_ipf(data.frame(test1, test2),
+                    max_score1 = 6, max_score2 = 5)
+
+# Equate Test 1 scores onto the Test 2 metric
+eq <- leunbach_equate(fit, direction = "1to2")
+print(eq)
+
+}

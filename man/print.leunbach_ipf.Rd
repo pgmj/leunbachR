@@ -6,6 +6,14 @@
 \usage{
 \method{print}{leunbach_ipf}(x, ...)
 }
+\arguments{
+\item{x}{A \code{leunbach_ipf} object.}
+
+\item{...}{Further arguments passed to or from other methods.}
+}
+\value{
+Invisibly returns \code{x}.
+}
 \description{
 Print method for leunbach_ipf objects
 }
