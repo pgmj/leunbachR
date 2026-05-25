@@ -81,4 +81,3 @@ Department of Clinical Neuroscience, Center for Psychiatry Research.
 - ORCID: [0000-0003-1669-592X](https://orcid.org/0000-0003-1669-592X)
 - Bluesky:
   [@pgmj.bsky.social](https://bsky.app/profile/pgmj.bsky.social)
-- Mastodon: [@pgmj@scicomm.xyz](https://scicomm.xyz/@pgmj)
