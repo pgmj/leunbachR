@@ -430,9 +430,13 @@ iterations. It is recommended to use at least 1000.</p>
 <span><span class="co">## 8      8    0.8659       8     7.69     7.33     8.09 0.36</span></span>
 <span><span class="co">## 9      9    1.5760       8     8.46     8.14     9.00 0.50</span></span>
 <span><span class="co">## 10    10    5.0000       9     9.00     9.00     9.00 0.00</span></span></code></pre>
-<p>Write the table to a CSV file.</p>
+<p>Write the table to a CSV file (this vignette writes to a temporary
+directory; in your own work, replace <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> with the
+path you want).</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_equating_table.html">get_equating_table</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span>, file <span class="op">=</span> <span class="st">"eqtable.csv"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_equating_table.html">get_equating_table</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span>,</span>
+<span>          file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"eqtable.csv"</span><span class="op">)</span>,</span>
+<span>          row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -598,7 +602,9 @@ here.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## Scores with &gt;5% bootstrap failures:</span></span>
 <span><span class="co">##   Score 10: 12.0% failed</span></span></code></pre>
-<p>Get a clean table and write to a CSV file.</p>
+<p>Get a clean table and write to a CSV file (again writing to a
+temporary directory so the vignette does not touch the user’s
+filespace).</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">indirect_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_indirect_equating_table.html">get_indirect_equating_table</a></span><span class="op">(</span><span class="va">boot_indirect1</span><span class="op">)</span></span>
 <span><span class="va">indirect_table</span></span></code></pre></div>
@@ -615,7 +621,9 @@ here.</p>
 <span><span class="co">## 9       9     9.42     8.74    10.00       9 0.52          0</span></span>
 <span><span class="co">## 10     10    10.00     9.35    10.00      10 0.21         12</span></span></code></pre>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">indirect_table</span>, file <span class="op">=</span> <span class="st">"indirect_table.csv"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">indirect_table</span>,</span>
+<span>          file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"indirect_table.csv"</span><span class="op">)</span>,</span>
+<span>          row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">boot_indirect1</span>, type <span class="op">=</span> <span class="st">"equating"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="leunbachR_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="700"></p>

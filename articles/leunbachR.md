@@ -419,11 +419,16 @@ get_equating_table(boot)
     ## 9      9    1.5760       8     8.46     8.14     9.00 0.50
     ## 10    10    5.0000       9     9.00     9.00     9.00 0.00
 
-Write the table to a CSV file.
+Write the table to a CSV file (this vignette writes to a temporary
+directory; in your own work, replace
+[`tempdir()`](https://rdrr.io/r/base/tempfile.html) with the path you
+want).
 
 ``` r
 
-write.csv(get_equating_table(boot), file = "eqtable.csv")
+write.csv(get_equating_table(boot),
+          file = file.path(tempdir(), "eqtable.csv"),
+          row.names = FALSE)
 ```
 
 ## Indirect equating
@@ -623,7 +628,8 @@ summary(boot_indirect1)
     ## Scores with >5% bootstrap failures:
     ##   Score 10: 12.0% failed
 
-Get a clean table and write to a CSV file.
+Get a clean table and write to a CSV file (again writing to a temporary
+directory so the vignette does not touch the user’s filespace).
 
 ``` r
 
@@ -646,7 +652,9 @@ indirect_table
 
 ``` r
 
-write.csv(indirect_table, file = "indirect_table.csv")
+write.csv(indirect_table,
+          file = file.path(tempdir(), "indirect_table.csv"),
+          row.names = FALSE)
 ```
 
 ``` r
