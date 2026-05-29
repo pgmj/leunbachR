@@ -104,10 +104,13 @@ You can also get the equating table as a separate object.
 get_equating_table(boot)
 ```
 
-Write the table to a CSV file.
+Write the table to a CSV file (this vignette writes to a temporary
+directory; in your own work, replace `tempdir()` with the path you want).
 
 ```{r}
-write.csv(get_equating_table(boot), file = "eqtable.csv")
+write.csv(get_equating_table(boot),
+          file = file.path(tempdir(), "eqtable.csv"),
+          row.names = FALSE)
 ```
 
 
@@ -163,12 +166,15 @@ print(boot_indirect1)
 summary(boot_indirect1)
 ```
 
-Get a clean table and write to a CSV file.
+Get a clean table and write to a CSV file (again writing to a temporary
+directory so the vignette does not touch the user's filespace).
 
 ```{r}
 indirect_table <- get_indirect_equating_table(boot_indirect1)
 indirect_table
-write.csv(indirect_table, file = "indirect_table.csv")
+write.csv(indirect_table,
+          file = file.path(tempdir(), "indirect_table.csv"),
+          row.names = FALSE)
 ```
 
 

@@ -2,24 +2,22 @@
 
 ## Submission
 
-This is the first submission of `leunbachR` to CRAN.
+Thanks for the review. In response to the comment about writing to the user's home filespace:
 
-`leunbachR` implements the Leunbach test equating method (Adroher et al.
-2019, <doi:10.1186/s12874-019-0768-y>), following the DIGRAM software
-written by Svend Kreiner. The package supports both direct and indirect
-equating with parametric bootstrap standard errors.
+The two write.csv() calls in vignettes/leunbachR.Rmd (which generate inst/doc/leunbachR.R) now write to file.path(tempdir(), ...) instead of the working directory.
+No other code in the package writes outside tempdir().
 
 ## Test environments
 
 * local macOS, R 4.5.3
-* `devtools::check_win_devel()`
+* Win devel and release
 * R-hub: ubuntu-latest, windows-latest, macos-latest
 
 ## R CMD check results
 
 0 errors | 0 warnings | 1 notes
 
-Note on CRAN submission.
+Note on CRAN submission and spelling in DESCRIPTION, the latter regarding names.
 
 ## Reverse dependencies
 
