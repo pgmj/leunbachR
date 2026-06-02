@@ -1,0 +1,10 @@
+bibentry(
+  bibtype = "Manual",
+  title   = "leunbachR: Leunbach Test Equating",
+  author  = person("Magnus", "Johansson",
+                   comment = c(ORCID = "0000-0003-1669-592X")),
+  year    = format(Sys.Date(), "%Y"),
+  note    = sprintf("R package version %s", meta$Version),
+  url     = "https://CRAN.R-project.org/package=leunbachR",
+  doi     = "10.32614/CRAN.package.leunbachR"
+)

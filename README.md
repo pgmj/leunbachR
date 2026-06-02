@@ -1,4 +1,12 @@
-## Leunbach test equating using R
+# leunbachR: Leunbach test equating using R
+
+<!-- badges: start -->
+[![CRAN Version](https://www.r-pkg.org/badges/version/leunbachR)](https://cran.r-project.org/package=leunbachR)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![Downloads](https://cranlogs.r-pkg.org/badges/leunbachR?color=brightgreen)](https://CRAN.R-project.org/package=leunbachR)
+![Downloads Status](https://cranlogs.r-pkg.org/badges/grand-total/leunbachR)
+<a href="https://buymeacoffee.com/pgmj" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+<!-- badges: end -->
 
 This package aims to implement the Leunbach test equating procedures in the software [DIGRAM](https://biostat.ku.dk/DIGRAM/), created by Svend Kreiner and Karl Bang Christensen. Both direct and indirect equating is implemented.
 
@@ -7,28 +15,12 @@ Adroher, N. D., Kreiner, S., Young, C., Mills, R., & Tennant, A. (2019). Test eq
 
 ## Installation
 
-This package is not yet available on [CRAN](https://cran.r-project.org/) and needs to be installed directly from this code repository. You can do this in multiple ways, I suggest either using `pak` or `remotes` (or `devtools`).
+You can install the package from [CRAN](https://cran.r-project.org/):
+```r
+install.packages('leunbachR')
+```
 
 If you want to use parallel processing, which speeds up the bootstrap procedure considerably, you should also install the package `mirai`.
-
-First, install the [`pak`](https://pak.r-lib.org/) package, if you don't already have it installed:
-```r
-install.packages('pak')
-```
-
-Then install the package.
-```r
-pak::pkg_install("pgmj/leunbachR")
-```
-
-If you have the `remotes` or `devtools` package installed, you can instead use:
-```r
-remotes::install_github("pgmj/leunbachR")
-```
-or
-```r
-devtools::install_github("pgmj/leunbachR")
-```
 
 There is an [intro article](https://pgmj.github.io/leunbachR/articles/intro.html) under the heading Articles at the top of this page, showing the basic functionality.
 
