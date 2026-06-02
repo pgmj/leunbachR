@@ -53,29 +53,20 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><div class="section level2">
-<h2 id="leunbach-test-equating-using-r">Leunbach test equating using R<a class="anchor" aria-label="anchor" href="#leunbach-test-equating-using-r"></a>
-</h2>
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="leunbachr-leunbach-test-equating-using-r">leunbachR: Leunbach test equating using R<a class="anchor" aria-label="anchor" href="#leunbachr-leunbach-test-equating-using-r"></a>
+</h1></div>
+<!-- badges: start -->
+
 <p>This package aims to implement the Leunbach test equating procedures in the software <a href="https://biostat.ku.dk/DIGRAM/" class="external-link">DIGRAM</a>, created by Svend Kreiner and Karl Bang Christensen. Both direct and indirect equating is implemented.</p>
 <p>The equating procedure is described in detail in the <a href="https://link.springer.com/article/10.1186/s12874-019-0768-y#additional-information" class="external-link">Additional file 1</a> related to this article: Adroher, N. D., Kreiner, S., Young, C., Mills, R., &amp; Tennant, A. (2019). Test equating sleep scales: Applying the Leunbach’s model. <em>BMC Medical Research Methodology, 19</em>(1), 141. <a href="https://doi.org/10.1186/s12874-019-0768-y" class="external-link uri">https://doi.org/10.1186/s12874-019-0768-y</a></p>
-</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>This package is not yet available on <a href="https://cran.r-project.org/" class="external-link">CRAN</a> and needs to be installed directly from this code repository. You can do this in multiple ways, I suggest either using <code>pak</code> or <code>remotes</code> (or <code>devtools</code>).</p>
-<p>If you want to use parallel processing, which speeds up the bootstrap procedure considerably, you should also install the package <code>mirai</code>.</p>
-<p>First, install the <a href="https://pak.r-lib.org/" class="external-link"><code>pak</code></a> package, if you don’t already have it installed:</p>
+<p>You can install the package from <a href="https://cran.r-project.org/" class="external-link">CRAN</a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'pak'</span><span class="op">)</span></span></code></pre></div>
-<p>Then install the package.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"pgmj/leunbachR"</span><span class="op">)</span></span></code></pre></div>
-<p>If you have the <code>remotes</code> or <code>devtools</code> package installed, you can instead use:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"pgmj/leunbachR"</span><span class="op">)</span></span></code></pre></div>
-<p>or</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"pgmj/leunbachR"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'leunbachR'</span><span class="op">)</span></span></code></pre></div>
+<p>If you want to use parallel processing, which speeds up the bootstrap procedure considerably, you should also install the package <code>mirai</code>.</p>
 <p>There is an <a href="https://pgmj.github.io/leunbachR/articles/intro.html">intro article</a> under the heading Articles at the top of this page, showing the basic functionality.</p>
 </div>
 <div class="section level2">
@@ -99,10 +90,11 @@
 </li>
 </ul>
 </div>
-
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=leunbachR" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/pgmj/leunbachR/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/pgmj/leunbachR/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -131,7 +123,15 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://cran.r-project.org/package=leunbachR" class="external-link"><img src="https://www.r-pkg.org/badges/version/leunbachR" alt="CRAN Version"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
+<li><a href="https://CRAN.R-project.org/package=leunbachR" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/leunbachR?color=brightgreen" alt="Downloads"></a></li>
+<li><a href="https://buymeacoffee.com/pgmj" target="_blank" class="external-link"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

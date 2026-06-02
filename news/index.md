@@ -2,6 +2,8 @@
 
 ## leunbachR 0.1.0
 
+CRAN release: 2026-06-02
+
 - First CRAN submission.
 - Made `mirai` an optional Suggest; parallel processing is opt-in via
   `parallel = TRUE` and an explicit `n_cores` value. The package now has

@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   articles/comparison: comparison.html
   leunbachR: leunbachR.html
-last_built: 2026-05-29T10:40Z
+last_built: 2026-06-02T11:44Z
 urls:
   reference: https://pgmj.github.io/leunbachR/reference
   article: https://pgmj.github.io/leunbachR/articles

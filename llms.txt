@@ -1,4 +1,4 @@
-## Leunbach test equating using R
+# leunbachR: Leunbach test equating using R
 
 This package aims to implement the Leunbach test equating procedures in
 the software [DIGRAM](https://biostat.ku.dk/DIGRAM/), created by Svend
@@ -14,43 +14,15 @@ Leunbach’s model. *BMC Medical Research Methodology, 19*(1), 141.
 
 ## Installation
 
-This package is not yet available on [CRAN](https://cran.r-project.org/)
-and needs to be installed directly from this code repository. You can do
-this in multiple ways, I suggest either using `pak` or `remotes` (or
-`devtools`).
+You can install the package from [CRAN](https://cran.r-project.org/):
+
+``` r
+
+install.packages('leunbachR')
+```
 
 If you want to use parallel processing, which speeds up the bootstrap
 procedure considerably, you should also install the package `mirai`.
-
-First, install the [`pak`](https://pak.r-lib.org/) package, if you don’t
-already have it installed:
-
-``` r
-
-install.packages('pak')
-```
-
-Then install the package.
-
-``` r
-
-pak::pkg_install("pgmj/leunbachR")
-```
-
-If you have the `remotes` or `devtools` package installed, you can
-instead use:
-
-``` r
-
-remotes::install_github("pgmj/leunbachR")
-```
-
-or
-
-``` r
-
-devtools::install_github("pgmj/leunbachR")
-```
 
 There is an [intro
 article](https://pgmj.github.io/leunbachR/articles/intro.html) under the
