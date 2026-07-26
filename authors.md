@@ -8,17 +8,15 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/pgmj/leunbachR/blob/main/inst/CITATION)
+[`DESCRIPTION`](https://github.com/pgmj/leunbachR/blob/v0.1.0/DESCRIPTION)
 
-Johansson M (2026). *leunbachR: Leunbach Test Equating*.
-[doi:10.32614/CRAN.package.leunbachR](https://doi.org/10.32614/CRAN.package.leunbachR).
-R package version 0.1.0, <https://CRAN.R-project.org/package=leunbachR>.
+Johansson M (2026). *leunbachR: Leunbach Test Equating*. R package
+version 0.1.0, <https://github.com/pgmj/leunbachR>.
 
     @Manual{,
       title = {leunbachR: Leunbach Test Equating},
       author = {Magnus Johansson},
       year = {2026},
       note = {R package version 0.1.0},
-      url = {https://CRAN.R-project.org/package=leunbachR},
-      doi = {10.32614/CRAN.package.leunbachR},
+      url = {https://github.com/pgmj/leunbachR},
     }

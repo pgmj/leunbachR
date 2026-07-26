@@ -1,10 +1,10 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   articles/comparison: comparison.html
   leunbachR: leunbachR.html
-last_built: 2026-06-02T11:44Z
+last_built: 2026-07-26T21:15Z
 urls:
   reference: https://pgmj.github.io/leunbachR/reference
   article: https://pgmj.github.io/leunbachR/articles
